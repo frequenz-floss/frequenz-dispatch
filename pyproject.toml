@@ -171,7 +171,11 @@ packages = ["frequenz.dispatch"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["mkdocs_macros.*"]
+module = [
+  "mkdocs_macros.*",
+  "async_solipsism",
+  "async_solipsism.*",
+]
 ignore_missing_imports = true
 
 [tool.setuptools_scm]
