@@ -61,3 +61,8 @@
       - CODEOWNERS
       - MANIFEST.in
       - noxfile.py
+
+"part:actor":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/frequenz/dispatch/actor/**"

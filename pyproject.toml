@@ -5,12 +5,12 @@
 requires = [
   "setuptools == 68.1.0",
   "setuptools_scm[toml] == 7.1.0",
-  "frequenz-repo-config[actor] == 0.8.0",
+  "frequenz-repo-config[lib] == 0.9.0",
 ]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "frequenz-actor-dispatch"
+name = "frequenz-dispatch"
 description = "A highlevel interface for the dispatch API"
 readme = "README.md"
 license = { text = "MIT" }
@@ -43,15 +43,15 @@ email = "floss@frequenz.com"
 # TODO(cookiecutter): Remove and add more optional dependencies if appropriate
 [project.optional-dependencies]
 dev-flake8 = [
-  "flake8 == 6.1.0",
+  "flake8 == 7.0.0",
   "flake8-docstrings == 1.7.0",
   "flake8-pyproject == 1.2.3",  # For reading the flake8 config from pyproject.toml
   "pydoclint == 0.3.2",
   "pydocstyle == 6.3.0",
 ]
-dev-formatting = ["black == 23.9.1", "isort == 5.12.0"]
+dev-formatting = ["black == 24.2.0", "isort == 5.12.0"]
 dev-mkdocs = [
-  "black == 23.9.1",
+  "black == 24.2.0",
   "Markdown==3.4.4",
   "mike == 2.0.0",
   "mkdocs-gen-files == 0.5.0",
@@ -59,32 +59,32 @@ dev-mkdocs = [
   "mkdocs-macros-plugin == 1.0.4",
   "mkdocs-material == 9.3.1",
   "mkdocstrings[python] == 0.23.0",
-  "frequenz-repo-config[actor] == 0.8.0",
+  "frequenz-repo-config[lib] == 0.9.0",
 ]
 dev-mypy = [
   "mypy == 1.5.1",
   "types-Markdown == 3.4.2.10",
   # For checking the noxfile, docs/ script, and tests
-  "frequenz-actor-dispatch[dev-mkdocs,dev-noxfile,dev-pytest]",
+  "frequenz-dispatch[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
 dev-noxfile = [
   "nox == 2023.4.22",
-  "frequenz-repo-config[actor] == 0.8.0",
+  "frequenz-repo-config[lib] == 0.9.0",
 ]
 dev-pylint = [
   "pylint == 3.0.2",
   # For checking the noxfile, docs/ script, and tests
-  "frequenz-actor-dispatch[dev-mkdocs,dev-noxfile,dev-pytest]",
+  "frequenz-dispatch[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
 dev-pytest = [
   "pytest == 8.0.0",
-  "frequenz-repo-config[extra-lint-examples] == 0.8.0",
+  "frequenz-repo-config[extra-lint-examples] == 0.9.0",
   "pytest-mock == 3.11.1",
   "pytest-asyncio == 0.21.1",
   "async-solipsism == 0.5",
 ]
 dev = [
-  "frequenz-actor-dispatch[dev-mkdocs,dev-flake8,dev-formatting,dev-mkdocs,dev-mypy,dev-noxfile,dev-pylint,dev-pytest]",
+  "frequenz-dispatch[dev-mkdocs,dev-flake8,dev-formatting,dev-mkdocs,dev-mypy,dev-noxfile,dev-pylint,dev-pytest]",
 ]
 
 [project.urls]
@@ -163,7 +163,7 @@ packages = ["frequenz.actor.dispatch"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["mkdocs_macros.*", "sybil", "sybil.*"]
+module = ["mkdocs_macros.*"]
 ignore_missing_imports = true
 
 [tool.setuptools_scm]
