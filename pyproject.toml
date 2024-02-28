@@ -159,7 +159,7 @@ namespace_packages = true
 # used but getting the original ignored error when removing the type: ignore.
 # See for example: https://github.com/python/mypy/issues/2960
 #no_incremental = true
-packages = ["frequenz.actor.dispatch"]
+packages = ["frequenz.dispatch"]
 strict = true
 
 [[tool.mypy.overrides]]

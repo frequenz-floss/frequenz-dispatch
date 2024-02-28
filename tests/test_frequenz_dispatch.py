@@ -1,10 +1,10 @@
 # License: MIT
 # Copyright © 2024 Frequenz Energy-as-a-Service GmbH
 
-"""Tests for the frequenz.actor.dispatch package."""
+"""Tests for the frequenz.dispatch.actor package."""
 import pytest
 
-from frequenz.actor.dispatch import delete_me
+from frequenz.dispatch.actor import delete_me
 
 
 def test_frequenz_dispatch_succeeds() -> None:  # TODO(cookiecutter): Remove
