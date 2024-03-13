@@ -7,7 +7,7 @@ import grpc.aio
 from frequenz.channels import Broadcast, Receiver
 from frequenz.client.dispatch.types import Dispatch
 
-from frequenz.dispatch.actor import DispatchActor
+from frequenz.dispatch.actor import DispatchActor, DispatchEvent
 
 __all__ = ["Dispatcher"]
 
@@ -41,12 +41,12 @@ class Dispatcher:
             svc_addr: The service address.
         """
         self._ready_channel = Broadcast[Dispatch]("ready_dispatches")
-        self._new_channel = Broadcast[Dispatch]("new_dispatches")
+        self._updated_channel = Broadcast[DispatchEvent]("new_dispatches")
         self._actor = DispatchActor(
             microgrid_id,
             grpc_channel,
             svc_addr,
-            self._new_channel.new_sender(),
+            self._updated_channel.new_sender(),
             self._ready_channel.new_sender(),
         )
 
@@ -54,13 +54,13 @@ class Dispatcher:
         """Start the actor."""
         self._actor.start()
 
-    def new_dispatches(self) -> Receiver[Dispatch]:
-        """Return new dispatches receiver.
+    def updated_dispatches(self) -> Receiver[DispatchEvent]:
+        """Return new, updated or deleted dispatches receiver.
 
         Returns:
             A new receiver for new dispatches.
         """
-        return self._new_channel.new_receiver()
+        return self._updated_channel.new_receiver()
 
     def ready_dispatches(self) -> Receiver[Dispatch]:
         """Return ready dispatches receiver.

@@ -5,6 +5,7 @@
 
 import asyncio
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import cast
 
@@ -51,6 +52,36 @@ _RRULE_WEEKDAY_MAP = {
 """To map from our Weekday enum to the dateutil library enum."""
 
 
+@dataclass(frozen=True)
+class _DispatchEventBase:
+    dispatch: Dispatch
+    """The dispatch that this event is about.
+
+    Objects of this base class are sent over the channel when a dispatch is
+    created, updated or deleted.
+    """
+
+
+class Created(_DispatchEventBase):
+    """Wraps a dispatch that was created."""
+
+
+class Updated(_DispatchEventBase):
+    """Wraps a dispatch that was updated."""
+
+
+class Deleted(_DispatchEventBase):
+    """Wraps a dispatch that was deleted."""
+
+
+DispatchEvent = Created | Updated | Deleted
+"""Type that is sent over the channel for dispatch updates.
+
+This type is used to send dispatches that were created, updated or deleted
+over the channel.
+"""
+
+
 class DispatchActor(Actor):
     """Dispatch actor.
 
@@ -66,7 +97,7 @@ class DispatchActor(Actor):
         microgrid_id: int,
         grpc_channel: grpc.aio.Channel,
         svc_addr: str,
-        updated_dispatch_sender: Sender[Dispatch],
+        updated_dispatch_sender: Sender[DispatchEvent],
         ready_dispatch_sender: Sender[Dispatch],
     ) -> None:
         """Initialize the actor.
@@ -112,11 +143,11 @@ class DispatchActor(Actor):
                 if not old_dispatch:
                     self._update_dispatch_schedule(dispatch, None)
                     _logger.info("New dispatch: %s", dispatch)
-                    await self._updated_dispatch_sender.send(dispatch)
+                    await self._updated_dispatch_sender.send(Created(dispatch=dispatch))
                 elif dispatch.update_time != old_dispatch.update_time:
                     self._update_dispatch_schedule(dispatch, old_dispatch)
                     _logger.info("Updated dispatch: %s", dispatch)
-                    await self._updated_dispatch_sender.send(dispatch)
+                    await self._updated_dispatch_sender.send(Updated(dispatch=dispatch))
 
         except grpc.aio.AioRpcError as error:
             _logger.error("Error fetching dispatches: %s", error)
@@ -125,6 +156,7 @@ class DispatchActor(Actor):
 
         for dispatch in old_dispatches.values():
             _logger.info("Deleted dispatch: %s", dispatch)
+            await self._updated_dispatch_sender.send(Deleted(dispatch=dispatch))
             if task := self._scheduled.pop(dispatch.id, None):
                 task.cancel()
 
