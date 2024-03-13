@@ -27,6 +27,9 @@ This also prevents us from scheduling too many dispatches at once.
 The exact value is not important, but should be a few hours and not more than a day.
 """
 
+_DEFAULT_POLL_INTERVAL = timedelta(seconds=10)
+"""The default interval to poll the API for dispatch changes."""
+
 _logger = logging.getLogger(__name__)
 """The logger for this module."""
 
@@ -99,6 +102,7 @@ class DispatchActor(Actor):
         svc_addr: str,
         updated_dispatch_sender: Sender[DispatchEvent],
         ready_dispatch_sender: Sender[Dispatch],
+        poll_interval: timedelta = _DEFAULT_POLL_INTERVAL,
     ) -> None:
         """Initialize the actor.
 
@@ -108,6 +112,7 @@ class DispatchActor(Actor):
             svc_addr: Address of the service to connect to.
             updated_dispatch_sender: A sender for new or updated dispatches.
             ready_dispatch_sender: A sender for ready dispatches.
+            poll_interval: The interval to poll the API for dispatche changes.
         """
         super().__init__(name="dispatch")
 
@@ -117,13 +122,14 @@ class DispatchActor(Actor):
         self._microgrid_id = microgrid_id
         self._updated_dispatch_sender = updated_dispatch_sender
         self._ready_dispatch_sender = ready_dispatch_sender
+        self._poll_interval = poll_interval
 
     async def _run(self) -> None:
         """Run the actor."""
         try:
             while True:
                 await self._fetch()
-                await asyncio.sleep(_MAX_AHEAD_SCHEDULE.total_seconds())
+                await asyncio.sleep(self._poll_interval.total_seconds())
         except asyncio.CancelledError:
             for task in self._scheduled.values():
                 task.cancel()
