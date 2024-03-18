@@ -15,22 +15,30 @@ It provides two channels for clients:
 ## Example Usage
 
 ```python
-async def run():
-    # dispatch helper sends out dispatches when they are due
-    dispatch_arrived = dispatch_helper.new_dispatches().new_receiver()
-    dispatch_ready = dispatch_helper.ready_dispatches().new_receiver()
+    async def run():
+        # dispatch helper sends out dispatches when they are due
+        dispatch_arrived = dispatch_helper.updated_dispatches().new_receiver()
+        dispatch_ready = dispatch_helper.ready_dispatches().new_receiver()
 
-    async for selected in select(dispatch_ready, dispatch_arrived):
-        if selected_from(selected, dispatch_arrived):
-            dispatch = selected.value
-            match dispatch.type:
-                case DISPATCH_TYPE_BATTERY_CHARGE:
-                    battery_pool = microgrid.battery_pool(dispatch.battery_set, task_id)
-                    battery_pool.set_charge(dispatch.power)
-            ...
-        if selected_from(selected, dispatch_ready):
-            dispatch = selected.value
-            log.info("New dispatch arrived %s", dispatch)
+        async for selected in select(dispatch_ready, dispatch_arrived):
+            if selected_from(selected, dispatch_ready):
+                dispatch = selected.value
+                match dispatch.type:
+                    case DISPATCH_TYPE_BATTERY_CHARGE:
+                        battery_pool = microgrid.battery_pool(dispatch.battery_set, task_id)
+                        battery_pool.set_charge(dispatch.power)
+                ...
+            if selected_from(selected, dispatch_arrived):
+                match selected.value:
+                    case Created(dispatch):
+                        log.info("New dispatch arrived %s", dispatch)
+                        ...
+                    case Updated(dispatch):
+                        log.info("Dispatch updated %s", dispatch)
+                        ...
+                    case Deleted(dispatch):
+                        log.info("Dispatch deleted %s", dispatch)
+                        ...
 ```
 
 ## Supported Platforms

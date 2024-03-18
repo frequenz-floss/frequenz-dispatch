@@ -15,7 +15,6 @@ description = "A highlevel interface for the dispatch API"
 readme = "README.md"
 license = { text = "MIT" }
 keywords = ["frequenz", "python", "actor", "frequenz-dispatch", "dispatch", "highlevel", "api"]
-# TODO(cookiecutter): Remove and add more classifiers if appropriate
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -26,13 +25,20 @@ classifiers = [
   "Typing :: Typed",
 ]
 requires-python = ">= 3.11, < 4"
-# TODO(cookiecutter): Remove and add more dependencies if appropriate
 dependencies = [
+  "python-dateutil >= 2.8.2, < 3.0",
   "typing-extensions == 4.10.0",
   # Make sure to update the version for cross-referencing also in the
   # mkdocs.yml file when changing the version here (look for the config key
   # plugins.mkdocstrings.handlers.python.import)
-  "frequenz-sdk == 0.25.2",
+  "frequenz-sdk == v1.0.0-rc5",
+  "frequenz-channels == 1.0.0b2",
+  "frequenz-dispatch-client @ git+https://github.com/frequenz-floss/frequenz-client-dispatch-python.git@00dcb3c",
+  "frequenz-api-dispatch @ git+https://github.com/frequenz-floss/frequenz-api-dispatch.git@223315c",
+#  "frequenz-api-dispatch >= 0.13.0, < 0.14",
+  "frequenz-client-base >= 0.2.1, < 0.3.0",
+  # Directly use unreleased commit until the first release
+  "frequenz-client-common @ git+https://github.com/frequenz-floss/frequenz-client-common-python.git@5e6e7b7",
 ]
 dynamic = ["version"]
 
@@ -40,7 +46,6 @@ dynamic = ["version"]
 name = "Frequenz Energy-as-a-Service GmbH"
 email = "floss@frequenz.com"
 
-# TODO(cookiecutter): Remove and add more optional dependencies if appropriate
 [project.optional-dependencies]
 dev-flake8 = [
   "flake8 == 7.0.0",
@@ -64,11 +69,13 @@ dev-mkdocs = [
 dev-mypy = [
   "mypy == 1.8.0",
   "types-Markdown == 3.5.0.20240129",
+  "types-python-dateutil==2.8.19.20240311",
   # For checking the noxfile, docs/ script, and tests
   "frequenz-dispatch[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
 dev-noxfile = [
-  "nox == 2023.4.22",
+  "uv == 0.1.14",
+  "nox == 2024.3.02",
   "frequenz-repo-config[lib] == 0.9.1",
 ]
 dev-pylint = [
@@ -82,6 +89,7 @@ dev-pytest = [
   "pytest-mock == 3.12.0",
   "pytest-asyncio == 0.23.5",
   "async-solipsism == 0.5",
+  "time-machine == 2.14.0",
 ]
 dev = [
   "frequenz-dispatch[dev-mkdocs,dev-flake8,dev-formatting,dev-mkdocs,dev-mypy,dev-noxfile,dev-pylint,dev-pytest]",
@@ -159,11 +167,15 @@ namespace_packages = true
 # used but getting the original ignored error when removing the type: ignore.
 # See for example: https://github.com/python/mypy/issues/2960
 #no_incremental = true
-packages = ["frequenz.actor.dispatch"]
+packages = ["frequenz.dispatch"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["mkdocs_macros.*"]
+module = [
+  "mkdocs_macros.*",
+  "async_solipsism",
+  "async_solipsism.*",
+]
 ignore_missing_imports = true
 
 [tool.setuptools_scm]
