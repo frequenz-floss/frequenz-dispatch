@@ -174,6 +174,10 @@ class DispatchActor(Actor):
         Schedules, reschedules or cancels the dispatch based on the start_time
         and active status.
 
+        For example:
+            * when the start_time changes, the dispatch is rescheduled
+            * when the dispatch is deactivated, the dispatch is cancelled
+
         Args:
             dispatch: The dispatch to update the schedule for.
             old_dispatch: The old dispatch, if available.

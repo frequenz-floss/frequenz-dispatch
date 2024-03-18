@@ -15,7 +15,14 @@ __all__ = ["Dispatcher"]
 class Dispatcher:
     """A highlevel interface for the dispatch API.
 
-    This class provides a highlevel interface to the dispatch API. It
+    This class provides a highlevel interface to the dispatch API.
+    It provides two channels:
+
+    One that sends a dispatch event message whenever a dispatch is created, updated or deleted.
+
+    The other sends a dispatch message whenever a dispatch is ready to be
+    executed according to the schedule.
+
     allows to receive new dispatches and ready dispatches.
 
     Example:
