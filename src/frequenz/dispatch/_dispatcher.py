@@ -11,7 +11,7 @@ from frequenz.channels import Broadcast, Receiver
 from frequenz.client.dispatch.types import Dispatch
 
 from frequenz.dispatch._event import DispatchEvent
-from frequenz.dispatch.actor import DispatchActor
+from frequenz.dispatch.actor import DispatchingActor
 
 ReceivedT = TypeVar("ReceivedT")
 """The type being received."""
@@ -77,7 +77,7 @@ class Dispatcher:
         """
         self._ready_channel = Broadcast[Dispatch]("ready_dispatches")
         self._updated_channel = Broadcast[DispatchEvent]("new_dispatches")
-        self._actor = DispatchActor(
+        self._actor = DispatchingActor(
             microgrid_id,
             grpc_channel,
             svc_addr,

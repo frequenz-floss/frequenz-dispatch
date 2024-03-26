@@ -56,7 +56,7 @@ _RRULE_WEEKDAY_MAP = {
 """To map from our Weekday enum to the dateutil library enum."""
 
 
-class DispatchActor(Actor):
+class DispatchingActor(Actor):
     """Dispatch actor.
 
     This actor is responsible for handling dispatches for a microgrid.
