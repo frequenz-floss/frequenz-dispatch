@@ -60,8 +60,8 @@ class Dispatcher:
             service_address = "localhost:50051"
             dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
             dispatcher.start()  # this will start the actor
-            dispatch_arrived = dispatcher.updated_dispatches.new_receiver()
-            dispatch_ready = dispatcher.ready_dispatches.new_receiver()
+            events = dispatcher.lifecycle_events.new_receiver()
+            ready = dispatcher.ready_to_execute.new_receiver()
         ```
     """
 
@@ -90,7 +90,7 @@ class Dispatcher:
         self._actor.start()
 
     @property
-    def updated_dispatches(self) -> ReceiverFetcher[DispatchEvent]:
+    def lifecycle_events(self) -> ReceiverFetcher[DispatchEvent]:
         """Return new, updated or deleted dispatches receiver.
 
         Returns:
@@ -99,7 +99,7 @@ class Dispatcher:
         return self._updated_channel
 
     @property
-    def ready_dispatches(self) -> ReceiverFetcher[Dispatch]:
+    def ready_to_execute(self) -> ReceiverFetcher[Dispatch]:
         """Return ready dispatches receiver.
 
         Returns:
