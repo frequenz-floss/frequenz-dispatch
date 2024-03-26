@@ -26,13 +26,18 @@ class Dispatcher:
 
     Example:
         ```python
+        import grpc.aio
         from frequenz.dispatch import Dispatcher
 
+
         async def run():
-            dispatcher = Dispatcher(API_CONNECTION_INFO)
+            grpc_channel = grpc.aio.insecure_channel("localhost:50051")
+            microgrid_id = 1
+            service_address = "localhost:50051"
+            dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
             dispatcher.start()  # this will start the actor
-            dispatch_arrived = dispatcher.new_dispatches().new_receiver()
-            dispatch_ready = dispatcher.ready_dispatches().new_receiver()
+            dispatch_arrived = dispatcher.updated_dispatches()
+            dispatch_ready = dispatcher.ready_dispatches()
         ```
     """
 
