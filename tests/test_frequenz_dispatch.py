@@ -19,13 +19,8 @@ from frequenz.client.dispatch.test.generator import DispatchGenerator
 from frequenz.client.dispatch.types import Dispatch, Frequency
 from pytest import fixture
 
-from frequenz.dispatch.actor import (
-    Created,
-    Deleted,
-    DispatchActor,
-    DispatchEvent,
-    Updated,
-)
+from frequenz.dispatch import Created, Deleted, DispatchEvent, Updated
+from frequenz.dispatch.actor import DispatchActor
 
 
 # This method replaces the event loop for all tests in the file.

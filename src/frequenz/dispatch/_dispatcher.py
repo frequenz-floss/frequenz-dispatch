@@ -3,12 +3,36 @@
 
 """A highlevel interface for the dispatch API."""
 
+import abc
+from typing import Protocol, TypeVar
+
 import grpc.aio
 from frequenz.channels import Broadcast, Receiver
 from frequenz.client.dispatch.types import Dispatch
 
 from frequenz.dispatch._event import DispatchEvent
 from frequenz.dispatch.actor import DispatchActor
+
+ReceivedT = TypeVar("ReceivedT")
+"""The type being received."""
+
+
+class ReceiverFetcher(Protocol[ReceivedT]):
+    """An interface that just exposes a `new_receiver` method."""
+
+    @abc.abstractmethod
+    def new_receiver(
+        self, name: str | None = None, maxsize: int = 50
+    ) -> Receiver[ReceivedT]:
+        """Get a receiver from the channel.
+
+        Args:
+            name: A name to identify the receiver in the logs.
+            maxsize: The maximum size of the receiver.
+
+        Returns:
+            A receiver instance.
+        """
 
 
 class Dispatcher:
@@ -36,8 +60,8 @@ class Dispatcher:
             service_address = "localhost:50051"
             dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
             dispatcher.start()  # this will start the actor
-            dispatch_arrived = dispatcher.updated_dispatches()
-            dispatch_ready = dispatcher.ready_dispatches()
+            dispatch_arrived = dispatcher.updated_dispatches.new_receiver()
+            dispatch_ready = dispatcher.ready_dispatches.new_receiver()
         ```
     """
 
@@ -65,18 +89,20 @@ class Dispatcher:
         """Start the actor."""
         self._actor.start()
 
-    def updated_dispatches(self) -> Receiver[DispatchEvent]:
+    @property
+    def updated_dispatches(self) -> ReceiverFetcher[DispatchEvent]:
         """Return new, updated or deleted dispatches receiver.
 
         Returns:
             A new receiver for new dispatches.
         """
-        return self._updated_channel.new_receiver()
+        return self._updated_channel
 
-    def ready_dispatches(self) -> Receiver[Dispatch]:
+    @property
+    def ready_dispatches(self) -> ReceiverFetcher[Dispatch]:
         """Return ready dispatches receiver.
 
         Returns:
             A new receiver for ready dispatches.
         """
-        return self._ready_channel.new_receiver()
+        return self._ready_channel
