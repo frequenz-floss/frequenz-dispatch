@@ -56,25 +56,27 @@ _RRULE_WEEKDAY_MAP = {
 
 
 @dataclass(frozen=True)
-class _DispatchEventBase:
+class Created:
+    """A dispatch created event."""
+
     dispatch: Dispatch
-    """The dispatch that this event is about.
-
-    Objects of this base class are sent over the channel when a dispatch is
-    created, updated or deleted.
-    """
+    """The dispatch that was created."""
 
 
-class Created(_DispatchEventBase):
-    """Wraps a dispatch that was created."""
+@dataclass(frozen=True)
+class Updated:
+    """A dispatch updated event."""
+
+    dispatch: Dispatch
+    """The dispatch that was updated."""
 
 
-class Updated(_DispatchEventBase):
-    """Wraps a dispatch that was updated."""
+@dataclass(frozen=True)
+class Deleted:
+    """A dispatch deleted event."""
 
-
-class Deleted(_DispatchEventBase):
-    """Wraps a dispatch that was deleted."""
+    dispatch: Dispatch
+    """The dispatch that was deleted."""
 
 
 DispatchEvent = Created | Updated | Deleted
