@@ -48,10 +48,31 @@ class Dispatcher:
 
     allows to receive new dispatches and ready dispatches.
 
-    Example:
+    Example: Processing ready-to-execute dispatches
         ```python
         import grpc.aio
-        from frequenz.dispatch import Dispatcher
+
+        async def run():
+            grpc_channel = grpc.aio.insecure_channel("localhost:50051")
+            microgrid_id = 1
+            service_address = "localhost:50051"
+
+            dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
+            dispatcher.start()  # this will start the actor
+
+            ready_receiver = dispatcher.ready_to_execute.new_receiver()
+
+            async for dispatch in ready_receiver:
+                print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
+                # execute the dispatch
+        ```
+
+    Example: Getting notification about dispatch lifecycle events
+        ```python
+        from typing import assert_never
+
+        import grpc.aio
+        from frequenz.dispatch import Created, Deleted, Dispatcher, Updated
 
 
         async def run():
@@ -60,8 +81,19 @@ class Dispatcher:
             service_address = "localhost:50051"
             dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
             dispatcher.start()  # this will start the actor
-            events = dispatcher.lifecycle_events.new_receiver()
-            ready = dispatcher.ready_to_execute.new_receiver()
+
+            events_receiver = dispatcher.lifecycle_events.new_receiver()
+
+            async for event in events_receiver:
+                match event:
+                    case Created(dispatch):
+                        print(f"A dispatch was created: {dispatch}")
+                    case Deleted(dispatch):
+                        print(f"A dispatch was deleted: {dispatch}")
+                    case Updated(dispatch):
+                        print(f"A dispatch was updated: {dispatch}")
+                    case _ as unhandled:
+                        assert_never(unhandled)
         ```
     """
 
