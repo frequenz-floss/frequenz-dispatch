@@ -4,6 +4,12 @@
 """A highlevel interface for the dispatch API."""
 
 from frequenz.dispatch._dispatcher import Dispatcher
-from frequenz.dispatch.actor import DispatchActor, DispatchEvent
+from frequenz.dispatch.actor import Created, Deleted, DispatchEvent, Updated
 
-__all__ = ["Dispatcher"]
+__all__ = [
+    "Created",
+    "Deleted",
+    "DispatchEvent",
+    "Dispatcher",
+    "Updated",
+]
