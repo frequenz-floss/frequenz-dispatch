@@ -5,7 +5,6 @@
 
 import asyncio
 import logging
-from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import cast
 
@@ -15,6 +14,8 @@ from frequenz.channels import Sender
 from frequenz.client.dispatch import Client
 from frequenz.client.dispatch.types import Dispatch, Frequency, Weekday
 from frequenz.sdk.actor import Actor
+
+from frequenz.dispatch._event import Created, Deleted, DispatchEvent, Updated
 
 _MAX_AHEAD_SCHEDULE = timedelta(hours=5)
 """The maximum time ahead to schedule a dispatch.
@@ -53,38 +54,6 @@ _RRULE_WEEKDAY_MAP = {
     Weekday.SUNDAY: rrule.SU,
 }
 """To map from our Weekday enum to the dateutil library enum."""
-
-
-@dataclass(frozen=True)
-class Created:
-    """A dispatch created event."""
-
-    dispatch: Dispatch
-    """The dispatch that was created."""
-
-
-@dataclass(frozen=True)
-class Updated:
-    """A dispatch updated event."""
-
-    dispatch: Dispatch
-    """The dispatch that was updated."""
-
-
-@dataclass(frozen=True)
-class Deleted:
-    """A dispatch deleted event."""
-
-    dispatch: Dispatch
-    """The dispatch that was deleted."""
-
-
-DispatchEvent = Created | Updated | Deleted
-"""Type that is sent over the channel for dispatch updates.
-
-This type is used to send dispatches that were created, updated or deleted
-over the channel.
-"""
 
 
 class DispatchActor(Actor):

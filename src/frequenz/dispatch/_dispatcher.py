@@ -7,7 +7,8 @@ import grpc.aio
 from frequenz.channels import Broadcast, Receiver
 from frequenz.client.dispatch.types import Dispatch
 
-from frequenz.dispatch.actor import DispatchActor, DispatchEvent
+from frequenz.dispatch._event import DispatchEvent
+from frequenz.dispatch.actor import DispatchActor
 
 
 class Dispatcher:
