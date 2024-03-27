@@ -115,9 +115,10 @@ plugins:
             # See https://mkdocstrings.github.io/python/usage/#import for details
             - https://docs.python.org/3/objects.inv
             - https://frequenz-floss.github.io/frequenz-channels-python/v0.16/objects.inv
-            - https://frequenz-floss.github.io/frequenz-sdk-python/v1.0-pre/objects.inv
-            - https://typing-extensions.readthedocs.io/en/stable/objects.inv
             - https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.1/objects.inv
+            - https://frequenz-floss.github.io/frequenz-sdk-python/v1.0-pre/objects.inv
+            - https://grpc.github.io/grpc/python/objects.inv
+            - https://typing-extensions.readthedocs.io/en/stable/objects.inv
   # Note this plugin must be loaded after mkdocstrings to be able to use macros
   # inside docstrings. See the comment in `docs/_scripts/macros.py` for more
   # details
