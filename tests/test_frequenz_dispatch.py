@@ -19,13 +19,8 @@ from frequenz.client.dispatch.test.generator import DispatchGenerator
 from frequenz.client.dispatch.types import Dispatch, Frequency
 from pytest import fixture
 
-from frequenz.dispatch.actor import (
-    Created,
-    Deleted,
-    DispatchActor,
-    DispatchEvent,
-    Updated,
-)
+from frequenz.dispatch import Created, Deleted, DispatchEvent, Updated
+from frequenz.dispatch.actor import DispatchingActor
 
 
 # This method replaces the event loop for all tests in the file.
@@ -55,7 +50,7 @@ def _now() -> datetime:
 class ActorTestEnv:
     """Test environment for the actor."""
 
-    actor: DispatchActor
+    actor: DispatchingActor
     """The actor under test."""
     updated_dispatches: Receiver[DispatchEvent]
     """The receiver for updated dispatches."""
@@ -90,7 +85,7 @@ async def actor_env() -> AsyncIterator[ActorTestEnv]:
     ready_dispatches = Broadcast[Dispatch]("ready_dispatches")
     microgrid_id = randint(1, 100)
 
-    actor = DispatchActor(
+    actor = DispatchingActor(
         microgrid_id=microgrid_id,
         grpc_channel=MagicMock(),
         svc_addr="localhost",
@@ -228,7 +223,7 @@ async def test_dispatch_schedule(
     await actor_env.client.create(**to_create_params(sample))
     dispatch = actor_env.client.dispatches[0]
 
-    next_run = DispatchActor.calculate_next_run(dispatch, _now())
+    next_run = DispatchingActor.calculate_next_run(dispatch, _now())
     assert next_run is not None
 
     fake_time.shift(next_run - _now() - timedelta(seconds=1))

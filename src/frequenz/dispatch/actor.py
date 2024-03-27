@@ -5,16 +5,18 @@
 
 import asyncio
 import logging
-from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import cast
 
 import grpc.aio
 from dateutil import rrule
 from frequenz.channels import Sender
+from frequenz.channels.util import Timer
 from frequenz.client.dispatch import Client
 from frequenz.client.dispatch.types import Dispatch, Frequency, Weekday
 from frequenz.sdk.actor import Actor
+
+from frequenz.dispatch._event import Created, Deleted, DispatchEvent, Updated
 
 _MAX_AHEAD_SCHEDULE = timedelta(hours=5)
 """The maximum time ahead to schedule a dispatch.
@@ -55,37 +57,7 @@ _RRULE_WEEKDAY_MAP = {
 """To map from our Weekday enum to the dateutil library enum."""
 
 
-@dataclass(frozen=True)
-class _DispatchEventBase:
-    dispatch: Dispatch
-    """The dispatch that this event is about.
-
-    Objects of this base class are sent over the channel when a dispatch is
-    created, updated or deleted.
-    """
-
-
-class Created(_DispatchEventBase):
-    """Wraps a dispatch that was created."""
-
-
-class Updated(_DispatchEventBase):
-    """Wraps a dispatch that was updated."""
-
-
-class Deleted(_DispatchEventBase):
-    """Wraps a dispatch that was deleted."""
-
-
-DispatchEvent = Created | Updated | Deleted
-"""Type that is sent over the channel for dispatch updates.
-
-This type is used to send dispatches that were created, updated or deleted
-over the channel.
-"""
-
-
-class DispatchActor(Actor):
+class DispatchingActor(Actor):
     """Dispatch actor.
 
     This actor is responsible for handling dispatches for a microgrid.
@@ -122,14 +94,14 @@ class DispatchActor(Actor):
         self._microgrid_id = microgrid_id
         self._updated_dispatch_sender = updated_dispatch_sender
         self._ready_dispatch_sender = ready_dispatch_sender
-        self._poll_interval = poll_interval
+        self._poll_timer = Timer.timeout(poll_interval)
 
     async def _run(self) -> None:
         """Run the actor."""
+        self._poll_timer.reset()
         try:
-            while True:
+            async for _ in self._poll_timer:
                 await self._fetch()
-                await asyncio.sleep(self._poll_interval.total_seconds())
         except asyncio.CancelledError:
             for task in self._scheduled.values():
                 task.cancel()
