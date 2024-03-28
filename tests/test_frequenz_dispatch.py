@@ -24,12 +24,10 @@ from frequenz.dispatch.actor import DispatchingActor
 
 
 # This method replaces the event loop for all tests in the file.
-@fixture(scope="module")
-def event_loop() -> Iterator[async_solipsism.EventLoop]:
-    """Replace the loop with one that doesn't interact with the outside world."""
-    loop = async_solipsism.EventLoop()
-    yield loop
-    loop.close()
+@fixture
+def event_loop_policy() -> async_solipsism.EventLoopPolicy:
+    """Return an event loop policy that uses the async solipsism event loop."""
+    return async_solipsism.EventLoopPolicy()
 
 
 @fixture
