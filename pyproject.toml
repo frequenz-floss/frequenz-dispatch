@@ -36,7 +36,7 @@ dependencies = [
   "frequenz-dispatch-client @ git+https://github.com/frequenz-floss/frequenz-client-dispatch-python.git@00dcb3c",
   "frequenz-api-dispatch @ git+https://github.com/frequenz-floss/frequenz-api-dispatch.git@223315c",
 #  "frequenz-api-dispatch >= 0.13.0, < 0.14",
-  "frequenz-client-base >= 0.2.1, < 0.3.0",
+  "frequenz-client-base >= 0.2.1, < 0.4.0",
   # Directly use unreleased commit until the first release
   "frequenz-client-common @ git+https://github.com/frequenz-floss/frequenz-client-common-python.git@5e6e7b7",
 ]
@@ -54,27 +54,27 @@ dev-flake8 = [
   "pydoclint == 0.4.1",
   "pydocstyle == 6.3.0",
 ]
-dev-formatting = ["black == 24.2.0", "isort == 5.13.2"]
+dev-formatting = ["black == 24.3.0", "isort == 5.13.2"]
 dev-mkdocs = [
-  "black == 24.2.0",
-  "Markdown==3.5.2",
+  "black == 24.3.0",
+  "Markdown==3.6",
   "mike == 2.0.0",
   "mkdocs-gen-files == 0.5.0",
   "mkdocs-literate-nav == 0.6.1",
   "mkdocs-macros-plugin == 1.0.5",
-  "mkdocs-material == 9.5.12",
+  "mkdocs-material == 9.5.16",
   "mkdocstrings[python] == 0.24.1",
   "frequenz-repo-config[lib] == 0.9.1",
 ]
 dev-mypy = [
-  "mypy == 1.8.0",
-  "types-Markdown == 3.5.0.20240129",
-  "types-python-dateutil==2.8.19.20240311",
+  "mypy == 1.9.0",
+  "types-Markdown == 3.6.0.20240316",
+  "types-python-dateutil==2.9.0.20240316",
   # For checking the noxfile, docs/ script, and tests
   "frequenz-dispatch[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
 dev-noxfile = [
-  "uv == 0.1.14",
+  "uv == 0.1.26",
   "nox == 2024.3.02",
   "frequenz-repo-config[lib] == 0.9.1",
 ]
@@ -84,12 +84,12 @@ dev-pylint = [
   "frequenz-dispatch[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
 dev-pytest = [
-  "pytest == 8.0.2",
+  "pytest == 8.1.1",
   "frequenz-repo-config[extra-lint-examples] == 0.9.1",
-  "pytest-mock == 3.12.0",
-  "pytest-asyncio == 0.23.5",
+  "pytest-mock == 3.14.0",
+  "pytest-asyncio == 0.23.6",
   "async-solipsism == 0.6",
-  "time-machine == 2.14.0",
+  "time-machine == 2.14.1",
 ]
 dev = [
   "frequenz-dispatch[dev-mkdocs,dev-flake8,dev-formatting,dev-mkdocs,dev-mypy,dev-noxfile,dev-pylint,dev-pytest]",
