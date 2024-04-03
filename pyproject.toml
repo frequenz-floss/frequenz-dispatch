@@ -32,7 +32,7 @@ dependencies = [
   # mkdocs.yml file when changing the version here (look for the config key
   # plugins.mkdocstrings.handlers.python.import)
   "frequenz-sdk == v1.0.0-rc5",
-  "frequenz-channels == 1.0.0b2",
+  "frequenz-channels == 1.0.0",
   "frequenz-dispatch-client @ git+https://github.com/frequenz-floss/frequenz-client-dispatch-python.git@00dcb3c",
   "frequenz-api-dispatch @ git+https://github.com/frequenz-floss/frequenz-api-dispatch.git@223315c",
 #  "frequenz-api-dispatch >= 0.13.0, < 0.14",
