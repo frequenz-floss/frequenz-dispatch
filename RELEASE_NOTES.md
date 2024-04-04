@@ -6,11 +6,11 @@
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
+* `Dispatcher.ready_to_execute()` was renamed to `Dispatcher.running_status_change()`
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
+* Introduced new class `Dispatch` (based on the client class) that contains useful functions and extended information about the received dispatch.
 
 ## Bug Fixes
 

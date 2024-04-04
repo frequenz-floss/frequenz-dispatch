@@ -5,7 +5,7 @@
 
 from dataclasses import dataclass
 
-from frequenz.client.dispatch.types import Dispatch
+from ._dispatch import Dispatch
 
 
 @dataclass(frozen=True)

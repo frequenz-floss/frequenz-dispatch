@@ -6,6 +6,8 @@
 from frequenz.dispatch._dispatcher import Dispatcher, ReceiverFetcher
 from frequenz.dispatch._event import Created, Deleted, DispatchEvent, Updated
 
+from ._dispatch import Dispatch
+
 __all__ = [
     "Created",
     "Deleted",
@@ -13,4 +15,5 @@ __all__ = [
     "Dispatcher",
     "ReceiverFetcher",
     "Updated",
+    "Dispatch",
 ]
