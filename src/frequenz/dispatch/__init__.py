@@ -3,10 +3,9 @@
 
 """A highlevel interface for the dispatch API."""
 
-from frequenz.dispatch._dispatcher import Dispatcher, ReceiverFetcher
-from frequenz.dispatch._event import Created, Deleted, DispatchEvent, Updated
-
 from ._dispatch import Dispatch
+from ._dispatcher import Dispatcher, ReceiverFetcher
+from ._event import Created, Deleted, DispatchEvent, Updated
 
 __all__ = [
     "Created",

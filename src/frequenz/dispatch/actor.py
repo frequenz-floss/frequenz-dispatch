@@ -13,9 +13,8 @@ from frequenz.channels.timer import SkipMissedAndDrift, Timer
 from frequenz.client.dispatch import Client
 from frequenz.sdk.actor import Actor
 
-from frequenz.dispatch._event import Created, Deleted, DispatchEvent, Updated
-
 from ._dispatch import Dispatch
+from ._event import Created, Deleted, DispatchEvent, Updated
 
 _MAX_AHEAD_SCHEDULE = timedelta(hours=5)
 """The maximum time ahead to schedule a dispatch.
