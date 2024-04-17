@@ -11,6 +11,7 @@
 ## New Features
 
 * Introduced new class `Dispatch` (based on the client class) that contains useful functions and extended information about the received dispatch.
+* `Dispatcher.client` was added to provide an easy access to the client for updating, deleting and creating dispatches
 
 ## Bug Fixes
 

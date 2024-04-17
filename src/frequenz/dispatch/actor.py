@@ -47,8 +47,7 @@ class DispatchingActor(Actor):
     def __init__(
         self,
         microgrid_id: int,
-        grpc_channel: grpc.aio.Channel,
-        svc_addr: str,
+        client: Client,
         lifecycle_updates_sender: Sender[DispatchEvent],
         running_state_change_sender: Sender[Dispatch],
         poll_interval: timedelta = _DEFAULT_POLL_INTERVAL,
@@ -57,15 +56,14 @@ class DispatchingActor(Actor):
 
         Args:
             microgrid_id: The microgrid ID to handle dispatches for.
-            grpc_channel: The gRPC channel to use for communication with the API.
-            svc_addr: Address of the service to connect to.
+            client: The client to use for fetching dispatches.
             lifecycle_updates_sender: A sender for dispatch lifecycle events.
             running_state_change_sender: A sender for dispatch running state changes.
             poll_interval: The interval to poll the API for dispatche changes.
         """
         super().__init__(name="dispatch")
 
-        self._client = Client(grpc_channel, svc_addr)
+        self._client = client
         self._dispatches: dict[int, Dispatch] = {}
         self._scheduled: dict[int, asyncio.Task[None]] = {}
         self._microgrid_id = microgrid_id

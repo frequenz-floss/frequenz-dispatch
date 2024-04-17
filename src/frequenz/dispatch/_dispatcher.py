@@ -8,6 +8,7 @@ from typing import Protocol, TypeVar
 
 import grpc.aio
 from frequenz.channels import Broadcast, Receiver
+from frequenz.client.dispatch import Client
 
 from ._dispatch import Dispatch
 from ._event import DispatchEvent
@@ -123,10 +124,10 @@ class Dispatcher:
         self._lifecycle_events_channel = Broadcast[DispatchEvent](
             name="lifecycle_events"
         )
+        self._client = Client(grpc_channel, svc_addr)
         self._actor = DispatchingActor(
             microgrid_id,
-            grpc_channel,
-            svc_addr,
+            self._client,
             self._lifecycle_events_channel.new_sender(),
             self._running_state_channel.new_sender(),
         )
@@ -134,6 +135,11 @@ class Dispatcher:
     async def start(self) -> None:
         """Start the actor."""
         self._actor.start()
+
+    @property
+    def client(self) -> Client:
+        """Return the client."""
+        return self._client
 
     @property
     def lifecycle_events(self) -> ReceiverFetcher[DispatchEvent]:

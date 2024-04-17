@@ -8,7 +8,6 @@ from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from random import randint
 from typing import AsyncIterator, Iterator
-from unittest.mock import MagicMock
 
 import async_solipsism
 import time_machine
@@ -66,17 +65,14 @@ async def actor_env() -> AsyncIterator[ActorTestEnv]:
     lifecycle_updates_dispatches = Broadcast[DispatchEvent](name="lifecycle_updates")
     running_state_change_dispatches = Broadcast[Dispatch](name="running_state_change")
     microgrid_id = randint(1, 100)
+    client = FakeClient()
 
     actor = DispatchingActor(
         microgrid_id=microgrid_id,
-        grpc_channel=MagicMock(),
-        svc_addr="localhost",
         lifecycle_updates_sender=lifecycle_updates_dispatches.new_sender(),
         running_state_change_sender=running_state_change_dispatches.new_sender(),
+        client=client,
     )
-
-    client = FakeClient()
-    actor._client = client  # pylint: disable=protected-access
 
     actor.start()
 
