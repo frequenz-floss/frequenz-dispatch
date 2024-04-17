@@ -51,47 +51,61 @@ class Dispatcher:
 
     Example: Processing running state change dispatches
         ```python
+        import os
         import grpc.aio
         from unittest.mock import MagicMock
 
         async def run():
-            grpc_channel = grpc.aio.insecure_channel("localhost:50051")
-            microgrid_id = 1
-            service_address = "localhost:50051"
+            host = os.getenv("DISPATCH_API_HOST", "localhost")
+            port = os.getenv("DISPATCH_API_PORT", "50051")
 
+            service_address = f"{host}:{port}"
+            grpc_channel = grpc.aio.insecure_channel(service_address)
+            microgrid_id = 1
             dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
+            await dispatcher.start()
+
             actor = MagicMock() # replace with your actor
 
             changed_running_status_rx = dispatcher.running_status_change.new_receiver()
 
             async for dispatch in changed_running_status_rx:
+                if dispatch.type != "DEMO_TYPE":
+                    continue
+
                 print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
                 if dispatch.running:
                     if actor.is_running:
                         actor.reconfigure(
-                            components=dispatch.selector,
-                            run_parameters=dispatch.payload
                         )  # this will reconfigure the actor
                     else:
-                        # this will start the actor
+                        # this will start a new or reconfigure a running actor
                         # and run it for the duration of the dispatch
-                        actor.start(duration=dispatch.duration, dry_run=dispatch.dry_run)
+                        actor.start_or_reconfigure(
+                            components=dispatch.selector,
+                            run_parameters=dispatch.payload, # custom actor parameters
+                            dry_run=dispatch.dry_run,
+                            until=dispatch.until,
+                        )
                 else:
                     actor.stop()  # this will stop the actor
         ```
 
     Example: Getting notification about dispatch lifecycle events
         ```python
+        import os
         from typing import assert_never
 
         import grpc.aio
         from frequenz.dispatch import Created, Deleted, Dispatcher, Updated
 
-
         async def run():
-            grpc_channel = grpc.aio.insecure_channel("localhost:50051")
+            host = os.getenv("DISPATCH_API_HOST", "localhost")
+            port = os.getenv("DISPATCH_API_PORT", "50051")
+
+            service_address = f"{host}:{port}"
+            grpc_channel = grpc.aio.insecure_channel(service_address)
             microgrid_id = 1
-            service_address = "localhost:50051"
             dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
             dispatcher.start()  # this will start the actor
 
@@ -107,6 +121,46 @@ class Dispatcher:
                         print(f"A dispatch was updated: {dispatch}")
                     case _ as unhandled:
                         assert_never(unhandled)
+        ```
+    Example: Creating a new dispatch and then modifying it. Note that this uses
+    the lower-level `Client` class to create and update the dispatch.
+        ```python
+        import os
+        from datetime import datetime, timedelta, timezone
+
+        import grpc.aio
+        from frequenz.client.common.microgrid.components import ComponentCategory
+
+        from frequenz.dispatch import Dispatcher
+
+        async def run():
+            host = os.getenv("DISPATCH_API_HOST", "localhost")
+            port = os.getenv("DISPATCH_API_PORT", "50051")
+
+            service_address = f"{host}:{port}"
+            grpc_channel = grpc.aio.insecure_channel(service_address)
+            microgrid_id = 1
+            dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
+            await dispatcher.start()  # this will start the actor
+
+            # Create a new dispatch
+            new_dispatch = await dispatcher.client.create(
+                microgrid_id=microgrid_id,
+                _type="ECHO_FREQUENCY",  # replace with your own type
+                start_time=datetime.now(tz=timezone.utc) + timedelta(minutes=10),
+                duration=timedelta(minutes=5),
+                selector=ComponentCategory.INVERTER,
+                payload={"font": "Times New Roman"},  # Arbitrary payload data
+            )
+
+            # Modify the dispatch
+            await dispatcher.client.update(
+                dispatch_id=new_dispatch.id, new_fields={"duration": timedelta(minutes=10)}
+            )
+
+            # Validate the modification
+            modified_dispatch = await dispatcher.client.get(new_dispatch.id)
+            assert modified_dispatch.duration == timedelta(minutes=10)
         ```
     """
 
