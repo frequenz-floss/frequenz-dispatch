@@ -127,9 +127,12 @@ async def _test_new_dispatch_created(
         case Deleted(dispatch) | Updated(dispatch):
             assert False, "Expected a created event"
         case Created(dispatch):
-            sample.update_time = dispatch.update_time
-            sample.create_time = dispatch.create_time
-            sample.id = dispatch.id
+            sample = replace(
+                sample,
+                update_time=dispatch.update_time,
+                create_time=dispatch.create_time,
+                id=dispatch.id,
+            )
             assert dispatch == sample
 
     return sample
@@ -142,16 +145,19 @@ async def test_existing_dispatch_updated(
 ) -> None:
     """Test that an existing dispatch is updated."""
     sample = generator.generate_dispatch(actor_env.microgrid_id)
-    sample.active = False
-    sample.recurrence.frequency = Frequency.DAILY
+    sample = replace(
+        sample,
+        active=False,
+        recurrence=replace(sample.recurrence, frequency=Frequency.DAILY),
+    )
 
     fake_time.shift(timedelta(seconds=1))
 
-    await _test_new_dispatch_created(actor_env, sample)
+    sample = await _test_new_dispatch_created(actor_env, sample)
     fake_time.shift(timedelta(seconds=1))
 
     await actor_env.client.update(
-        sample.id,
+        dispatch_id=sample.id,
         new_fields={
             "active": True,
             "recurrence.frequency": Frequency.UNSPECIFIED,
@@ -164,11 +170,13 @@ async def test_existing_dispatch_updated(
         case Created(dispatch) | Deleted(dispatch):
             assert False, "Expected an updated event"
         case Updated(dispatch):
-            sample.update_time = dispatch.update_time
-            sample.active = True
-            sample.recurrence = replace(
-                sample.recurrence, frequency=Frequency.UNSPECIFIED
+            sample = replace(
+                sample,
+                active=True,
+                recurrence=replace(sample.recurrence, frequency=Frequency.UNSPECIFIED),
+                update_time=dispatch.update_time,
             )
+
             assert dispatch == sample
 
 
@@ -180,7 +188,7 @@ async def test_existing_dispatch_deleted(
     """Test that an existing dispatch is deleted."""
     sample = generator.generate_dispatch(actor_env.microgrid_id)
 
-    await _test_new_dispatch_created(actor_env, sample)
+    sample = await _test_new_dispatch_created(actor_env, sample)
 
     await actor_env.client.delete(sample.id)
     fake_time.shift(timedelta(seconds=1))
@@ -190,7 +198,7 @@ async def test_existing_dispatch_deleted(
         case Created(dispatch) | Updated(dispatch):
             assert False, "Expected a deleted event"
         case Deleted(dispatch):
-            sample.create_time = dispatch.create_time
+            sample = replace(sample, update_time=dispatch.update_time)
             assert dispatch == sample
 
 
