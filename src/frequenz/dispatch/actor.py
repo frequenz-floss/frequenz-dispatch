@@ -11,7 +11,7 @@ from typing import cast
 import grpc.aio
 from dateutil import rrule
 from frequenz.channels import Sender
-from frequenz.channels.util import Timer
+from frequenz.channels.timer import SkipMissedAndDrift, Timer
 from frequenz.client.dispatch import Client
 from frequenz.client.dispatch.types import Dispatch, Frequency, Weekday
 from frequenz.sdk.actor import Actor
@@ -94,7 +94,7 @@ class DispatchingActor(Actor):
         self._microgrid_id = microgrid_id
         self._updated_dispatch_sender = updated_dispatch_sender
         self._ready_dispatch_sender = ready_dispatch_sender
-        self._poll_timer = Timer.timeout(poll_interval)
+        self._poll_timer = Timer(poll_interval, SkipMissedAndDrift())
 
     async def _run(self) -> None:
         """Run the actor."""

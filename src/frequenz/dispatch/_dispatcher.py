@@ -13,22 +13,22 @@ from frequenz.client.dispatch.types import Dispatch
 from frequenz.dispatch._event import DispatchEvent
 from frequenz.dispatch.actor import DispatchingActor
 
-ReceivedT = TypeVar("ReceivedT")
+ReceivedT_co = TypeVar("ReceivedT_co", covariant=True)
 """The type being received."""
 
 
-class ReceiverFetcher(Protocol[ReceivedT]):
+class ReceiverFetcher(Protocol[ReceivedT_co]):
     """An interface that just exposes a `new_receiver` method."""
 
     @abc.abstractmethod
     def new_receiver(
-        self, name: str | None = None, maxsize: int = 50
-    ) -> Receiver[ReceivedT]:
+        self, *, name: str | None = None, limit: int = 50
+    ) -> Receiver[ReceivedT_co]:
         """Get a receiver from the channel.
 
         Args:
             name: A name to identify the receiver in the logs.
-            maxsize: The maximum size of the receiver.
+            limit: The maximum size of the receiver.
 
         Returns:
             A receiver instance.
@@ -107,8 +107,8 @@ class Dispatcher:
             grpc_channel: The gRPC channel.
             svc_addr: The service address.
         """
-        self._ready_channel = Broadcast[Dispatch]("ready_dispatches")
-        self._updated_channel = Broadcast[DispatchEvent]("new_dispatches")
+        self._ready_channel = Broadcast[Dispatch](name="ready_dispatches")
+        self._updated_channel = Broadcast[DispatchEvent](name="new_dispatches")
         self._actor = DispatchingActor(
             microgrid_id,
             grpc_channel,

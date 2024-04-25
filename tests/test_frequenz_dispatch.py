@@ -7,13 +7,12 @@ import asyncio
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from random import randint
-from typing import AsyncIterator, Iterator, TypeVar
+from typing import AsyncIterator, Iterator
 from unittest.mock import MagicMock
 
 import async_solipsism
 import time_machine
 from frequenz.channels import Broadcast, Receiver
-from frequenz.channels._broadcast import Sender
 from frequenz.client.dispatch.test.client import FakeClient, to_create_params
 from frequenz.client.dispatch.test.generator import DispatchGenerator
 from frequenz.client.dispatch.types import Dispatch, Frequency
@@ -63,32 +62,16 @@ class ActorTestEnv:
 @fixture
 async def actor_env() -> AsyncIterator[ActorTestEnv]:
     """Return an actor test environment."""
-    T = TypeVar("T")
-
-    class YieldingSender(Sender[T]):
-        """A sender that yields after sending.
-
-        For testing we want to manipulate the time after a call to send.
-
-        The normal sender normally doesn't yield/await, robbing us of the
-        opportunity to manipulate the time.
-        """
-
-        async def send(self, msg: T) -> None:
-            """Send the value and yield."""
-            await super().send(msg)
-            await asyncio.sleep(1)
-
-    updated_dispatches = Broadcast[DispatchEvent]("updated_dispatches")
-    ready_dispatches = Broadcast[Dispatch]("ready_dispatches")
+    updated_dispatches = Broadcast[DispatchEvent](name="updated_dispatches")
+    ready_dispatches = Broadcast[Dispatch](name="ready_dispatches")
     microgrid_id = randint(1, 100)
 
     actor = DispatchingActor(
         microgrid_id=microgrid_id,
         grpc_channel=MagicMock(),
         svc_addr="localhost",
-        updated_dispatch_sender=YieldingSender(updated_dispatches),
-        ready_dispatch_sender=YieldingSender(ready_dispatches),
+        updated_dispatch_sender=updated_dispatches.new_sender(),
+        ready_dispatch_sender=ready_dispatches.new_sender(),
     )
 
     client = FakeClient()
