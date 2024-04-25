@@ -31,14 +31,12 @@ dependencies = [
   # Make sure to update the version for cross-referencing also in the
   # mkdocs.yml file when changing the version here (look for the config key
   # plugins.mkdocstrings.handlers.python.import)
-  "frequenz-sdk == v1.0.0-rc5",
-  "frequenz-channels == 1.0.0b2",
-  "frequenz-dispatch-client @ git+https://github.com/frequenz-floss/frequenz-client-dispatch-python.git@00dcb3c",
-  "frequenz-api-dispatch @ git+https://github.com/frequenz-floss/frequenz-api-dispatch.git@223315c",
-#  "frequenz-api-dispatch >= 0.13.0, < 0.14",
-  "frequenz-client-base >= 0.2.1, < 0.4.0",
-  # Directly use unreleased commit until the first release
-  "frequenz-client-common @ git+https://github.com/frequenz-floss/frequenz-client-common-python.git@5e6e7b7",
+  "frequenz-sdk == v1.0.0-rc6",
+  "frequenz-channels == 1.0.0",
+  "frequenz-api-dispatch >= 0.13.0, < 0.14",
+  "frequenz-client-dispatch == 0.2.0",
+  "frequenz-client-base >= 0.3.0, < 0.4.0",
+  "frequenz-client-common >= 0.1.0, < 0.2.0",
 ]
 dynamic = ["version"]
 
@@ -90,6 +88,8 @@ dev-pytest = [
   "pytest-asyncio == 0.23.6",
   "async-solipsism == 0.6",
   "time-machine == 2.14.1",
+  # Currently pinned due to v6.1.0 breaking our code
+  "sybil == 6.0.3",
 ]
 dev = [
   "frequenz-dispatch[dev-mkdocs,dev-flake8,dev-formatting,dev-mkdocs,dev-mypy,dev-noxfile,dev-pylint,dev-pytest]",
