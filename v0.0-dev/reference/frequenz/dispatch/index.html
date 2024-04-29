@@ -1032,7 +1032,7 @@ over the channel.</p>
   </span>
 
 <a href="#frequenz.dispatch.Created.dispatch" class="headerlink" title="Permanent link">¤</a></h6>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">dispatch</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="frequenz.client.dispatch.types.Dispatch" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.1/reference/frequenz/client/dispatch/types/#frequenz.client.dispatch.types.Dispatch">Dispatch</a></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">dispatch</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="frequenz.client.dispatch.types.Dispatch" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.2/reference/frequenz/client/dispatch/types/#frequenz.client.dispatch.types.Dispatch">Dispatch</a></span>
 </span></code></pre></div>
 
   <div class="doc doc-contents ">
@@ -1112,7 +1112,7 @@ over the channel.</p>
   </span>
 
 <a href="#frequenz.dispatch.Deleted.dispatch" class="headerlink" title="Permanent link">¤</a></h6>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">dispatch</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="frequenz.client.dispatch.types.Dispatch" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.1/reference/frequenz/client/dispatch/types/#frequenz.client.dispatch.types.Dispatch">Dispatch</a></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">dispatch</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="frequenz.client.dispatch.types.Dispatch" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.2/reference/frequenz/client/dispatch/types/#frequenz.client.dispatch.types.Dispatch">Dispatch</a></span>
 </span></code></pre></div>
 
   <div class="doc doc-contents ">
@@ -1379,8 +1379,8 @@ executed according to the schedule.</p>
 </span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="sd">            grpc_channel: The gRPC channel.</span>
 </span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="sd">            svc_addr: The service address.</span>
 </span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_ready_channel</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="n">Dispatch</span><span class="p">](</span><span class="s2">&quot;ready_dispatches&quot;</span><span class="p">)</span>
-</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_updated_channel</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="n">DispatchEvent</span><span class="p">](</span><span class="s2">&quot;new_dispatches&quot;</span><span class="p">)</span>
+</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_ready_channel</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="n">Dispatch</span><span class="p">](</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ready_dispatches&quot;</span><span class="p">)</span>
+</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_updated_channel</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="n">DispatchEvent</span><span class="p">](</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;new_dispatches&quot;</span><span class="p">)</span>
 </span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_actor</span> <span class="o">=</span> <span class="n">DispatchingActor</span><span class="p">(</span>
 </span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a>            <span class="n">microgrid_id</span><span class="p">,</span>
 </span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a>            <span class="n">grpc_channel</span><span class="p">,</span>
@@ -1448,12 +1448,12 @@ executed according to the schedule.</p>
   <table>
     <thead>
       <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
+        <th><span class="doc-section-title">RETURNS</span></th>
+        <th><span>DESCRIPTION</span></th>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
               <span class="doc-returns-annotation">
                   <code><a class="autorefs autorefs-internal" title="frequenz.dispatch._dispatcher.ReceiverFetcher" href="#frequenz.dispatch.ReceiverFetcher">ReceiverFetcher</a>[<a class="autorefs autorefs-internal" title="frequenz.dispatch._event.DispatchEvent" href="#frequenz.dispatch.DispatchEvent">DispatchEvent</a>]</code>
@@ -1484,7 +1484,7 @@ executed according to the schedule.</p>
   </span>
 
 <a href="#frequenz.dispatch.Dispatcher.ready_to_execute" class="headerlink" title="Permanent link">¤</a></h6>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">ready_to_execute</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.dispatch._dispatcher.ReceiverFetcher" href="#frequenz.dispatch.ReceiverFetcher">ReceiverFetcher</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="frequenz.client.dispatch.types.Dispatch" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.1/reference/frequenz/client/dispatch/types/#frequenz.client.dispatch.types.Dispatch">Dispatch</a></span><span class="p">]</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">ready_to_execute</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.dispatch._dispatcher.ReceiverFetcher" href="#frequenz.dispatch.ReceiverFetcher">ReceiverFetcher</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="frequenz.client.dispatch.types.Dispatch" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.2/reference/frequenz/client/dispatch/types/#frequenz.client.dispatch.types.Dispatch">Dispatch</a></span><span class="p">]</span>
 </span></code></pre></div>
 
   <div class="doc doc-contents ">
@@ -1496,15 +1496,15 @@ executed according to the schedule.</p>
   <table>
     <thead>
       <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
+        <th><span class="doc-section-title">RETURNS</span></th>
+        <th><span>DESCRIPTION</span></th>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
               <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-internal" title="frequenz.dispatch._dispatcher.ReceiverFetcher" href="#frequenz.dispatch.ReceiverFetcher">ReceiverFetcher</a>[<a class="autorefs autorefs-external" title="frequenz.client.dispatch.types.Dispatch" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.1/reference/frequenz/client/dispatch/types/#frequenz.client.dispatch.types.Dispatch">Dispatch</a>]</code>
+                  <code><a class="autorefs autorefs-internal" title="frequenz.dispatch._dispatcher.ReceiverFetcher" href="#frequenz.dispatch.ReceiverFetcher">ReceiverFetcher</a>[<a class="autorefs autorefs-external" title="frequenz.client.dispatch.types.Dispatch" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.2/reference/frequenz/client/dispatch/types/#frequenz.client.dispatch.types.Dispatch">Dispatch</a>]</code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -1545,12 +1545,12 @@ executed according to the schedule.</p>
   <table>
     <thead>
       <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
+        <th><span class="doc-section-title">PARAMETER</span></th>
+        <th><span>DESCRIPTION</span></th>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>microgrid_id</code></td>
           <td class="doc-param-details">
             <div class="doc-md-description">
@@ -1564,7 +1564,7 @@ executed according to the schedule.</p>
             </p>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>grpc_channel</code></td>
           <td class="doc-param-details">
             <div class="doc-md-description">
@@ -1578,7 +1578,7 @@ executed according to the schedule.</p>
             </p>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>svc_addr</code></td>
           <td class="doc-param-details">
             <div class="doc-md-description">
@@ -1625,8 +1625,8 @@ executed according to the schedule.</p>
 </span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="sd">        grpc_channel: The gRPC channel.</span>
 </span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="sd">        svc_addr: The service address.</span>
 </span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_ready_channel</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="n">Dispatch</span><span class="p">](</span><span class="s2">&quot;ready_dispatches&quot;</span><span class="p">)</span>
-</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_updated_channel</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="n">DispatchEvent</span><span class="p">](</span><span class="s2">&quot;new_dispatches&quot;</span><span class="p">)</span>
+</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_ready_channel</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="n">Dispatch</span><span class="p">](</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ready_dispatches&quot;</span><span class="p">)</span>
+</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_updated_channel</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="n">DispatchEvent</span><span class="p">](</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;new_dispatches&quot;</span><span class="p">)</span>
 </span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_actor</span> <span class="o">=</span> <span class="n">DispatchingActor</span><span class="p">(</span>
 </span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a>        <span class="n">microgrid_id</span><span class="p">,</span>
 </span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a>        <span class="n">grpc_channel</span><span class="p">,</span>
@@ -1696,7 +1696,7 @@ executed according to the schedule.</p>
 
   <div class="doc doc-contents ">
           <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-external" title="typing.Protocol" href="https://docs.python.org/3/library/typing.html#typing.Protocol">Protocol</a>[<span title="frequenz.dispatch._dispatcher.ReceivedT">ReceivedT</span>]</code></p>
+            Bases: <code><a class="autorefs autorefs-external" title="typing.Protocol" href="https://docs.python.org/3/library/typing.html#typing.Protocol">Protocol</a>[<span title="frequenz.dispatch._dispatcher.ReceivedT_co">ReceivedT_co</span>]</code></p>
 
   
       <p>An interface that just exposes a <code>new_receiver</code> method.</p>
@@ -1718,18 +1718,18 @@ executed according to the schedule.</p>
 <span class="normal"><a href="#__codelineno-0-32">32</a></span>
 <span class="normal"><a href="#__codelineno-0-33">33</a></span>
 <span class="normal"><a href="#__codelineno-0-34">34</a></span>
-<span class="normal"><a href="#__codelineno-0-35">35</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="k">class</span> <span class="nc">ReceiverFetcher</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">ReceivedT</span><span class="p">]):</span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="k">class</span> <span class="nc">ReceiverFetcher</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">ReceivedT_co</span><span class="p">]):</span>
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;An interface that just exposes a `new_receiver` method.&quot;&quot;&quot;</span>
 </span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>
 </span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="k">def</span> <span class="nf">new_receiver</span><span class="p">(</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">ReceivedT</span><span class="p">]:</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">ReceivedT_co</span><span class="p">]:</span>
 </span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a receiver from the channel.</span>
 </span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a>
 </span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">        Args:</span>
 </span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">            name: A name to identify the receiver in the logs.</span>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">            maxsize: The maximum size of the receiver.</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">            limit: The maximum size of the receiver.</span>
 </span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a>
 </span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">        Returns:</span>
 </span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="sd">            A receiver instance.</span>
@@ -1764,8 +1764,8 @@ executed according to the schedule.</p>
 
 <a href="#frequenz.dispatch.ReceiverFetcher.new_receiver" class="headerlink" title="Permanent link">¤</a></h6>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">new_receiver</span><span class="p">(</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">name</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">50</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="frequenz.channels.Receiver" href="https://frequenz-floss.github.io/frequenz-channels-python/v0.16/reference/frequenz/channels/#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><span title="frequenz.dispatch._dispatcher.ReceivedT">ReceivedT</span></span><span class="p">]</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">50</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="frequenz.channels.Receiver" href="https://frequenz-floss.github.io/frequenz-channels-python/v1.0/reference/frequenz/channels/#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><span title="frequenz.dispatch._dispatcher.ReceivedT_co">ReceivedT_co</span></span><span class="p">]</span>
 </span></code></pre></div>
 
   <div class="doc doc-contents ">
@@ -1777,12 +1777,12 @@ executed according to the schedule.</p>
   <table>
     <thead>
       <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
+        <th><span class="doc-section-title">PARAMETER</span></th>
+        <th><span>DESCRIPTION</span></th>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>name</code></td>
           <td class="doc-param-details">
             <div class="doc-md-description">
@@ -1800,8 +1800,8 @@ executed according to the schedule.</p>
             </p>
           </td>
         </tr>
-        <tr>
-          <td><code>maxsize</code></td>
+        <tr class="doc-section-item">
+          <td><code>limit</code></td>
           <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The maximum size of the receiver.</p>
@@ -1826,15 +1826,15 @@ executed according to the schedule.</p>
   <table>
     <thead>
       <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
+        <th><span class="doc-section-title">RETURNS</span></th>
+        <th><span>DESCRIPTION</span></th>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
               <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="frequenz.channels.Receiver" href="https://frequenz-floss.github.io/frequenz-channels-python/v0.16/reference/frequenz/channels/#frequenz.channels.Receiver">Receiver</a>[<span title="frequenz.dispatch._dispatcher.ReceivedT">ReceivedT</span>]</code>
+                  <code><a class="autorefs autorefs-external" title="frequenz.channels.Receiver" href="https://frequenz-floss.github.io/frequenz-channels-python/v1.0/reference/frequenz/channels/#frequenz.channels.Receiver">Receiver</a>[<span title="frequenz.dispatch._dispatcher.ReceivedT_co">ReceivedT_co</span>]</code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -1862,13 +1862,13 @@ executed according to the schedule.</p>
 <span class="normal"><a href="#__codelineno-0-34">34</a></span>
 <span class="normal"><a href="#__codelineno-0-35">35</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="k">def</span> <span class="nf">new_receiver</span><span class="p">(</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">ReceivedT</span><span class="p">]:</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">ReceivedT_co</span><span class="p">]:</span>
 </span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a receiver from the channel.</span>
 </span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a>
 </span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">    Args:</span>
 </span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">        name: A name to identify the receiver in the logs.</span>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">        maxsize: The maximum size of the receiver.</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">        limit: The maximum size of the receiver.</span>
 </span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a>
 </span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">    Returns:</span>
 </span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="sd">        A receiver instance.</span>
@@ -1947,7 +1947,7 @@ executed according to the schedule.</p>
   </span>
 
 <a href="#frequenz.dispatch.Updated.dispatch" class="headerlink" title="Permanent link">¤</a></h6>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">dispatch</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="frequenz.client.dispatch.types.Dispatch" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.1/reference/frequenz/client/dispatch/types/#frequenz.client.dispatch.types.Dispatch">Dispatch</a></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">dispatch</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="frequenz.client.dispatch.types.Dispatch" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.2/reference/frequenz/client/dispatch/types/#frequenz.client.dispatch.types.Dispatch">Dispatch</a></span>
 </span></code></pre></div>
 
   <div class="doc doc-contents ">
