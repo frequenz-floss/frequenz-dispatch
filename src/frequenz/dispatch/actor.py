@@ -13,7 +13,7 @@ from frequenz.channels.timer import SkipMissedAndDrift, Timer
 from frequenz.client.dispatch import Client
 from frequenz.sdk.actor import Actor
 
-from ._dispatch import Dispatch
+from ._dispatch import Dispatch, RunningState
 from ._event import Created, Deleted, DispatchEvent, Updated
 
 _MAX_AHEAD_SCHEDULE = timedelta(hours=5)
@@ -220,7 +220,10 @@ class DispatchingActor(Actor):
         # Deleted dispatch
         if updated_dispatch is None:
             assert previous_dispatch is not None
-            return previous_dispatch.running(previous_dispatch.type)
+            return (
+                previous_dispatch.running(previous_dispatch.type)
+                == RunningState.RUNNING
+            )
 
         # If any of the runtime attributes changed, we need to send a message
         runtime_state_attributes = [

@@ -3,7 +3,7 @@
 
 """A highlevel interface for the dispatch API."""
 
-from ._dispatch import Dispatch
+from ._dispatch import Dispatch, RunningState
 from ._dispatcher import Dispatcher, ReceiverFetcher
 from ._event import Created, Deleted, DispatchEvent, Updated
 
@@ -15,4 +15,5 @@ __all__ = [
     "ReceiverFetcher",
     "Updated",
     "Dispatch",
+    "RunningState",
 ]

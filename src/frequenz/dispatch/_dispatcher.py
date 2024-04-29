@@ -50,46 +50,51 @@ class Dispatcher:
     reconfigure itself.
 
     Example: Processing running state change dispatches
-        ```python
-        import os
-        import grpc.aio
-        from unittest.mock import MagicMock
 
-        async def run():
-            host = os.getenv("DISPATCH_API_HOST", "localhost")
-            port = os.getenv("DISPATCH_API_PORT", "50051")
+    ```python
+    import os
+    import grpc.aio
+    from unittest.mock import MagicMock
 
-            service_address = f"{host}:{port}"
-            grpc_channel = grpc.aio.insecure_channel(service_address)
-            microgrid_id = 1
-            dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
-            await dispatcher.start()
+    async def run():
+        host = os.getenv("DISPATCH_API_HOST", "localhost")
+        port = os.getenv("DISPATCH_API_PORT", "50051")
 
-            actor = MagicMock() # replace with your actor
+        service_address = f"{host}:{port}"
+        grpc_channel = grpc.aio.insecure_channel(service_address)
+        microgrid_id = 1
+        dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
+        await dispatcher.start()
 
-            changed_running_status_rx = dispatcher.running_status_change.new_receiver()
+        actor = MagicMock() # replace with your actor
 
-            async for dispatch in changed_running_status_rx:
-                if dispatch.type != "DEMO_TYPE":
-                    continue
+        changed_running_status_rx = dispatcher.running_status_change.new_receiver()
 
-                print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
-                if dispatch.running:
+        async for dispatch in changed_running_status_rx:
+            match dispatch.running("DEMO_TYPE"):
+                case RunningState.RUNNING:
+                    print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
                     if actor.is_running:
                         actor.reconfigure(
+                            components=dispatch.selector,
+                            run_parameters=dispatch.payload, # custom actor parameters
+                            dry_run=dispatch.dry_run,
+                            until=dispatch.until,
                         )  # this will reconfigure the actor
                     else:
-                        # this will start a new or reconfigure a running actor
+                        # this will start a new actor with the given components
                         # and run it for the duration of the dispatch
-                        actor.start_or_reconfigure(
+                        actor.start(
                             components=dispatch.selector,
                             run_parameters=dispatch.payload, # custom actor parameters
                             dry_run=dispatch.dry_run,
                             until=dispatch.until,
                         )
-                else:
+                case RunningState.STOPPED:
                     actor.stop()  # this will stop the actor
-        ```
+                case RunningState.DIFFERENT_TYPE:
+                    pass  # dispatch not for this type
+    ```
 
     Example: Getting notification about dispatch lifecycle events
         ```python

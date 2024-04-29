@@ -7,6 +7,7 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from enum import Enum
 from typing import Iterator, cast
 
 from dateutil import rrule
@@ -35,6 +36,19 @@ _RRULE_WEEKDAY_MAP = {
     Weekday.SUNDAY: rrule.SU,
 }
 """To map from our Weekday enum to the dateutil library enum."""
+
+
+class RunningState(Enum):
+    """The running state of a dispatch."""
+
+    RUNNING = "RUNNING"
+    """The dispatch is running."""
+
+    STOPPED = "STOPPED"
+    """The dispatch is stopped."""
+
+    DIFFERENT_TYPE = "DIFFERENT_TYPE"
+    """The dispatch is for a different type."""
 
 
 @dataclass(frozen=True)
@@ -85,26 +99,28 @@ class Dispatch(BaseDispatch):
         """Mark the latest running state change notification as sent."""
         object.__setattr__(self, "running_state_change_synced", self.update_time)
 
-    def running(self, type_: str) -> bool:
+    def running(self, type_: str) -> RunningState:
         """Check if the dispatch is currently supposed to be running.
 
         Args:
             type_: The type of the dispatch that should be running.
 
         Returns:
-            True if the dispatch is currently meant to be running, False otherwise.
+            RUNNING if the dispatch is running,
+            STOPPED if it is stopped,
+            DIFFERENT_TYPE if it is for a different type.
         """
         if self.type != type_:
-            return False
+            return RunningState.DIFFERENT_TYPE
 
         if not self.active or self.deleted:
-            return False
+            return RunningState.STOPPED
 
         now = datetime.now(tz=timezone.utc)
         if until := self._until(now):
-            return now < until
+            return RunningState.RUNNING if now < until else RunningState.STOPPED
 
-        return False
+        return RunningState.STOPPED
 
     @property
     def until(self) -> datetime | None:
