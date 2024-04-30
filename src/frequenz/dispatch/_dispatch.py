@@ -83,11 +83,12 @@ class Dispatch(BaseDispatch):
             running_state_change_synced,
         )
 
-    def set_deleted(self) -> None:
+    def _set_deleted(self) -> None:
         """Mark the dispatch as deleted."""
         object.__setattr__(self, "deleted", True)
 
-    def running_status_notified(self) -> bool:
+    @property
+    def _running_status_notified(self) -> bool:
         """Check that the latest running state change notification was sent.
 
         Returns:
@@ -95,7 +96,7 @@ class Dispatch(BaseDispatch):
         """
         return self.running_state_change_synced == self.update_time
 
-    def set_running_status_notified(self) -> None:
+    def _set_running_status_notified(self) -> None:
         """Mark the latest running state change notification as sent."""
         object.__setattr__(self, "running_state_change_synced", self.update_time)
 

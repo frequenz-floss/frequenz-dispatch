@@ -119,7 +119,7 @@ class DispatchingActor(Actor):
 
         for dispatch in old_dispatches.values():
             _logger.info("Deleted dispatch: %s", dispatch)
-            dispatch.set_deleted()
+            dispatch._set_deleted()  # pylint: disable=protected-access
             await self._lifecycle_updates_sender.send(Deleted(dispatch=dispatch))
             if task := self._scheduled.pop(dispatch.id, None):
                 task.cancel()
@@ -214,7 +214,8 @@ class DispatchingActor(Actor):
             assert updated_dispatch is not None
 
             # Client was not informed about the dispatch, do it now
-            if not updated_dispatch.running_status_notified():
+            # pylint: disable=protected-access
+            if not updated_dispatch._running_status_notified:
                 return True
 
         # Deleted dispatch
@@ -252,4 +253,4 @@ class DispatchingActor(Actor):
         await self._running_state_change_sender.send(dispatch)
         # Update the last sent notification time
         # so we know if this change was already sent
-        dispatch.set_running_status_notified()
+        dispatch._set_running_status_notified()  # pylint: disable=protected-access
