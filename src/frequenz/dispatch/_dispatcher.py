@@ -42,59 +42,62 @@ class Dispatcher:
     This class provides a highlevel interface to the dispatch API.
     It provides two channels:
 
-    One that sends a dispatch event message whenever a dispatch is created, updated or deleted.
+    Lifecycle events:
+        A channel that sends a dispatch event message whenever a dispatch
+        is created, updated or deleted.
 
-    The other sends a dispatch message whenever a dispatch is ready to be
-    executed according to the schedule or the running status of the dispatch
-    changed in a way that could potentially require the actor to start, stop or
-    reconfigure itself.
+    Running status change:
+        Sends a dispatch message whenever a dispatch is ready
+        to be executed according to the schedule or the running status of the
+        dispatch changed in a way that could potentially require the consumer to start,
+        stop or reconfigure itself.
 
     Example: Processing running state change dispatches
+        ```python
+        import os
+        import grpc.aio
+        from frequenz.dispatch import Dispatcher, RunningState
+        from unittest.mock import MagicMock
 
-    ```python
-    import os
-    import grpc.aio
-    from unittest.mock import MagicMock
+        async def run():
+            host = os.getenv("DISPATCH_API_HOST", "localhost")
+            port = os.getenv("DISPATCH_API_PORT", "50051")
 
-    async def run():
-        host = os.getenv("DISPATCH_API_HOST", "localhost")
-        port = os.getenv("DISPATCH_API_PORT", "50051")
+            service_address = f"{host}:{port}"
+            grpc_channel = grpc.aio.insecure_channel(service_address)
+            microgrid_id = 1
+            dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
+            await dispatcher.start()
 
-        service_address = f"{host}:{port}"
-        grpc_channel = grpc.aio.insecure_channel(service_address)
-        microgrid_id = 1
-        dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
-        await dispatcher.start()
+            actor = MagicMock() # replace with your actor
 
-        actor = MagicMock() # replace with your actor
+            changed_running_status = dispatcher.running_status_change.new_receiver()
 
-        changed_running_status_rx = dispatcher.running_status_change.new_receiver()
-
-        async for dispatch in changed_running_status_rx:
-            match dispatch.running("DEMO_TYPE"):
-                case RunningState.RUNNING:
-                    print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
-                    if actor.is_running:
-                        actor.reconfigure(
-                            components=dispatch.selector,
-                            run_parameters=dispatch.payload, # custom actor parameters
-                            dry_run=dispatch.dry_run,
-                            until=dispatch.until,
-                        )  # this will reconfigure the actor
-                    else:
-                        # this will start a new actor with the given components
-                        # and run it for the duration of the dispatch
-                        actor.start(
-                            components=dispatch.selector,
-                            run_parameters=dispatch.payload, # custom actor parameters
-                            dry_run=dispatch.dry_run,
-                            until=dispatch.until,
-                        )
-                case RunningState.STOPPED:
-                    actor.stop()  # this will stop the actor
-                case RunningState.DIFFERENT_TYPE:
-                    pass  # dispatch not for this type
-    ```
+            async for dispatch in changed_running_status:
+                match dispatch.running("DEMO_TYPE"):
+                    case RunningState.RUNNING:
+                        print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
+                        if actor.is_running:
+                            actor.reconfigure(
+                                components=dispatch.selector,
+                                run_parameters=dispatch.payload, # custom actor parameters
+                                dry_run=dispatch.dry_run,
+                                until=dispatch.until,
+                            )  # this will reconfigure the actor
+                        else:
+                            # this will start a new actor with the given components
+                            # and run it for the duration of the dispatch
+                            actor.start(
+                                components=dispatch.selector,
+                                run_parameters=dispatch.payload, # custom actor parameters
+                                dry_run=dispatch.dry_run,
+                                until=dispatch.until,
+                            )
+                    case RunningState.STOPPED:
+                        actor.stop()  # this will stop the actor
+                    case RunningState.DIFFERENT_TYPE:
+                        pass  # dispatch not for this type
+        ```
 
     Example: Getting notification about dispatch lifecycle events
         ```python
@@ -127,8 +130,10 @@ class Dispatcher:
                     case _ as unhandled:
                         assert_never(unhandled)
         ```
-    Example: Creating a new dispatch and then modifying it. Note that this uses
-    the lower-level `Client` class to create and update the dispatch.
+
+    Example: Creating a new dispatch and then modifying it.
+        Note that this uses the lower-level `Client` class to create and update the dispatch.
+
         ```python
         import os
         from datetime import datetime, timedelta, timezone
