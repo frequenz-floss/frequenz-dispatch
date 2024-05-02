@@ -14,7 +14,15 @@ name = "frequenz-dispatch"
 description = "A highlevel interface for the dispatch API"
 readme = "README.md"
 license = { text = "MIT" }
-keywords = ["frequenz", "python", "actor", "frequenz-dispatch", "dispatch", "highlevel", "api"]
+keywords = [
+  "frequenz",
+  "python",
+  "actor",
+  "frequenz-dispatch",
+  "dispatch",
+  "highlevel",
+  "api",
+]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -88,8 +96,6 @@ dev-pytest = [
   "pytest-asyncio == 0.23.6",
   "async-solipsism == 0.6",
   "time-machine == 2.14.1",
-  # Currently pinned due to v6.1.0 breaking our code
-  "sybil == 6.0.3",
 ]
 dev = [
   "frequenz-dispatch[dev-mkdocs,dev-flake8,dev-formatting,dev-mkdocs,dev-mypy,dev-noxfile,dev-pylint,dev-pytest]",
@@ -171,11 +177,7 @@ packages = ["frequenz.dispatch"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = [
-  "mkdocs_macros.*",
-  "async_solipsism",
-  "async_solipsism.*",
-]
+module = ["mkdocs_macros.*", "async_solipsism", "async_solipsism.*"]
 ignore_missing_imports = true
 
 [tool.setuptools_scm]
