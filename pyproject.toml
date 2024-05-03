@@ -35,7 +35,7 @@ classifiers = [
 requires-python = ">= 3.11, < 4"
 dependencies = [
   "python-dateutil >= 2.8.2, < 3.0",
-  "typing-extensions == 4.10.0",
+  "typing-extensions == 4.11.0",
   # Make sure to update the version for cross-referencing also in the
   # mkdocs.yml file when changing the version here (look for the config key
   # plugins.mkdocstrings.handlers.python.import)
@@ -60,28 +60,28 @@ dev-flake8 = [
   "pydoclint == 0.4.1",
   "pydocstyle == 6.3.0",
 ]
-dev-formatting = ["black == 24.3.0", "isort == 5.13.2"]
+dev-formatting = ["black == 24.4.2", "isort == 5.13.2"]
 dev-mkdocs = [
-  "black == 24.3.0",
+  "black == 24.4.2",
   "Markdown==3.6",
-  "mike == 2.0.0",
+  "mike == 2.1.0",
   "mkdocs-gen-files == 0.5.0",
   "mkdocs-literate-nav == 0.6.1",
   "mkdocs-macros-plugin == 1.0.5",
-  "mkdocs-material == 9.5.17",
-  "mkdocstrings[python] == 0.24.2",
+  "mkdocs-material == 9.5.20",
+  "mkdocstrings[python] == 0.25.0",
   "frequenz-repo-config[lib] == 0.9.2",
 ]
 dev-mypy = [
-  "mypy == 1.9.0",
+  "mypy == 1.10.0",
   "types-Markdown == 3.6.0.20240316",
   "types-python-dateutil==2.9.0.20240316",
   # For checking the noxfile, docs/ script, and tests
   "frequenz-dispatch[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
 dev-noxfile = [
-  "uv == 0.1.28",
-  "nox == 2024.3.02",
+  "uv == 0.1.39",
+  "nox == 2024.4.15",
   "frequenz-repo-config[lib] == 0.9.2",
 ]
 dev-pylint = [
@@ -90,7 +90,7 @@ dev-pylint = [
   "frequenz-dispatch[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
 dev-pytest = [
-  "pytest == 8.1.1",
+  "pytest == 8.2.0",
   "frequenz-repo-config[extra-lint-examples] == 0.9.2",
   "pytest-mock == 3.14.0",
   "pytest-asyncio == 0.23.6",
