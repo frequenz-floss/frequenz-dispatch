@@ -2,7 +2,7 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
+This is the first release of the highlevel dispatch interface!
 
 ## Upgrading
 
@@ -12,7 +12,3 @@
 
 * Introduced new class `Dispatch` (based on the client class) that contains useful functions and extended information about the received dispatch.
 * `Dispatcher.client` was added to provide an easy access to the client for updating, deleting and creating dispatches
-
-## Bug Fixes
-
-<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
