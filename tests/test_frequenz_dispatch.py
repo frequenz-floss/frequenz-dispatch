@@ -8,17 +8,17 @@ from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from random import randint
 from typing import AsyncIterator, Iterator
-from unittest.mock import MagicMock
 
 import async_solipsism
 import time_machine
 from frequenz.channels import Broadcast, Receiver
 from frequenz.client.dispatch.test.client import FakeClient, to_create_params
 from frequenz.client.dispatch.test.generator import DispatchGenerator
-from frequenz.client.dispatch.types import Dispatch, Frequency
+from frequenz.client.dispatch.types import Dispatch as BaseDispatch
+from frequenz.client.dispatch.types import Frequency
 from pytest import fixture
 
-from frequenz.dispatch import Created, Deleted, DispatchEvent, Updated
+from frequenz.dispatch import Created, Deleted, Dispatch, DispatchEvent, Updated
 from frequenz.dispatch.actor import DispatchingActor
 
 
@@ -62,27 +62,24 @@ class ActorTestEnv:
 @fixture
 async def actor_env() -> AsyncIterator[ActorTestEnv]:
     """Return an actor test environment."""
-    updated_dispatches = Broadcast[DispatchEvent](name="updated_dispatches")
-    ready_dispatches = Broadcast[Dispatch](name="ready_dispatches")
+    lifecycle_updates_dispatches = Broadcast[DispatchEvent](name="lifecycle_updates")
+    running_state_change_dispatches = Broadcast[Dispatch](name="running_state_change")
     microgrid_id = randint(1, 100)
+    client = FakeClient()
 
     actor = DispatchingActor(
         microgrid_id=microgrid_id,
-        grpc_channel=MagicMock(),
-        svc_addr="localhost",
-        updated_dispatch_sender=updated_dispatches.new_sender(),
-        ready_dispatch_sender=ready_dispatches.new_sender(),
+        lifecycle_updates_sender=lifecycle_updates_dispatches.new_sender(),
+        running_state_change_sender=running_state_change_dispatches.new_sender(),
+        client=client,
     )
-
-    client = FakeClient()
-    actor._client = client  # pylint: disable=protected-access
 
     actor.start()
 
     yield ActorTestEnv(
         actor,
-        updated_dispatches.new_receiver(),
-        ready_dispatches.new_receiver(),
+        lifecycle_updates_dispatches.new_receiver(),
+        running_state_change_dispatches.new_receiver(),
         client,
         microgrid_id,
     )
@@ -106,10 +103,28 @@ async def test_new_dispatch_created(
     await _test_new_dispatch_created(actor_env, sample)
 
 
+def update_dispatch(sample: BaseDispatch, dispatch: BaseDispatch) -> BaseDispatch:
+    """Update the sample dispatch with the creation fields from the dispatch.
+
+    Args:
+        sample: The sample dispatch to update
+        dispatch: The dispatch to update the sample with
+
+    Returns:
+        The updated sample dispatch
+    """
+    return replace(
+        sample,
+        update_time=dispatch.update_time,
+        create_time=dispatch.create_time,
+        id=dispatch.id,
+    )
+
+
 async def _test_new_dispatch_created(
     actor_env: ActorTestEnv,
-    sample: Dispatch,
-) -> Dispatch:
+    sample: BaseDispatch,
+) -> BaseDispatch:
     """Test that a new dispatch is created.
 
     Args:
@@ -127,13 +142,8 @@ async def _test_new_dispatch_created(
         case Deleted(dispatch) | Updated(dispatch):
             assert False, "Expected a created event"
         case Created(dispatch):
-            sample = replace(
-                sample,
-                update_time=dispatch.update_time,
-                create_time=dispatch.create_time,
-                id=dispatch.id,
-            )
-            assert dispatch == sample
+            sample = update_dispatch(sample, dispatch)
+            assert dispatch == Dispatch(sample)
 
     return sample
 
@@ -170,14 +180,17 @@ async def test_existing_dispatch_updated(
         case Created(dispatch) | Deleted(dispatch):
             assert False, "Expected an updated event"
         case Updated(dispatch):
+            sample = update_dispatch(sample, dispatch)
             sample = replace(
                 sample,
                 active=True,
                 recurrence=replace(sample.recurrence, frequency=Frequency.UNSPECIFIED),
-                update_time=dispatch.update_time,
             )
 
-            assert dispatch == sample
+            assert dispatch == Dispatch(
+                sample,
+                running_state_change_synced=dispatch.running_state_change_synced,
+            )
 
 
 async def test_existing_dispatch_deleted(
@@ -191,15 +204,17 @@ async def test_existing_dispatch_deleted(
     sample = await _test_new_dispatch_created(actor_env, sample)
 
     await actor_env.client.delete(sample.id)
-    fake_time.shift(timedelta(seconds=1))
+    fake_time.shift(timedelta(seconds=10))
+    await asyncio.sleep(10)
 
+    print("Awaiting deleted dispatch update")
     dispatch_event = await actor_env.updated_dispatches.receive()
     match dispatch_event:
         case Created(dispatch) | Updated(dispatch):
             assert False, "Expected a deleted event"
         case Deleted(dispatch):
-            sample = replace(sample, update_time=dispatch.update_time)
-            assert dispatch == sample
+            sample = update_dispatch(sample, dispatch)
+            assert dispatch == Dispatch(sample, deleted=True)
 
 
 async def test_dispatch_schedule(
@@ -210,9 +225,9 @@ async def test_dispatch_schedule(
     """Test that a random dispatch is scheduled correctly."""
     sample = generator.generate_dispatch(actor_env.microgrid_id)
     await actor_env.client.create(**to_create_params(sample))
-    dispatch = actor_env.client.dispatches[0]
+    dispatch = Dispatch(actor_env.client.dispatches[0])
 
-    next_run = DispatchingActor.calculate_next_run(dispatch, _now())
+    next_run = dispatch.next_run_after(_now())
     assert next_run is not None
 
     fake_time.shift(next_run - _now() - timedelta(seconds=1))

@@ -7,38 +7,61 @@
 ## Introduction
 
 A highlevel interface for the dispatch API.
-The interface is made of the dispatch actor which should run once per microgrid.
-It provides two channels for clients:
-- "new_dispatches" for newly created dispatches
-- "ready_dispatches" for dispatches that are ready to be executed
 
-## Example Usage
+See [the documentation](https://frequenz-floss.github.io/frequenz-dispatch-python/v0.1/reference/frequenz/dispatch) for more information.
+
+## Usage
+
+The [`Dispatcher` class](https://frequenz-floss.github.io/frequenz-dispatch-python/v0.1/reference/frequenz/dispatch/#frequenz.dispatch.Dispatcher), the main entry point for the API, provides two channels:
+
+* [Lifecycle events](https://frequenz-floss.github.io/frequenz-dispatch-python/v0.1/reference/frequenz/dispatch/#frequenz.dispatch.Dispatcher.lifecycle_events): A channel that sends a message whenever a [Dispatch][frequenz.dispatch.Dispatch] is created, updated or deleted.
+* [Running status change](https://frequenz-floss.github.io/frequenz-dispatch-python/v0.1/reference/frequenz/dispatch/#frequenz.dispatch.Dispatcher.running_status_change): Sends a dispatch message whenever a dispatch is ready to be executed according to the schedule or the running status of the dispatch changed in a way that could potentially require the actor to start, stop or reconfigure itself.
+
+### Example using the running status change channel
 
 ```python
-    async def run():
-        # dispatch helper sends out dispatches when they are due
-        dispatch_arrived = dispatch_helper.updated_dispatches().new_receiver()
-        dispatch_ready = dispatch_helper.ready_dispatches().new_receiver()
+import os
+import grpc.aio
+from unittest.mock import MagicMock
 
-        async for selected in select(dispatch_ready, dispatch_arrived):
-            if selected_from(selected, dispatch_ready):
-                dispatch = selected.value
-                match dispatch.type:
-                    case DISPATCH_TYPE_BATTERY_CHARGE:
-                        battery_pool = microgrid.battery_pool(dispatch.battery_set, task_id)
-                        battery_pool.set_charge(dispatch.power)
-                ...
-            if selected_from(selected, dispatch_arrived):
-                match selected.value:
-                    case Created(dispatch):
-                        log.info("New dispatch arrived %s", dispatch)
-                        ...
-                    case Updated(dispatch):
-                        log.info("Dispatch updated %s", dispatch)
-                        ...
-                    case Deleted(dispatch):
-                        log.info("Dispatch deleted %s", dispatch)
-                        ...
+async def run():
+    host = os.getenv("DISPATCH_API_HOST", "localhost")
+    port = os.getenv("DISPATCH_API_PORT", "50051")
+
+    service_address = f"{host}:{port}"
+    grpc_channel = grpc.aio.insecure_channel(service_address)
+    microgrid_id = 1
+    dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
+    await dispatcher.start()
+
+    actor = MagicMock() # replace with your actor
+
+    changed_running_status_rx = dispatcher.running_status_change.new_receiver()
+
+    async for dispatch in changed_running_status_rx:
+        match dispatch.running("DEMO_TYPE"):
+            case RunningState.RUNNING:
+                print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
+                if actor.is_running:
+                    actor.reconfigure(
+                        components=dispatch.selector,
+                        run_parameters=dispatch.payload, # custom actor parameters
+                        dry_run=dispatch.dry_run,
+                        until=dispatch.until,
+                    )  # this will reconfigure the actor
+                else:
+                    # this will start a new actor with the given components
+                    # and run it for the duration of the dispatch
+                    actor.start(
+                        components=dispatch.selector,
+                        run_parameters=dispatch.payload, # custom actor parameters
+                        dry_run=dispatch.dry_run,
+                        until=dispatch.until,
+                    )
+            case RunningState.STOPPED:
+                actor.stop()  # this will stop the actor
+            case RunningState.DIFFERENT_TYPE:
+                pass  # dispatch not for this type
 ```
 
 ## Supported Platforms

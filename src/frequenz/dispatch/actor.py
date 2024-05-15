@@ -6,17 +6,15 @@
 import asyncio
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import cast
 
 import grpc.aio
-from dateutil import rrule
 from frequenz.channels import Sender
 from frequenz.channels.timer import SkipMissedAndDrift, Timer
 from frequenz.client.dispatch import Client
-from frequenz.client.dispatch.types import Dispatch, Frequency, Weekday
 from frequenz.sdk.actor import Actor
 
-from frequenz.dispatch._event import Created, Deleted, DispatchEvent, Updated
+from ._dispatch import Dispatch, RunningState
+from ._event import Created, Deleted, DispatchEvent, Updated
 
 _MAX_AHEAD_SCHEDULE = timedelta(hours=5)
 """The maximum time ahead to schedule a dispatch.
@@ -36,27 +34,6 @@ _logger = logging.getLogger(__name__)
 """The logger for this module."""
 
 
-_RRULE_FREQ_MAP = {
-    Frequency.MINUTELY: rrule.MINUTELY,
-    Frequency.HOURLY: rrule.HOURLY,
-    Frequency.DAILY: rrule.DAILY,
-    Frequency.WEEKLY: rrule.WEEKLY,
-    Frequency.MONTHLY: rrule.MONTHLY,
-}
-"""To map from our Frequency enum to the dateutil library enum."""
-
-_RRULE_WEEKDAY_MAP = {
-    Weekday.MONDAY: rrule.MO,
-    Weekday.TUESDAY: rrule.TU,
-    Weekday.WEDNESDAY: rrule.WE,
-    Weekday.THURSDAY: rrule.TH,
-    Weekday.FRIDAY: rrule.FR,
-    Weekday.SATURDAY: rrule.SA,
-    Weekday.SUNDAY: rrule.SU,
-}
-"""To map from our Weekday enum to the dateutil library enum."""
-
-
 class DispatchingActor(Actor):
     """Dispatch actor.
 
@@ -70,30 +47,28 @@ class DispatchingActor(Actor):
     def __init__(
         self,
         microgrid_id: int,
-        grpc_channel: grpc.aio.Channel,
-        svc_addr: str,
-        updated_dispatch_sender: Sender[DispatchEvent],
-        ready_dispatch_sender: Sender[Dispatch],
+        client: Client,
+        lifecycle_updates_sender: Sender[DispatchEvent],
+        running_state_change_sender: Sender[Dispatch],
         poll_interval: timedelta = _DEFAULT_POLL_INTERVAL,
     ) -> None:
         """Initialize the actor.
 
         Args:
             microgrid_id: The microgrid ID to handle dispatches for.
-            grpc_channel: The gRPC channel to use for communication with the API.
-            svc_addr: Address of the service to connect to.
-            updated_dispatch_sender: A sender for new or updated dispatches.
-            ready_dispatch_sender: A sender for ready dispatches.
+            client: The client to use for fetching dispatches.
+            lifecycle_updates_sender: A sender for dispatch lifecycle events.
+            running_state_change_sender: A sender for dispatch running state changes.
             poll_interval: The interval to poll the API for dispatche changes.
         """
         super().__init__(name="dispatch")
 
-        self._client = Client(grpc_channel, svc_addr)
+        self._client = client
         self._dispatches: dict[int, Dispatch] = {}
         self._scheduled: dict[int, asyncio.Task[None]] = {}
         self._microgrid_id = microgrid_id
-        self._updated_dispatch_sender = updated_dispatch_sender
-        self._ready_dispatch_sender = ready_dispatch_sender
+        self._lifecycle_updates_sender = lifecycle_updates_sender
+        self._running_state_change_sender = running_state_change_sender
         self._poll_timer = Timer(poll_interval, SkipMissedAndDrift())
 
     async def _run(self) -> None:
@@ -114,18 +89,28 @@ class DispatchingActor(Actor):
 
         try:
             _logger.info("Fetching dispatches for microgrid %s", self._microgrid_id)
-            async for dispatch in self._client.list(microgrid_id=self._microgrid_id):
-                self._dispatches[dispatch.id] = dispatch
+            async for client_dispatch in self._client.list(
+                microgrid_id=self._microgrid_id
+            ):
+                dispatch = Dispatch(client_dispatch)
 
+                self._dispatches[dispatch.id] = Dispatch(client_dispatch)
                 old_dispatch = old_dispatches.pop(dispatch.id, None)
                 if not old_dispatch:
                     self._update_dispatch_schedule(dispatch, None)
                     _logger.info("New dispatch: %s", dispatch)
-                    await self._updated_dispatch_sender.send(Created(dispatch=dispatch))
+                    await self._lifecycle_updates_sender.send(
+                        Created(dispatch=dispatch)
+                    )
                 elif dispatch.update_time != old_dispatch.update_time:
                     self._update_dispatch_schedule(dispatch, old_dispatch)
                     _logger.info("Updated dispatch: %s", dispatch)
-                    await self._updated_dispatch_sender.send(Updated(dispatch=dispatch))
+                    await self._lifecycle_updates_sender.send(
+                        Updated(dispatch=dispatch)
+                    )
+
+                    if self._running_state_change(dispatch, old_dispatch):
+                        await self._send_running_state_change(dispatch)
 
         except grpc.aio.AioRpcError as error:
             _logger.error("Error fetching dispatches: %s", error)
@@ -134,9 +119,13 @@ class DispatchingActor(Actor):
 
         for dispatch in old_dispatches.values():
             _logger.info("Deleted dispatch: %s", dispatch)
-            await self._updated_dispatch_sender.send(Deleted(dispatch=dispatch))
+            dispatch._set_deleted()  # pylint: disable=protected-access
+            await self._lifecycle_updates_sender.send(Deleted(dispatch=dispatch))
             if task := self._scheduled.pop(dispatch.id, None):
                 task.cancel()
+
+            if self._running_state_change(None, dispatch):
+                await self._send_running_state_change(dispatch)
 
     def _update_dispatch_schedule(
         self, dispatch: Dispatch, old_dispatch: Dispatch | None
@@ -178,7 +167,7 @@ class DispatchingActor(Actor):
 
         def next_run_info() -> tuple[datetime, datetime] | None:
             now = datetime.now(tz=timezone.utc)
-            next_run = self.calculate_next_run(dispatch, now)
+            next_run = dispatch.next_run_after(now)
 
             if next_run is None:
                 return None
@@ -196,56 +185,72 @@ class DispatchingActor(Actor):
             await asyncio.sleep((next_time - now).total_seconds())
 
             _logger.info("Dispatch ready: %s", dispatch)
-            await self._ready_dispatch_sender.send(dispatch)
+            await self._running_state_change_sender.send(dispatch)
 
         _logger.info("Dispatch finished: %s", dispatch)
         self._scheduled.pop(dispatch.id)
 
-    @classmethod
-    def calculate_next_run(cls, dispatch: Dispatch, _from: datetime) -> datetime | None:
-        """Calculate the next run of a dispatch.
+    def _running_state_change(
+        self, updated_dispatch: Dispatch | None, previous_dispatch: Dispatch | None
+    ) -> bool:
+        """Check if the running state of a dispatch has changed.
+
+        Checks if any of the running state changes to the dispatch
+        require a new message to be sent to the actor so that it can potentially
+        change its runtime configuration or start/stop itself.
+
+        Also checks if a dispatch update was not sent due to connection issues
+        in which case we need to send the message now.
 
         Args:
-            dispatch: The dispatch to calculate the next run for.
-            _from: The time to calculate the next run from.
+            updated_dispatch: The new dispatch, if available.
+            previous_dispatch: The old dispatch, if available.
 
         Returns:
-            The next run of the dispatch or None if the dispatch is finished.
+            True if the running state has changed, False otherwise.
         """
-        if (
-            not dispatch.recurrence.frequency
-            or dispatch.recurrence.frequency == Frequency.UNSPECIFIED
-        ):
-            if _from > dispatch.start_time:
-                return None
-            return dispatch.start_time
+        # New dispatch
+        if previous_dispatch is None:
+            assert updated_dispatch is not None
 
-        # Make sure no weekday is UNSPECIFIED
-        if Weekday.UNSPECIFIED in dispatch.recurrence.byweekdays:
-            _logger.warning(
-                "Dispatch %s has UNSPECIFIED weekday, ignoring...", dispatch.id
+            # Client was not informed about the dispatch, do it now
+            # pylint: disable=protected-access
+            if not updated_dispatch._running_status_notified:
+                return True
+
+        # Deleted dispatch
+        if updated_dispatch is None:
+            assert previous_dispatch is not None
+            return (
+                previous_dispatch.running(previous_dispatch.type)
+                == RunningState.RUNNING
             )
-            return None
 
-        count, until = (None, None)
-        if end := dispatch.recurrence.end_criteria:
-            count = end.count
-            until = end.until
+        # If any of the runtime attributes changed, we need to send a message
+        runtime_state_attributes = [
+            "running",
+            "type",
+            "selector",
+            "duration",
+            "dry_run",
+            "payload",
+        ]
 
-        next_run = rrule.rrule(
-            freq=_RRULE_FREQ_MAP[dispatch.recurrence.frequency],
-            dtstart=dispatch.start_time,
-            count=count,
-            until=until,
-            byminute=dispatch.recurrence.byminutes,
-            byhour=dispatch.recurrence.byhours,
-            byweekday=[
-                _RRULE_WEEKDAY_MAP[weekday]
-                for weekday in dispatch.recurrence.byweekdays
-            ],
-            bymonthday=dispatch.recurrence.bymonthdays,
-            bymonth=dispatch.recurrence.bymonths,
-            interval=dispatch.recurrence.interval,
-        )
+        for attribute in runtime_state_attributes:
+            if getattr(updated_dispatch, attribute) != getattr(
+                previous_dispatch, attribute
+            ):
+                return True
 
-        return cast(datetime | None, next_run.after(_from, inc=True))
+        return False
+
+    async def _send_running_state_change(self, dispatch: Dispatch) -> None:
+        """Send a running state change message.
+
+        Args:
+            dispatch: The dispatch that changed.
+        """
+        await self._running_state_change_sender.send(dispatch)
+        # Update the last sent notification time
+        # so we know if this change was already sent
+        dispatch._set_running_status_notified()  # pylint: disable=protected-access
