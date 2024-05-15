@@ -2,13 +2,16 @@
 
 ## Summary
 
-This is the first release of the highlevel dispatch interface!
+<!-- Here goes a general summary of what this release is about -->
 
 ## Upgrading
 
-* `Dispatcher.ready_to_execute()` was renamed to `Dispatcher.running_status_change()`
+<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
 
 ## New Features
 
-* Introduced new class `Dispatch` (based on the client class) that contains useful functions and extended information about the received dispatch.
-* `Dispatcher.client` was added to provide an easy access to the client for updating, deleting and creating dispatches
+<!-- Here goes the main new features and examples or instructions on how to use them -->
+
+## Bug Fixes
+
+<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
