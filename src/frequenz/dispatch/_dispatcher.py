@@ -175,7 +175,12 @@ class Dispatcher:
     """
 
     def __init__(
-        self, microgrid_id: int, grpc_channel: grpc.aio.Channel, svc_addr: str
+        self,
+        *,
+        microgrid_id: int,
+        grpc_channel: grpc.aio.Channel,
+        svc_addr: str,
+        key: str,
     ):
         """Initialize the dispatcher.
 
@@ -183,12 +188,13 @@ class Dispatcher:
             microgrid_id: The microgrid id.
             grpc_channel: The gRPC channel.
             svc_addr: The service address.
+            key: The key to access the service.
         """
         self._running_state_channel = Broadcast[Dispatch](name="running_state_change")
         self._lifecycle_events_channel = Broadcast[DispatchEvent](
             name="lifecycle_events"
         )
-        self._client = Client(grpc_channel, svc_addr)
+        self._client = Client(grpc_channel=grpc_channel, svc_addr=svc_addr, key=key)
         self._actor = DispatchingActor(
             microgrid_id,
             self._client,
