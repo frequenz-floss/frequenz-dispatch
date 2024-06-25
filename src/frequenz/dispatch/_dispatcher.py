@@ -62,11 +62,19 @@ class Dispatcher:
         async def run():
             host = os.getenv("DISPATCH_API_HOST", "localhost")
             port = os.getenv("DISPATCH_API_PORT", "50051")
+            key  = os.getenv("DISPATCH_API_KEY", "some-key")
 
             service_address = f"{host}:{port}"
-            grpc_channel = grpc.aio.insecure_channel(service_address)
-            microgrid_id = 1
-            dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
+            grpc_channel = grpc.aio.secure_channel(
+                service_address,
+                credentials=grpc.ssl_channel_credentials()
+            )
+            dispatcher = Dispatcher(
+                microgrid_id=1,
+                grpc_channel=grpc_channel,
+                svc_addr=service_address,
+                key=key
+            )
             await dispatcher.start()
 
             actor = MagicMock() # replace with your actor
@@ -110,12 +118,20 @@ class Dispatcher:
         async def run():
             host = os.getenv("DISPATCH_API_HOST", "localhost")
             port = os.getenv("DISPATCH_API_PORT", "50051")
+            key  = os.getenv("DISPATCH_API_KEY", "some-key")
 
             service_address = f"{host}:{port}"
-            grpc_channel = grpc.aio.insecure_channel(service_address)
-            microgrid_id = 1
-            dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
-            dispatcher.start()  # this will start the actor
+            grpc_channel = grpc.aio.secure_channel(
+                service_address,
+                credentials=grpc.ssl_channel_credentials()
+            )
+            dispatcher = Dispatcher(
+                microgrid_id=1,
+                grpc_channel=grpc_channel,
+                svc_addr=service_address,
+                key=key
+            )
+            await dispatcher.start()  # this will start the actor
 
             events_receiver = dispatcher.lifecycle_events.new_receiver()
 
@@ -146,11 +162,21 @@ class Dispatcher:
         async def run():
             host = os.getenv("DISPATCH_API_HOST", "localhost")
             port = os.getenv("DISPATCH_API_PORT", "50051")
+            key  = os.getenv("DISPATCH_API_KEY", "some-key")
+
+            microgrid_id = 1
 
             service_address = f"{host}:{port}"
-            grpc_channel = grpc.aio.insecure_channel(service_address)
-            microgrid_id = 1
-            dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
+            grpc_channel = grpc.aio.secure_channel(
+                service_address,
+                credentials=grpc.ssl_channel_credentials()
+            )
+            dispatcher = Dispatcher(
+                microgrid_id=microgrid_id,
+                grpc_channel=grpc_channel,
+                svc_addr=service_address,
+                key=key
+            )
             await dispatcher.start()  # this will start the actor
 
             # Create a new dispatch
@@ -175,7 +201,12 @@ class Dispatcher:
     """
 
     def __init__(
-        self, microgrid_id: int, grpc_channel: grpc.aio.Channel, svc_addr: str
+        self,
+        *,
+        microgrid_id: int,
+        grpc_channel: grpc.aio.Channel,
+        svc_addr: str,
+        key: str,
     ):
         """Initialize the dispatcher.
 
@@ -183,12 +214,13 @@ class Dispatcher:
             microgrid_id: The microgrid id.
             grpc_channel: The gRPC channel.
             svc_addr: The service address.
+            key: The key to access the service.
         """
         self._running_state_channel = Broadcast[Dispatch](name="running_state_change")
         self._lifecycle_events_channel = Broadcast[DispatchEvent](
             name="lifecycle_events"
         )
-        self._client = Client(grpc_channel, svc_addr)
+        self._client = Client(grpc_channel=grpc_channel, svc_addr=svc_addr, key=key)
         self._actor = DispatchingActor(
             microgrid_id,
             self._client,
