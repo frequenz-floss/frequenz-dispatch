@@ -98,7 +98,7 @@ async def test_new_dispatch_created(
     generator: DispatchGenerator,
 ) -> None:
     """Test that a new dispatch is created."""
-    sample = generator.generate_dispatch(actor_env.microgrid_id)
+    sample = generator.generate_dispatch()
 
     await _test_new_dispatch_created(actor_env, sample)
 
@@ -134,7 +134,7 @@ async def _test_new_dispatch_created(
     Returns:
         The sample dispatch that was created
     """
-    await actor_env.client.create(**to_create_params(sample))
+    await actor_env.client.create(**to_create_params(actor_env.microgrid_id, sample))
 
     dispatch_event = await actor_env.updated_dispatches.receive()
 
@@ -154,7 +154,7 @@ async def test_existing_dispatch_updated(
     fake_time: time_machine.Coordinates,
 ) -> None:
     """Test that an existing dispatch is updated."""
-    sample = generator.generate_dispatch(actor_env.microgrid_id)
+    sample = generator.generate_dispatch()
     sample = replace(
         sample,
         active=False,
@@ -167,6 +167,7 @@ async def test_existing_dispatch_updated(
     fake_time.shift(timedelta(seconds=1))
 
     await actor_env.client.update(
+        microgrid_id=actor_env.microgrid_id,
         dispatch_id=sample.id,
         new_fields={
             "active": True,
@@ -199,11 +200,13 @@ async def test_existing_dispatch_deleted(
     fake_time: time_machine.Coordinates,
 ) -> None:
     """Test that an existing dispatch is deleted."""
-    sample = generator.generate_dispatch(actor_env.microgrid_id)
+    sample = generator.generate_dispatch()
 
     sample = await _test_new_dispatch_created(actor_env, sample)
 
-    await actor_env.client.delete(sample.id)
+    await actor_env.client.delete(
+        microgrid_id=actor_env.microgrid_id, dispatch_id=sample.id
+    )
     fake_time.shift(timedelta(seconds=10))
     await asyncio.sleep(10)
 
@@ -223,9 +226,9 @@ async def test_dispatch_schedule(
     fake_time: time_machine.Coordinates,
 ) -> None:
     """Test that a random dispatch is scheduled correctly."""
-    sample = generator.generate_dispatch(actor_env.microgrid_id)
-    await actor_env.client.create(**to_create_params(sample))
-    dispatch = Dispatch(actor_env.client.dispatches[0])
+    sample = generator.generate_dispatch()
+    await actor_env.client.create(**to_create_params(actor_env.microgrid_id, sample))
+    dispatch = Dispatch(actor_env.client.dispatches(actor_env.microgrid_id)[0])
 
     next_run = dispatch.next_run_after(_now())
     assert next_run is not None

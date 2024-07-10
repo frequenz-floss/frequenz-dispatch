@@ -182,7 +182,7 @@ class Dispatcher:
             # Create a new dispatch
             new_dispatch = await dispatcher.client.create(
                 microgrid_id=microgrid_id,
-                _type="ECHO_FREQUENCY",  # replace with your own type
+                type="ECHO_FREQUENCY",  # replace with your own type
                 start_time=datetime.now(tz=timezone.utc) + timedelta(minutes=10),
                 duration=timedelta(minutes=5),
                 selector=ComponentCategory.INVERTER,
@@ -191,11 +191,15 @@ class Dispatcher:
 
             # Modify the dispatch
             await dispatcher.client.update(
-                dispatch_id=new_dispatch.id, new_fields={"duration": timedelta(minutes=10)}
+                microgrid_id=microgrid_id,
+                dispatch_id=new_dispatch.id,
+                new_fields={"duration": timedelta(minutes=10)}
             )
 
             # Validate the modification
-            modified_dispatch = await dispatcher.client.get(new_dispatch.id)
+            modified_dispatch = await dispatcher.client.get(
+                microgrid_id=microgrid_id, dispatch_id=new_dispatch.id
+            )
             assert modified_dispatch.duration == timedelta(minutes=10)
         ```
     """
