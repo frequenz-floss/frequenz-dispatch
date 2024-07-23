@@ -268,6 +268,9 @@ class Dispatcher:
         or reconfigure itself with new parameters causes a message to be
         sent.
 
+        Note, that when a dispatch is deleted, a message will only be sent if no
+        other dispatch of the same type is still running.
+
         A non-exhaustive list of possible changes that will cause a message to be sent:
          - The normal scheduled start_time has been reached
          - The duration of the dispatch has been modified

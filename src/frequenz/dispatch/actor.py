@@ -34,7 +34,7 @@ _logger = logging.getLogger(__name__)
 """The logger for this module."""
 
 
-class DispatchingActor(Actor):
+class DispatchingActor(Actor):  # pylint: disable=too-many-instance-attributes
     """Dispatch actor.
 
     This actor is responsible for handling dispatches for a microgrid.
@@ -65,11 +65,15 @@ class DispatchingActor(Actor):
 
         self._client = client
         self._dispatches: dict[int, Dispatch] = {}
+
         self._scheduled: dict[int, asyncio.Task[None]] = {}
         self._microgrid_id = microgrid_id
         self._lifecycle_updates_sender = lifecycle_updates_sender
         self._running_state_change_sender = running_state_change_sender
         self._poll_timer = Timer(poll_interval, SkipMissedAndDrift())
+
+        # Map dispatch type to dispatch IDs
+        self._dispatch_type_ids_map: dict[str, list[int]] = {}
 
     async def _run(self) -> None:
         """Run the actor."""
@@ -85,7 +89,9 @@ class DispatchingActor(Actor):
     async def _fetch(self) -> None:
         """Fetch all relevant dispatches."""
         old_dispatches = self._dispatches
+        old_map = self._dispatch_type_ids_map
         self._dispatches = {}
+        self._dispatch_type_ids_map = {}
 
         try:
             _logger.info("Fetching dispatches for microgrid %s", self._microgrid_id)
@@ -95,6 +101,10 @@ class DispatchingActor(Actor):
                 dispatch = Dispatch(client_dispatch)
 
                 self._dispatches[dispatch.id] = Dispatch(client_dispatch)
+                self._dispatch_type_ids_map.setdefault(dispatch.type, []).append(
+                    dispatch.id
+                )
+
                 old_dispatch = old_dispatches.pop(dispatch.id, None)
                 if not old_dispatch:
                     self._update_dispatch_schedule(dispatch, None)
@@ -115,6 +125,7 @@ class DispatchingActor(Actor):
         except grpc.aio.AioRpcError as error:
             _logger.error("Error fetching dispatches: %s", error)
             self._dispatches = old_dispatches
+            self._dispatch_type_ids_map = old_map
             return
 
         for dispatch in old_dispatches.values():
@@ -193,14 +204,13 @@ class DispatchingActor(Actor):
     def _running_state_change(
         self, updated_dispatch: Dispatch | None, previous_dispatch: Dispatch | None
     ) -> bool:
-        """Check if the running state of a dispatch has changed.
+        """Check if the dispatch change requires the actor to be notified.
 
-        Checks if any of the running state changes to the dispatch
-        require a new message to be sent to the actor so that it can potentially
-        change its runtime configuration or start/stop itself.
-
-        Also checks if a dispatch update was not sent due to connection issues
-        in which case we need to send the message now.
+        Checks if any of the changes to the dispatch caused a change in the
+        running state for the target actor.
+        If so, this will require a new message to be sent to the actor so that
+        it can potentially change its runtime configuration or start/stop
+        itself.
 
         Args:
             updated_dispatch: The new dispatch, if available.
@@ -221,6 +231,16 @@ class DispatchingActor(Actor):
         # Deleted dispatch
         if updated_dispatch is None:
             assert previous_dispatch is not None
+
+            _type = previous_dispatch.type
+
+            # Check if other dispatches of the same type are still running
+            if any(
+                self._dispatches[dispatch_id].running(_type) == RunningState.RUNNING
+                for dispatch_id in self._dispatch_type_ids_map[_type]
+            ):
+                return False
+
             return (
                 previous_dispatch.running(previous_dispatch.type)
                 == RunningState.RUNNING
