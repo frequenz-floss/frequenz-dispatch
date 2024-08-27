@@ -39,7 +39,7 @@ dependencies = [
   # Make sure to update the version for cross-referencing also in the
   # mkdocs.yml file when changing the version here (look for the config key
   # plugins.mkdocstrings.handlers.python.import)
-  "frequenz-sdk == 1.0.0rc601",
+  "frequenz-sdk == 1.0.0-rc801",
   "frequenz-channels >= 1.1.0, < 2.0.0",
   "frequenz-client-dispatch >= 0.5.0, < 0.6.0",
 ]
@@ -72,6 +72,7 @@ dev-mkdocs = [
 ]
 dev-mypy = [
   "mypy == 1.11.1",
+  "grpc-stubs == 1.24.12",               # This dependency introduces breaking changes in patch releases
   "types-Markdown == 3.6.0.20240316",
   "types-python-dateutil==2.9.0.20240316",
   # For checking the noxfile, docs/ script, and tests
@@ -179,7 +180,13 @@ packages = ["frequenz.dispatch"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["mkdocs_macros.*", "async_solipsism", "async_solipsism.*"]
+module = [
+  "mkdocs_macros.*",
+  "async_solipsism",
+  "async_solipsism.*",
+  "grpc.aio",
+  "grpc.aio.*",
+]
 ignore_missing_imports = true
 
 [tool.setuptools_scm]
