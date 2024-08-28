@@ -1111,16 +1111,16 @@
 
 
 <h2 id="frequenz.dispatch.actor" class="doc doc-heading">
-          <span class="doc doc-object-name doc-module-name">frequenz.dispatch.actor</span>
+            <span class="doc doc-object-name doc-module-name">frequenz.dispatch.actor</span>
 
 
 <a href="#frequenz.dispatch.actor" class="headerlink" title="Permanent link">¤</a></h2>
 
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p>The dispatch actor.</p>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -1136,25 +1136,25 @@
 
 
 <h4 id="frequenz.dispatch.actor.DispatchingActor" class="doc doc-heading">
-          <span class="doc doc-object-name doc-class-name">frequenz.dispatch.actor.DispatchingActor</span>
+            <span class="doc doc-object-name doc-class-name">frequenz.dispatch.actor.DispatchingActor</span>
 
 
 <a href="#frequenz.dispatch.actor.DispatchingActor" class="headerlink" title="Permanent link">¤</a></h4>
 
 
-  <div class="doc doc-contents ">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-external" title="frequenz.sdk.actor.Actor" href="https://frequenz-floss.github.io/frequenz-sdk-python/v1.0-pre/reference/frequenz/sdk/actor/#frequenz.sdk.actor.Actor">Actor</a></code></p>
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-external" title="frequenz.sdk.actor.Actor" href="https://frequenz-floss.github.io/frequenz-sdk-python/v1.0-pre/reference/frequenz/sdk/actor/#frequenz.sdk.actor.Actor">Actor</a></code></p>
 
-  
+
       <p>Dispatch actor.</p>
 <p>This actor is responsible for handling dispatches for a microgrid.</p>
 <p>This means staying in sync with the API and scheduling
 dispatches as necessary.</p>
 
-            <details class="quote">
-              <summary>Source code in <code>frequenz/dispatch/actor.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-37"> 37</a></span>
+              <details class="quote">
+                <summary>Source code in <code>frequenz/dispatch/actor.py</code></summary>
+                <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-37"> 37</a></span>
 <span class="normal"><a href="#__codelineno-0-38"> 38</a></span>
 <span class="normal"><a href="#__codelineno-0-39"> 39</a></span>
 <span class="normal"><a href="#__codelineno-0-40"> 40</a></span>
@@ -1594,9 +1594,9 @@ dispatches as necessary.</p>
 </span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a>        <span class="c1"># so we know if this change was already sent</span>
 </span><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a>        <span class="n">dispatch</span><span class="o">.</span><span class="n">_set_running_status_notified</span><span class="p">()</span>  <span class="c1"># pylint: disable=protected-access</span>
 </span></code></pre></div></td></tr></table></div>
-            </details>
+              </details>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -1611,9 +1611,9 @@ dispatches as necessary.</p>
 
 
 <h6 id="frequenz.dispatch.actor.DispatchingActor.RESTART_DELAY" class="doc doc-heading">
-          <span class="doc doc-object-name doc-attribute-name">RESTART_DELAY</span>
+            <span class="doc doc-object-name doc-attribute-name">RESTART_DELAY</span>
 
-  
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
@@ -1623,10 +1623,10 @@ dispatches as necessary.</p>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">RESTART_DELAY</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="datetime.timedelta" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta">timedelta</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="datetime.timedelta" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta">timedelta</a></span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>The delay to wait between restarts of this actor.</p>
-  </div>
+    </div>
 
 </div>
 
@@ -1635,9 +1635,9 @@ dispatches as necessary.</p>
 
 
 <h6 id="frequenz.dispatch.actor.DispatchingActor.is_running" class="doc doc-heading">
-          <span class="doc doc-object-name doc-attribute-name">is_running</span>
+            <span class="doc doc-object-name doc-attribute-name">is_running</span>
 
-  
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
@@ -1646,36 +1646,35 @@ dispatches as necessary.</p>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">is_running</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Return whether this background service is running.</p>
 <p>A service is considered running when at least one task is running.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td>
-              <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
-              </span>
-          </td>
-          <td class="doc-returns-details">
-            <div class="doc-md-description">
-              <p>Whether this background service is running.</p>
-            </div>
-          </td>
+          <th><span class="doc-section-title">RETURNS</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
-  </div>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <span class="doc-returns-annotation">
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
+                </span>
+            </td>
+            <td class="doc-returns-details">
+              <div class="doc-md-description">
+                <p>Whether this background service is running.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+    </div>
 
 </div>
 
@@ -1684,9 +1683,9 @@ dispatches as necessary.</p>
 
 
 <h6 id="frequenz.dispatch.actor.DispatchingActor.name" class="doc doc-heading">
-          <span class="doc doc-object-name doc-attribute-name">name</span>
+            <span class="doc doc-object-name doc-attribute-name">name</span>
 
-  
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
@@ -1695,35 +1694,34 @@ dispatches as necessary.</p>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">name</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>The name of this background service.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td>
-              <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
-              </span>
-          </td>
-          <td class="doc-returns-details">
-            <div class="doc-md-description">
-              <p>The name of this background service.</p>
-            </div>
-          </td>
+          <th><span class="doc-section-title">RETURNS</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
-  </div>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <span class="doc-returns-annotation">
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+                </span>
+            </td>
+            <td class="doc-returns-details">
+              <div class="doc-md-description">
+                <p>The name of this background service.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+    </div>
 
 </div>
 
@@ -1732,9 +1730,9 @@ dispatches as necessary.</p>
 
 
 <h6 id="frequenz.dispatch.actor.DispatchingActor.tasks" class="doc doc-heading">
-          <span class="doc doc-object-name doc-attribute-name">tasks</span>
+            <span class="doc doc-object-name doc-attribute-name">tasks</span>
 
-  
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
@@ -1743,8 +1741,8 @@ dispatches as necessary.</p>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">tasks</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="collections.abc.Set" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Set">Set</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="asyncio.Task" href="https://docs.python.org/3/library/asyncio-task.html#asyncio.Task">Task</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">]]</span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Return the set of running tasks spawned by this background service.</p>
 <p>Users typically should not modify the tasks in the returned set and only use
 them for informational purposes.</p>
@@ -1755,44 +1753,41 @@ unless the class explicitly documents it is safe to do so.</p>
 </div>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td>
-              <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="collections.abc.Set" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Set">Set</a>[<a class="autorefs autorefs-external" title="asyncio.Task" href="https://docs.python.org/3/library/asyncio-task.html#asyncio.Task">Task</a>[<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]]</code>
-              </span>
-          </td>
-          <td class="doc-returns-details">
-            <div class="doc-md-description">
-              <p>The set of running tasks spawned by this background service.</p>
-            </div>
-          </td>
+          <th><span class="doc-section-title">RETURNS</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
-  </div>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <span class="doc-returns-annotation">
+                    <code><a class="autorefs autorefs-external" title="collections.abc.Set" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Set">Set</a>[<a class="autorefs autorefs-external" title="asyncio.Task" href="https://docs.python.org/3/library/asyncio-task.html#asyncio.Task">Task</a>[<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+            </td>
+            <td class="doc-returns-details">
+              <div class="doc-md-description">
+                <p>The set of running tasks spawned by this background service.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+    </div>
 
 </div>
 
 <h5 id="frequenz.dispatch.actor.DispatchingActor-functions">Functions<a href="#frequenz.dispatch.actor.DispatchingActor-functions" class="headerlink" title="Permanent link">¤</a></h5>
 
-
 <div class="doc doc-object doc-function">
 
 
-
 <h6 id="frequenz.dispatch.actor.DispatchingActor.__aenter__" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">__aenter__</span>
+            <span class="doc doc-object-name doc-function-name">__aenter__</span>
 
-  
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
@@ -1801,39 +1796,38 @@ unless the class explicitly documents it is safe to do so.</p>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="fm">__aenter__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nf"><a class="autorefs autorefs-external" title="typing.Self" href="https://docs.python.org/3/library/typing.html#typing.Self">Self</a></span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Enter an async context.</p>
 <p>Start this background service.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td>
-              <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="typing.Self" href="https://docs.python.org/3/library/typing.html#typing.Self">Self</a></code>
-              </span>
-          </td>
-          <td class="doc-returns-details">
-            <div class="doc-md-description">
-              <p>This background service.</p>
-            </div>
-          </td>
+          <th><span class="doc-section-title">RETURNS</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <span class="doc-returns-annotation">
+                    <code><a class="autorefs autorefs-external" title="typing.Self" href="https://docs.python.org/3/library/typing.html#typing.Self">Self</a></code>
+                </span>
+            </td>
+            <td class="doc-returns-details">
+              <div class="doc-md-description">
+                <p>This background service.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-          <details class="quote">
-            <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-159">159</a></span>
+            <details class="quote">
+              <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-159">159</a></span>
 <span class="normal"><a href="#__codelineno-0-160">160</a></span>
 <span class="normal"><a href="#__codelineno-0-161">161</a></span>
 <span class="normal"><a href="#__codelineno-0-162">162</a></span>
@@ -1853,20 +1847,18 @@ unless the class explicitly documents it is safe to do so.</p>
 </span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>    <span class="k">return</span> <span class="bp">self</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
 <h6 id="frequenz.dispatch.actor.DispatchingActor.__aexit__" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">__aexit__</span>
+            <span class="doc doc-object-name doc-function-name">__aexit__</span>
 
-  
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
@@ -1879,69 +1871,68 @@ unless the class explicitly documents it is safe to do so.</p>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Exit an async context.</p>
 <p>Stop this background service.</p>
 
 
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>exc_type</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The type of the exception raised, if any.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#BaseException">BaseException</a>] | None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>exc_val</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The exception raised, if any.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#BaseException">BaseException</a> | None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>exc_tb</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The traceback of the exception raised, if any.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="types.TracebackType" href="https://docs.python.org/3/library/types.html#types.TracebackType">TracebackType</a> | None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>exc_type</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>The type of the exception raised, if any.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#BaseException">BaseException</a>] | None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>exc_val</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>The exception raised, if any.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#BaseException">BaseException</a> | None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>exc_tb</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>The traceback of the exception raised, if any.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="types.TracebackType" href="https://docs.python.org/3/library/types.html#types.TracebackType">TracebackType</a> | None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-          <details class="quote">
-            <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-170">170</a></span>
+            <details class="quote">
+              <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-170">170</a></span>
 <span class="normal"><a href="#__codelineno-0-171">171</a></span>
 <span class="normal"><a href="#__codelineno-0-172">172</a></span>
 <span class="normal"><a href="#__codelineno-0-173">173</a></span>
@@ -1973,57 +1964,54 @@ unless the class explicitly documents it is safe to do so.</p>
 </span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
 <h6 id="frequenz.dispatch.actor.DispatchingActor.__await__" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">__await__</span>
+            <span class="doc doc-object-name doc-function-name">__await__</span>
 
 
 <a href="#frequenz.dispatch.actor.DispatchingActor.__await__" class="headerlink" title="Permanent link">¤</a></h6>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="fm">__await__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nf"><a class="autorefs autorefs-external" title="collections.abc.Generator" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator">Generator</a></span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Await this background service.</p>
 <p>An awaited background service will wait for all its tasks to finish.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td>
-              <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="collections.abc.Generator" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator">Generator</a>[None, None, None]</code>
-              </span>
-          </td>
-          <td class="doc-returns-details">
-            <div class="doc-md-description">
-              <p>An implementation-specific generator for the awaitable.</p>
-            </div>
-          </td>
+          <th><span class="doc-section-title">RETURNS</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <span class="doc-returns-annotation">
+                    <code><a class="autorefs autorefs-external" title="collections.abc.Generator" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator">Generator</a>[None, None, None]</code>
+                </span>
+            </td>
+            <td class="doc-returns-details">
+              <div class="doc-md-description">
+                <p>An implementation-specific generator for the awaitable.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-          <details class="quote">
-            <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-220">220</a></span>
+            <details class="quote">
+              <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-220">220</a></span>
 <span class="normal"><a href="#__codelineno-0-221">221</a></span>
 <span class="normal"><a href="#__codelineno-0-222">222</a></span>
 <span class="normal"><a href="#__codelineno-0-223">223</a></span>
@@ -2041,32 +2029,30 @@ unless the class explicitly documents it is safe to do so.</p>
 </span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span><span class="o">.</span><span class="fm">__await__</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
 <h6 id="frequenz.dispatch.actor.DispatchingActor.__del__" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">__del__</span>
+            <span class="doc doc-object-name doc-function-name">__del__</span>
 
 
 <a href="#frequenz.dispatch.actor.DispatchingActor.__del__" class="headerlink" title="Permanent link">¤</a></h6>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="fm">__del__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Destroy this instance.</p>
 <p>Cancel all running tasks spawned by this background service.</p>
 
-          <details class="quote">
-            <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-230">230</a></span>
+            <details class="quote">
+              <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-230">230</a></span>
 <span class="normal"><a href="#__codelineno-0-231">231</a></span>
 <span class="normal"><a href="#__codelineno-0-232">232</a></span>
 <span class="normal"><a href="#__codelineno-0-233">233</a></span>
@@ -2078,18 +2064,16 @@ unless the class explicitly documents it is safe to do so.</p>
 </span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{self!r}</span><span class="s2"> was deleted&quot;</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
 <h6 id="frequenz.dispatch.actor.DispatchingActor.__init__" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">__init__</span>
+            <span class="doc doc-object-name doc-function-name">__init__</span>
 
 
 <a href="#frequenz.dispatch.actor.DispatchingActor.__init__" class="headerlink" title="Permanent link">¤</a></h6>
@@ -2102,100 +2086,99 @@ unless the class explicitly documents it is safe to do so.</p>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Initialize the actor.</p>
 
 
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>microgrid_id</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The microgrid ID to handle dispatches for.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>client</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The client to use for fetching dispatches.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="frequenz.client.dispatch.Client" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.5/reference/frequenz/client/dispatch/#frequenz.client.dispatch.Client">Client</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>lifecycle_updates_sender</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>A sender for dispatch lifecycle events.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="frequenz.channels.Sender" href="https://frequenz-floss.github.io/frequenz-channels-python/v1.0/reference/frequenz/channels/#frequenz.channels.Sender">Sender</a>[<a class="autorefs autorefs-internal" title="frequenz.dispatch._event.DispatchEvent" href="../#frequenz.dispatch.DispatchEvent">DispatchEvent</a>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>running_state_change_sender</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>A sender for dispatch running state changes.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="frequenz.channels.Sender" href="https://frequenz-floss.github.io/frequenz-channels-python/v1.0/reference/frequenz/channels/#frequenz.channels.Sender">Sender</a>[<a class="autorefs autorefs-internal" title="frequenz.dispatch._dispatch.Dispatch" href="../#frequenz.dispatch.Dispatch">Dispatch</a>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>poll_interval</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The interval to poll the API for dispatche changes.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="datetime.timedelta" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta">timedelta</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code><span title="frequenz.dispatch.actor._DEFAULT_POLL_INTERVAL">_DEFAULT_POLL_INTERVAL</span></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>microgrid_id</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>The microgrid ID to handle dispatches for.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>client</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>The client to use for fetching dispatches.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="frequenz.client.dispatch.Client" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.5/reference/frequenz/client/dispatch/#frequenz.client.dispatch.Client">Client</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>lifecycle_updates_sender</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>A sender for dispatch lifecycle events.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="frequenz.channels.Sender" href="https://frequenz-floss.github.io/frequenz-channels-python/v1.0/reference/frequenz/channels/#frequenz.channels.Sender">Sender</a>[<a class="autorefs autorefs-internal" title="frequenz.dispatch._event.DispatchEvent" href="../#frequenz.dispatch.DispatchEvent">DispatchEvent</a>]</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>running_state_change_sender</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>A sender for dispatch running state changes.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="frequenz.channels.Sender" href="https://frequenz-floss.github.io/frequenz-channels-python/v1.0/reference/frequenz/channels/#frequenz.channels.Sender">Sender</a>[<a class="autorefs autorefs-internal" title="frequenz.dispatch._dispatch.Dispatch" href="../#frequenz.dispatch.Dispatch">Dispatch</a>]</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>poll_interval</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>The interval to poll the API for dispatche changes.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="datetime.timedelta" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta">timedelta</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code><span title="frequenz.dispatch.actor._DEFAULT_POLL_INTERVAL">_DEFAULT_POLL_INTERVAL</span></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-          <details class="quote">
-            <summary>Source code in <code>frequenz/dispatch/actor.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-47">47</a></span>
+            <details class="quote">
+              <summary>Source code in <code>frequenz/dispatch/actor.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-47">47</a></span>
 <span class="normal"><a href="#__codelineno-0-48">48</a></span>
 <span class="normal"><a href="#__codelineno-0-49">49</a></span>
 <span class="normal"><a href="#__codelineno-0-50">50</a></span>
@@ -2247,56 +2230,53 @@ unless the class explicitly documents it is safe to do so.</p>
 </span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_running_state_change_sender</span> <span class="o">=</span> <span class="n">running_state_change_sender</span>
 </span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_poll_timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="n">poll_interval</span><span class="p">,</span> <span class="n">SkipMissedAndDrift</span><span class="p">())</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
 <h6 id="frequenz.dispatch.actor.DispatchingActor.__repr__" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">__repr__</span>
+            <span class="doc doc-object-name doc-function-name">__repr__</span>
 
 
 <a href="#frequenz.dispatch.actor.DispatchingActor.__repr__" class="headerlink" title="Permanent link">¤</a></h6>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="fm">__repr__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nf"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Return a string representation of this instance.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td>
-              <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
-              </span>
-          </td>
-          <td class="doc-returns-details">
-            <div class="doc-md-description">
-              <p>A string representation of this instance.</p>
-            </div>
-          </td>
+          <th><span class="doc-section-title">RETURNS</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <span class="doc-returns-annotation">
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+                </span>
+            </td>
+            <td class="doc-returns-details">
+              <div class="doc-md-description">
+                <p>A string representation of this instance.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-          <details class="quote">
-            <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-237">237</a></span>
+            <details class="quote">
+              <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-237">237</a></span>
 <span class="normal"><a href="#__codelineno-0-238">238</a></span>
 <span class="normal"><a href="#__codelineno-0-239">239</a></span>
 <span class="normal"><a href="#__codelineno-0-240">240</a></span>
@@ -2310,56 +2290,53 @@ unless the class explicitly documents it is safe to do so.</p>
 </span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">!r}</span><span class="s2">, tasks=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="si">!r}</span><span class="s2">)&quot;</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
 <h6 id="frequenz.dispatch.actor.DispatchingActor.__str__" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">__str__</span>
+            <span class="doc doc-object-name doc-function-name">__str__</span>
 
 
 <a href="#frequenz.dispatch.actor.DispatchingActor.__str__" class="headerlink" title="Permanent link">¤</a></h6>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="fm">__str__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nf"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Return a string representation of this instance.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td>
-              <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
-              </span>
-          </td>
-          <td class="doc-returns-details">
-            <div class="doc-md-description">
-              <p>A string representation of this instance.</p>
-            </div>
-          </td>
+          <th><span class="doc-section-title">RETURNS</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <span class="doc-returns-annotation">
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+                </span>
+            </td>
+            <td class="doc-returns-details">
+              <div class="doc-md-description">
+                <p>A string representation of this instance.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-          <details class="quote">
-            <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-245">245</a></span>
+            <details class="quote">
+              <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-245">245</a></span>
 <span class="normal"><a href="#__codelineno-0-246">246</a></span>
 <span class="normal"><a href="#__codelineno-0-247">247</a></span>
 <span class="normal"><a href="#__codelineno-0-248">248</a></span>
@@ -2373,62 +2350,59 @@ unless the class explicitly documents it is safe to do so.</p>
 </span><span id="__span-0-250"><a id="__codelineno-0-250" name="__codelineno-0-250"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-251"><a id="__codelineno-0-251" name="__codelineno-0-251"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">]&quot;</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
 <h6 id="frequenz.dispatch.actor.DispatchingActor.cancel" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">cancel</span>
+            <span class="doc doc-object-name doc-function-name">cancel</span>
 
 
 <a href="#frequenz.dispatch.actor.DispatchingActor.cancel" class="headerlink" title="Permanent link">¤</a></h6>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">cancel</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Cancel all running tasks spawned by this background service.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td><code>msg</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>The message to be passed to the tasks being cancelled.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | None</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>msg</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The message to be passed to the tasks being cancelled.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | None</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-          <details class="quote">
-            <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-123">123</a></span>
+            <details class="quote">
+              <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-123">123</a></span>
 <span class="normal"><a href="#__codelineno-0-124">124</a></span>
 <span class="normal"><a href="#__codelineno-0-125">125</a></span>
 <span class="normal"><a href="#__codelineno-0-126">126</a></span>
@@ -2444,32 +2418,30 @@ unless the class explicitly documents it is safe to do so.</p>
 </span><span id="__span-0-129"><a id="__codelineno-0-129" name="__codelineno-0-129"></a>    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="p">:</span>
 </span><span id="__span-0-130"><a id="__codelineno-0-130" name="__codelineno-0-130"></a>        <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
 <h6 id="frequenz.dispatch.actor.DispatchingActor.start" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">start</span>
+            <span class="doc doc-object-name doc-function-name">start</span>
 
 
 <a href="#frequenz.dispatch.actor.DispatchingActor.start" class="headerlink" title="Permanent link">¤</a></h6>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Start this actor.</p>
 <p>If this actor is already running, this method does nothing.</p>
 
-          <details class="quote">
-            <summary>Source code in <code>frequenz/sdk/actor/_actor.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-47">47</a></span>
+            <details class="quote">
+              <summary>Source code in <code>frequenz/sdk/actor/_actor.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-47">47</a></span>
 <span class="normal"><a href="#__codelineno-0-48">48</a></span>
 <span class="normal"><a href="#__codelineno-0-49">49</a></span>
 <span class="normal"><a href="#__codelineno-0-50">50</a></span>
@@ -2487,20 +2459,18 @@ unless the class explicitly documents it is safe to do so.</p>
 </span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 </span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run_loop</span><span class="p">()))</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
 <h6 id="frequenz.dispatch.actor.DispatchingActor.stop" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">stop</span>
+            <span class="doc doc-object-name doc-function-name">stop</span>
 
-  
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
@@ -2509,72 +2479,70 @@ unless the class explicitly documents it is safe to do so.</p>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">stop</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Stop this background service.</p>
 <p>This method cancels all running tasks spawned by this service and waits for them
 to finish.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td><code>msg</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>The message to be passed to the tasks being cancelled.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | None</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>msg</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The message to be passed to the tasks being cancelled.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | None</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>RAISES</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td>
-            <span class="doc-raises-annotation">
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#BaseExceptionGroup">BaseExceptionGroup</a></code>
-            </span>
-          </td>
-          <td class="doc-raises-details">
-            <div class="doc-md-description">
-              <p>If any of the tasks spawned by this service raised an
+          <th><span class="doc-section-title">RAISES</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+              <span class="doc-raises-annotation">
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#BaseExceptionGroup">BaseExceptionGroup</a></code>
+              </span>
+            </td>
+            <td class="doc-raises-details">
+              <div class="doc-md-description">
+                <p>If any of the tasks spawned by this service raised an
 exception.</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-          <details class="quote">
-            <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-132">132</a></span>
+            <details class="quote">
+              <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-132">132</a></span>
 <span class="normal"><a href="#__codelineno-0-133">133</a></span>
 <span class="normal"><a href="#__codelineno-0-134">134</a></span>
 <span class="normal"><a href="#__codelineno-0-135">135</a></span>
@@ -2626,20 +2594,18 @@ exception.</p>
 </span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a>            <span class="c1"># add the exceptions we just filtered by adding a from clause here.</span>
 </span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a>            <span class="k">raise</span> <span class="n">rest</span>  <span class="c1"># pylint: disable=raise-missing-from</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
 <h6 id="frequenz.dispatch.actor.DispatchingActor.wait" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">wait</span>
+            <span class="doc doc-object-name doc-function-name">wait</span>
 
-  
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
@@ -2648,41 +2614,40 @@ exception.</p>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">wait</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Wait this background service to finish.</p>
 <p>Wait until all background service tasks are finished.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>RAISES</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td>
-            <span class="doc-raises-annotation">
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#BaseExceptionGroup">BaseExceptionGroup</a></code>
-            </span>
-          </td>
-          <td class="doc-raises-details">
-            <div class="doc-md-description">
-              <p>If any of the tasks spawned by this service raised an
+          <th><span class="doc-section-title">RAISES</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+              <span class="doc-raises-annotation">
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#BaseExceptionGroup">BaseExceptionGroup</a></code>
+              </span>
+            </td>
+            <td class="doc-raises-details">
+              <div class="doc-md-description">
+                <p>If any of the tasks spawned by this service raised an
 exception (<code>CancelError</code> is not considered an error and not returned in
 the exception group).</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-          <details class="quote">
-            <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-187">187</a></span>
+            <details class="quote">
+              <summary>Source code in <code>frequenz/sdk/actor/_background_service.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-187">187</a></span>
 <span class="normal"><a href="#__codelineno-0-188">188</a></span>
 <span class="normal"><a href="#__codelineno-0-189">189</a></span>
 <span class="normal"><a href="#__codelineno-0-190">190</a></span>
@@ -2746,8 +2711,8 @@ the exception group).</p>
 </span><span id="__span-0-217"><a id="__codelineno-0-217" name="__codelineno-0-217"></a>                <span class="sa">f</span><span class="s2">&quot;Error while stopping background service </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exceptions</span>
 </span><span id="__span-0-218"><a id="__codelineno-0-218" name="__codelineno-0-218"></a>            <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
 
@@ -2755,8 +2720,7 @@ the exception group).</p>
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2765,7 +2729,7 @@ the exception group).</p>
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
