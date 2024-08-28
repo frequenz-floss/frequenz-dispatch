@@ -6,7 +6,7 @@
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
+- The dispatch high level interface now depends on `frequenz-sdk` version `v1.0.0-rc801`.
 
 ## New Features
 
