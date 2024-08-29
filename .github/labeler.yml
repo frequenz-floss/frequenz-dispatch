@@ -65,3 +65,11 @@
   - changed-files:
     - any-glob-to-any-file:
       - "src/frequenz/dispatch/actor.py"
+
+"part:dispatcher":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/**/*.py"
+    - all-globs-to-all-files:
+      - "!**/conftest.py"
+      - "!src/frequenz/dispatch/actor.py"

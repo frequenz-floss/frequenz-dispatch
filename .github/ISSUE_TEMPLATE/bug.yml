@@ -51,6 +51,7 @@ body:
         - Unit, integration and performance tests (part:tests)
         - Build script, CI, dependencies, etc. (part:tooling)
         - Actor (part:actor)
+        - Hight-level interface / `Dispatcher` (part:dispatcher)
     validations:
       required: true
   - type: textarea
