@@ -17,3 +17,4 @@ labelMappings:
   "part:tooling": "part:tooling"
   "part:❓": "part:❓"
   "part:actor": "part:actor"
+  "part:dispatcher": "part:dispatcher"
