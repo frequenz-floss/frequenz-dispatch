@@ -74,7 +74,7 @@ dev-mypy = [
   "mypy == 1.11.2",
   "grpc-stubs == 1.53.0.5",               # This dependency introduces breaking changes in patch releases
   "types-Markdown == 3.7.0.20240822",
-  "types-python-dateutil==2.9.0.20240316",
+  "types-python-dateutil==2.9.0.20240821",
   # For checking the noxfile, docs/ script, and tests
   "frequenz-dispatch[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
