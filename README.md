@@ -21,17 +21,20 @@ The [`Dispatcher` class](https://frequenz-floss.github.io/frequenz-dispatch-pyth
 
 ```python
 import os
-import grpc.aio
+from frequenz.dispatch import Dispatcher, RunningState
 from unittest.mock import MagicMock
 
 async def run():
-    host = os.getenv("DISPATCH_API_HOST", "localhost")
-    port = os.getenv("DISPATCH_API_PORT", "50051")
+    url = os.getenv("DISPATCH_API_URL", "grpc://fz-0004.frequenz.io:50051")
+    key  = os.getenv("DISPATCH_API_KEY", "some-key")
 
-    service_address = f"{host}:{port}"
-    grpc_channel = grpc.aio.insecure_channel(service_address)
     microgrid_id = 1
-    dispatcher = Dispatcher(microgrid_id, grpc_channel, service_address)
+
+    dispatcher = Dispatcher(
+        microgrid_id=microgrid_id,
+        server_url=url,
+        key=key
+    )
     await dispatcher.start()
 
     actor = MagicMock() # replace with your actor
