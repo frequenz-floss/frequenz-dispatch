@@ -89,28 +89,27 @@ class DispatchingActor(Actor):
 
         try:
             _logger.info("Fetching dispatches for microgrid %s", self._microgrid_id)
-            async for client_dispatch in self._client.list(
-                microgrid_id=self._microgrid_id
-            ):
-                dispatch = Dispatch(client_dispatch)
+            async for page in self._client.list(microgrid_id=self._microgrid_id):
+                for client_dispatch in page:
+                    dispatch = Dispatch(client_dispatch)
 
-                self._dispatches[dispatch.id] = Dispatch(client_dispatch)
-                old_dispatch = old_dispatches.pop(dispatch.id, None)
-                if not old_dispatch:
-                    self._update_dispatch_schedule(dispatch, None)
-                    _logger.info("New dispatch: %s", dispatch)
-                    await self._lifecycle_updates_sender.send(
-                        Created(dispatch=dispatch)
-                    )
-                elif dispatch.update_time != old_dispatch.update_time:
-                    self._update_dispatch_schedule(dispatch, old_dispatch)
-                    _logger.info("Updated dispatch: %s", dispatch)
-                    await self._lifecycle_updates_sender.send(
-                        Updated(dispatch=dispatch)
-                    )
+                    self._dispatches[dispatch.id] = Dispatch(client_dispatch)
+                    old_dispatch = old_dispatches.pop(dispatch.id, None)
+                    if not old_dispatch:
+                        self._update_dispatch_schedule(dispatch, None)
+                        _logger.info("New dispatch: %s", dispatch)
+                        await self._lifecycle_updates_sender.send(
+                            Created(dispatch=dispatch)
+                        )
+                    elif dispatch.update_time != old_dispatch.update_time:
+                        self._update_dispatch_schedule(dispatch, old_dispatch)
+                        _logger.info("Updated dispatch: %s", dispatch)
+                        await self._lifecycle_updates_sender.send(
+                            Updated(dispatch=dispatch)
+                        )
 
-                    if self._running_state_change(dispatch, old_dispatch):
-                        await self._send_running_state_change(dispatch)
+                        if self._running_state_change(dispatch, old_dispatch):
+                            await self._send_running_state_change(dispatch)
 
         except grpc.aio.AioRpcError as error:
             _logger.error("Error fetching dispatches: %s", error)

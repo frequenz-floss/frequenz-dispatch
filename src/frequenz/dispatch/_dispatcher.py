@@ -6,7 +6,6 @@
 import abc
 from typing import Protocol, TypeVar
 
-import grpc.aio
 from frequenz.channels import Broadcast, Receiver
 from frequenz.client.dispatch import Client
 
@@ -55,24 +54,18 @@ class Dispatcher:
     Example: Processing running state change dispatches
         ```python
         import os
-        import grpc.aio
         from frequenz.dispatch import Dispatcher, RunningState
         from unittest.mock import MagicMock
 
         async def run():
-            host = os.getenv("DISPATCH_API_HOST", "localhost")
-            port = os.getenv("DISPATCH_API_PORT", "50051")
+            url = os.getenv("DISPATCH_API_URL", "grpc://fz-0004.frequenz.io:50051")
             key  = os.getenv("DISPATCH_API_KEY", "some-key")
 
-            service_address = f"{host}:{port}"
-            grpc_channel = grpc.aio.secure_channel(
-                service_address,
-                credentials=grpc.ssl_channel_credentials()
-            )
+            microgrid_id = 1
+
             dispatcher = Dispatcher(
-                microgrid_id=1,
-                grpc_channel=grpc_channel,
-                svc_addr=service_address,
+                microgrid_id=microgrid_id,
+                server_url=url,
                 key=key
             )
             await dispatcher.start()
@@ -112,23 +105,17 @@ class Dispatcher:
         import os
         from typing import assert_never
 
-        import grpc.aio
         from frequenz.dispatch import Created, Deleted, Dispatcher, Updated
 
         async def run():
-            host = os.getenv("DISPATCH_API_HOST", "localhost")
-            port = os.getenv("DISPATCH_API_PORT", "50051")
+            url = os.getenv("DISPATCH_API_URL", "grpc://fz-0004.frequenz.io:50051")
             key  = os.getenv("DISPATCH_API_KEY", "some-key")
 
-            service_address = f"{host}:{port}"
-            grpc_channel = grpc.aio.secure_channel(
-                service_address,
-                credentials=grpc.ssl_channel_credentials()
-            )
+            microgrid_id = 1
+
             dispatcher = Dispatcher(
-                microgrid_id=1,
-                grpc_channel=grpc_channel,
-                svc_addr=service_address,
+                microgrid_id=microgrid_id,
+                server_url=url,
                 key=key
             )
             await dispatcher.start()  # this will start the actor
@@ -154,27 +141,19 @@ class Dispatcher:
         import os
         from datetime import datetime, timedelta, timezone
 
-        import grpc.aio
         from frequenz.client.common.microgrid.components import ComponentCategory
 
         from frequenz.dispatch import Dispatcher
 
         async def run():
-            host = os.getenv("DISPATCH_API_HOST", "localhost")
-            port = os.getenv("DISPATCH_API_PORT", "50051")
+            url = os.getenv("DISPATCH_API_URL", "grpc://fz-0004.frequenz.io:50051")
             key  = os.getenv("DISPATCH_API_KEY", "some-key")
 
             microgrid_id = 1
 
-            service_address = f"{host}:{port}"
-            grpc_channel = grpc.aio.secure_channel(
-                service_address,
-                credentials=grpc.ssl_channel_credentials()
-            )
             dispatcher = Dispatcher(
                 microgrid_id=microgrid_id,
-                grpc_channel=grpc_channel,
-                svc_addr=service_address,
+                server_url=url,
                 key=key
             )
             await dispatcher.start()  # this will start the actor
@@ -208,23 +187,21 @@ class Dispatcher:
         self,
         *,
         microgrid_id: int,
-        grpc_channel: grpc.aio.Channel,
-        svc_addr: str,
+        server_url: str,
         key: str,
     ):
         """Initialize the dispatcher.
 
         Args:
             microgrid_id: The microgrid id.
-            grpc_channel: The gRPC channel.
-            svc_addr: The service address.
+            server_url: The URL of the dispatch service.
             key: The key to access the service.
         """
         self._running_state_channel = Broadcast[Dispatch](name="running_state_change")
         self._lifecycle_events_channel = Broadcast[DispatchEvent](
             name="lifecycle_events"
         )
-        self._client = Client(grpc_channel=grpc_channel, svc_addr=svc_addr, key=key)
+        self._client = Client(server_url=server_url, key=key)
         self._actor = DispatchingActor(
             microgrid_id,
             self._client,
