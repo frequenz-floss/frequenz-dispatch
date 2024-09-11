@@ -6,7 +6,7 @@
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
+* `Dispatcher.running_state_change` now also sends a message when the duration specified in the dispatch has passed. If no duration is specified, no STOPPED message will be sent.
 
 ## New Features
 

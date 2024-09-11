@@ -236,6 +236,15 @@ async def test_dispatch_schedule(
     fake_time.shift(next_run - _now() - timedelta(seconds=1))
     await asyncio.sleep(1)
 
+    # Expect notification of the dispatch being ready to run
     ready_dispatch = await actor_env.ready_dispatches.receive()
 
     assert ready_dispatch == dispatch
+
+    # Shift time to the end of the dispatch
+    fake_time.shift(dispatch.duration + timedelta(seconds=1))
+    await asyncio.sleep(1)
+
+    # Expect notification to stop the dispatch
+    done_dispatch = await actor_env.ready_dispatches.receive()
+    assert done_dispatch == dispatch
