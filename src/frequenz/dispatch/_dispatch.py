@@ -117,6 +117,10 @@ class Dispatch(BaseDispatch):
         if not self.active or self.deleted:
             return RunningState.STOPPED
 
+        # A dispatch without duration is always running
+        if self.duration is None:
+            return RunningState.RUNNING
+
         now = datetime.now(tz=timezone.utc)
         if until := self._until(now):
             return RunningState.RUNNING if now < until else RunningState.STOPPED
