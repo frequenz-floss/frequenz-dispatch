@@ -183,10 +183,20 @@ class DispatchingActor(Actor):
             _logger.info("Dispatch %s scheduled for %s", dispatch.id, next_time)
             await asyncio.sleep((next_time - now).total_seconds())
 
-            _logger.info("Dispatch ready: %s", dispatch)
+            _logger.info("Dispatch %s executing...", dispatch)
             await self._running_state_change_sender.send(dispatch)
 
-        _logger.info("Dispatch finished: %s", dispatch)
+            # Wait for the duration of the dispatch if set
+            if dispatch.duration:
+                _logger.info(
+                    "Dispatch %s running for %s", dispatch.id, dispatch.duration
+                )
+                await asyncio.sleep(dispatch.duration.total_seconds())
+
+                _logger.info("Dispatch %s runtime duration reached", dispatch.id)
+                await self._running_state_change_sender.send(dispatch)
+
+        _logger.info("Dispatch completed: %s", dispatch)
         self._scheduled.pop(dispatch.id)
 
     def _running_state_change(
