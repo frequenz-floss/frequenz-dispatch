@@ -117,11 +117,14 @@ class Dispatch(BaseDispatch):
         if not self.active or self.deleted:
             return RunningState.STOPPED
 
-        # A dispatch without duration is always running
-        if self.duration is None:
-            return RunningState.RUNNING
-
         now = datetime.now(tz=timezone.utc)
+
+        # A dispatch without duration is always running once it started
+        if self.duration is None:
+            if self.start_time <= now:
+                return RunningState.RUNNING
+            return RunningState.STOPPED
+
         if until := self._until(now):
             return RunningState.RUNNING if now < until else RunningState.STOPPED
 
@@ -189,6 +192,7 @@ class Dispatch(BaseDispatch):
         if (
             not self.recurrence.frequency
             or self.recurrence.frequency == Frequency.UNSPECIFIED
+            or self.duration is None  # Infinite duration
         ):
             if after > self.start_time:
                 return None
@@ -240,7 +244,13 @@ class Dispatch(BaseDispatch):
 
         Returns:
             The time when the dispatch should end or None if the dispatch is not running.
+
+        Raises:
+            ValueError: If the dispatch has no duration.
         """
+        if self.duration is None:
+            raise ValueError("_until: Dispatch has no duration")
+
         if (
             not self.recurrence.frequency
             or self.recurrence.frequency == Frequency.UNSPECIFIED

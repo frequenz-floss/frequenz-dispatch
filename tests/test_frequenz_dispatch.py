@@ -18,7 +18,14 @@ from frequenz.client.dispatch.types import Dispatch as BaseDispatch
 from frequenz.client.dispatch.types import Frequency
 from pytest import fixture
 
-from frequenz.dispatch import Created, Deleted, Dispatch, DispatchEvent, Updated
+from frequenz.dispatch import (
+    Created,
+    Deleted,
+    Dispatch,
+    DispatchEvent,
+    RunningState,
+    Updated,
+)
 from frequenz.dispatch.actor import DispatchingActor
 
 
@@ -218,6 +225,39 @@ async def test_existing_dispatch_deleted(
         case Deleted(dispatch):
             sample = update_dispatch(sample, dispatch)
             assert dispatch == Dispatch(sample, deleted=True)
+
+
+async def test_dispatch_inf_duration_deleted(
+    actor_env: ActorTestEnv,
+    generator: DispatchGenerator,
+    fake_time: time_machine.Coordinates,
+) -> None:
+    """Test that a dispatch with infinite duration can be deleted while running."""
+    # Generate a dispatch with infinite duration (duration=None)
+    sample = generator.generate_dispatch()
+    sample = replace(
+        sample, active=True, duration=None, start_time=_now() + timedelta(seconds=5)
+    )
+    # Create the dispatch
+    sample = await _test_new_dispatch_created(actor_env, sample)
+    # Advance time to when the dispatch should start
+    fake_time.shift(timedelta(seconds=40))
+    await asyncio.sleep(40)
+    # Expect notification of the dispatch being ready to run
+    ready_dispatch = await actor_env.ready_dispatches.receive()
+    print("Received ready dispatch")
+    assert ready_dispatch.running(sample.type) == RunningState.RUNNING
+
+    # Now delete the dispatch
+    await actor_env.client.delete(
+        microgrid_id=actor_env.microgrid_id, dispatch_id=sample.id
+    )
+    fake_time.shift(timedelta(seconds=10))
+    print("Deleted dispatch")
+    await asyncio.sleep(1)
+    # Expect notification to stop the dispatch
+    done_dispatch = await actor_env.ready_dispatches.receive()
+    assert done_dispatch.running(sample.type) == RunningState.STOPPED
 
 
 async def test_dispatch_schedule(

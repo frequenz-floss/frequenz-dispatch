@@ -118,13 +118,16 @@ class DispatchingActor(Actor):
 
         for dispatch in old_dispatches.values():
             _logger.info("Deleted dispatch: %s", dispatch)
-            dispatch._set_deleted()  # pylint: disable=protected-access
-            await self._lifecycle_updates_sender.send(Deleted(dispatch=dispatch))
             if task := self._scheduled.pop(dispatch.id, None):
                 task.cancel()
 
             if self._running_state_change(None, dispatch):
                 await self._send_running_state_change(dispatch)
+
+            # Set deleted only here as it influences the result of dispatch.running()
+            # which is used in above in _running_state_change
+            dispatch._set_deleted()  # pylint: disable=protected-access
+            await self._lifecycle_updates_sender.send(Deleted(dispatch=dispatch))
 
     def _update_dispatch_schedule(
         self, dispatch: Dispatch, old_dispatch: Dispatch | None
