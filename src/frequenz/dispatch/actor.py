@@ -3,32 +3,19 @@
 
 """The dispatch actor."""
 
-import asyncio
 import logging
 from datetime import datetime, timedelta, timezone
+from heapq import heappop, heappush
 
 import grpc.aio
-from frequenz.channels import Sender
-from frequenz.channels.timer import SkipMissedAndDrift, Timer
+from frequenz.channels import Sender, select, selected_from
+from frequenz.channels.timer import SkipMissedAndResync, Timer
 from frequenz.client.dispatch import Client
+from frequenz.client.dispatch.types import Event
 from frequenz.sdk.actor import Actor
 
 from ._dispatch import Dispatch, RunningState
 from ._event import Created, Deleted, DispatchEvent, Updated
-
-_MAX_AHEAD_SCHEDULE = timedelta(hours=5)
-"""The maximum time ahead to schedule a dispatch.
-
-We don't want to schedule dispatches too far ahead,
-as they could start drifting if the delay is too long.
-
-This also prevents us from scheduling too many dispatches at once.
-
-The exact value is not important, but should be a few hours and not more than a day.
-"""
-
-_DEFAULT_POLL_INTERVAL = timedelta(seconds=10)
-"""The default interval to poll the API for dispatch changes."""
 
 _logger = logging.getLogger(__name__)
 """The logger for this module."""
@@ -50,7 +37,6 @@ class DispatchingActor(Actor):
         client: Client,
         lifecycle_updates_sender: Sender[DispatchEvent],
         running_state_change_sender: Sender[Dispatch],
-        poll_interval: timedelta = _DEFAULT_POLL_INTERVAL,
     ) -> None:
         """Initialize the actor.
 
@@ -59,31 +45,97 @@ class DispatchingActor(Actor):
             client: The client to use for fetching dispatches.
             lifecycle_updates_sender: A sender for dispatch lifecycle events.
             running_state_change_sender: A sender for dispatch running state changes.
-            poll_interval: The interval to poll the API for dispatche changes.
         """
         super().__init__(name="dispatch")
 
         self._client = client
         self._dispatches: dict[int, Dispatch] = {}
-        self._scheduled: dict[int, asyncio.Task[None]] = {}
         self._microgrid_id = microgrid_id
         self._lifecycle_updates_sender = lifecycle_updates_sender
         self._running_state_change_sender = running_state_change_sender
-        self._poll_timer = Timer(poll_interval, SkipMissedAndDrift())
+        self._next_event_timer = Timer(
+            timedelta(seconds=100), SkipMissedAndResync(), auto_start=False
+        )
+        """The timer to schedule the next event.
+
+        Interval is chosen arbitrarily, as it will be reset on the first event.
+        """
+
+        self._scheduled_events: list[tuple[datetime, Dispatch]] = []
+        """The scheduled events, sorted by time.
+
+        Each event is a tuple of the scheduled time and the dispatch.
+        heapq is used to keep the list sorted by time, so the next event is
+        always at index 0.
+        """
 
     async def _run(self) -> None:
         """Run the actor."""
-        self._poll_timer.reset()
-        try:
-            async for _ in self._poll_timer:
-                await self._fetch()
-        except asyncio.CancelledError:
-            for task in self._scheduled.values():
-                task.cancel()
-            raise
+        # Initial fetch
+        await self._fetch()
+
+        stream = self._client.stream(microgrid_id=self._microgrid_id)
+
+        # Streaming updates
+        async for selected in select(self._next_event_timer, stream):
+            if selected_from(selected, self._next_event_timer):
+                if not self._scheduled_events:
+                    continue
+                _logger.debug(
+                    "Executing scheduled event: %s", self._scheduled_events[0][1]
+                )
+                await self._execute_scheduled_event(heappop(self._scheduled_events)[1])
+            elif selected_from(selected, stream):
+                _logger.debug("Received dispatch event: %s", selected.message)
+                dispatch = Dispatch(selected.message.dispatch)
+                match selected.message.event:
+                    case Event.CREATED:
+                        self._dispatches[dispatch.id] = dispatch
+                        await self._update_dispatch_schedule_and_notify(dispatch, None)
+                        await self._lifecycle_updates_sender.send(
+                            Created(dispatch=dispatch)
+                        )
+                    case Event.UPDATED:
+                        await self._update_dispatch_schedule_and_notify(
+                            dispatch, self._dispatches[dispatch.id]
+                        )
+                        self._dispatches[dispatch.id] = dispatch
+                        await self._lifecycle_updates_sender.send(
+                            Updated(dispatch=dispatch)
+                        )
+                    case Event.DELETED:
+                        self._dispatches.pop(dispatch.id)
+                        await self._update_dispatch_schedule_and_notify(None, dispatch)
+
+                        dispatch._set_deleted()  # pylint: disable=protected-access
+                        await self._lifecycle_updates_sender.send(
+                            Deleted(dispatch=dispatch)
+                        )
+
+    async def _execute_scheduled_event(self, dispatch: Dispatch) -> None:
+        """Execute a scheduled event.
+
+        Args:
+            dispatch: The dispatch to execute.
+        """
+        await self._send_running_state_change(dispatch)
+
+        # The timer is always a tiny bit delayed, so we need to check if the
+        # actor is supposed to be running now (we're assuming it wasn't already
+        # running, as all checks are done before scheduling)
+        if dispatch.running(dispatch.type) == RunningState.RUNNING:
+            # If it should be running, schedule the stop event
+            self._schedule_stop(dispatch)
+        # If the actor is not running, we need to schedule the next start
+        else:
+            self._schedule_start(dispatch)
 
     async def _fetch(self) -> None:
-        """Fetch all relevant dispatches."""
+        """Fetch all relevant dispatches using list.
+
+        This is used for the initial fetch and for re-fetching all dispatches
+        if the connection was lost.
+        """
         old_dispatches = self._dispatches
         self._dispatches = {}
 
@@ -96,20 +148,19 @@ class DispatchingActor(Actor):
                     self._dispatches[dispatch.id] = Dispatch(client_dispatch)
                     old_dispatch = old_dispatches.pop(dispatch.id, None)
                     if not old_dispatch:
-                        self._update_dispatch_schedule(dispatch, None)
                         _logger.info("New dispatch: %s", dispatch)
+                        await self._update_dispatch_schedule_and_notify(dispatch, None)
                         await self._lifecycle_updates_sender.send(
                             Created(dispatch=dispatch)
                         )
                     elif dispatch.update_time != old_dispatch.update_time:
-                        self._update_dispatch_schedule(dispatch, old_dispatch)
                         _logger.info("Updated dispatch: %s", dispatch)
+                        await self._update_dispatch_schedule_and_notify(
+                            dispatch, old_dispatch
+                        )
                         await self._lifecycle_updates_sender.send(
                             Updated(dispatch=dispatch)
                         )
-
-                        if self._running_state_change(dispatch, old_dispatch):
-                            await self._send_running_state_change(dispatch)
 
         except grpc.aio.AioRpcError as error:
             _logger.error("Error fetching dispatches: %s", error)
@@ -118,24 +169,23 @@ class DispatchingActor(Actor):
 
         for dispatch in old_dispatches.values():
             _logger.info("Deleted dispatch: %s", dispatch)
-            if task := self._scheduled.pop(dispatch.id, None):
-                task.cancel()
-
-            if self._running_state_change(None, dispatch):
-                await self._send_running_state_change(dispatch)
+            await self._lifecycle_updates_sender.send(Deleted(dispatch=dispatch))
+            await self._update_dispatch_schedule_and_notify(None, dispatch)
 
             # Set deleted only here as it influences the result of dispatch.running()
             # which is used in above in _running_state_change
             dispatch._set_deleted()  # pylint: disable=protected-access
             await self._lifecycle_updates_sender.send(Deleted(dispatch=dispatch))
 
-    def _update_dispatch_schedule(
-        self, dispatch: Dispatch, old_dispatch: Dispatch | None
+    async def _update_dispatch_schedule_and_notify(
+        self, dispatch: Dispatch | None, old_dispatch: Dispatch | None
     ) -> None:
         """Update the schedule for a dispatch.
 
-        Schedules, reschedules or cancels the dispatch based on the start_time
-        and active status.
+        Schedules, reschedules or cancels the dispatch events
+        based on the start_time and active status.
+
+        Sends a running state change notification if necessary.
 
         For example:
             * when the start_time changes, the dispatch is rescheduled
@@ -145,65 +195,98 @@ class DispatchingActor(Actor):
             dispatch: The dispatch to update the schedule for.
             old_dispatch: The old dispatch, if available.
         """
-        if (
-            old_dispatch
-            and old_dispatch.active
-            and old_dispatch.start_time != dispatch.start_time
-        ):
-            if task := self._scheduled.pop(dispatch.id, None):
-                task.cancel()
+        # If dispatch is None, the dispatch was deleted
+        # and we need to cancel any existing event for it
+        if not dispatch and old_dispatch:
+            self._remove_scheduled(old_dispatch)
 
-        if dispatch.active and dispatch.id not in self._scheduled:
-            self._scheduled[dispatch.id] = asyncio.create_task(
-                self._schedule_task(dispatch)
-            )
+            # If the dispatch was running, we need to notify
+            if old_dispatch.running(old_dispatch.type) == RunningState.RUNNING:
+                await self._send_running_state_change(old_dispatch)
 
-    async def _schedule_task(self, dispatch: Dispatch) -> None:
-        """Wait for a dispatch to become ready.
+        # A new dispatch was created
+        elif dispatch and not old_dispatch:
+            assert not self._remove_scheduled(
+                dispatch
+            ), "New dispatch already scheduled?!"
 
-        Waits for the dispatches next run and then notifies that it is ready.
+            # If its currently running, send notification right away
+            if dispatch.running(dispatch.type) == RunningState.RUNNING:
+                await self._send_running_state_change(dispatch)
+
+                self._schedule_stop(dispatch)
+            # Otherwise, if it's enabled but not yet running, schedule it
+            else:
+                self._schedule_start(dispatch)
+
+        # Dispatch was updated
+        elif dispatch and old_dispatch:
+            # Remove potentially existing scheduled event
+            self._remove_scheduled(old_dispatch)
+
+            # Check if the change requires an immediate notification
+            if self._update_changed_running_state(dispatch, old_dispatch):
+                await self._send_running_state_change(dispatch)
+
+            if dispatch.running(dispatch.type) == RunningState.RUNNING:
+                self._schedule_stop(dispatch)
+            else:
+                self._schedule_start(dispatch)
+
+        # We modified the schedule, so we need to reset the timer
+        if self._scheduled_events:
+            _logger.debug("Next event scheduled at %s", self._scheduled_events[0][0])
+            due_at: datetime = self._scheduled_events[0][0]
+            self._next_event_timer.reset(interval=due_at - datetime.now(timezone.utc))
+
+    def _remove_scheduled(self, dispatch: Dispatch) -> bool:
+        """Remove a dispatch from the scheduled events.
+
+        Args:
+            dispatch: The dispatch to remove.
+
+        Returns:
+            True if the dispatch was found and removed, False otherwise.
+        """
+        for idx, (_, sched_dispatch) in enumerate(self._scheduled_events):
+            if dispatch.id == sched_dispatch.id:
+                self._scheduled_events.pop(idx)
+                return True
+
+        return False
+
+    def _schedule_start(self, dispatch: Dispatch) -> None:
+        """Schedule a dispatch to start.
 
         Args:
             dispatch: The dispatch to schedule.
         """
+        # If the dispatch is not active, don't schedule it
+        if not dispatch.active:
+            return
 
-        def next_run_info() -> tuple[datetime, datetime] | None:
-            now = datetime.now(tz=timezone.utc)
-            next_run = dispatch.next_run_after(now)
+        # Schedule the next run
+        if next_run := dispatch.next_run:
+            heappush(self._scheduled_events, (next_run, dispatch))
+            _logger.debug("Scheduled dispatch %s to start at %s", dispatch.id, next_run)
+        else:
+            _logger.debug("Dispatch %s has no next run", dispatch.id)
 
-            if next_run is None:
-                return None
+    def _schedule_stop(self, dispatch: Dispatch) -> None:
+        """Schedule a dispatch to stop.
 
-            return now, next_run
+        Args:
+            dispatch: The dispatch to schedule.
+        """
+        # Setup stop timer if the dispatch has a duration
+        if dispatch.duration and dispatch.duration > timedelta(seconds=0):
+            until = dispatch.until
+            assert until is not None
+            heappush(self._scheduled_events, (until, dispatch))
+            _logger.debug("Scheduled dispatch %s to stop at %s", dispatch, until)
 
-        while pair := next_run_info():
-            now, next_time = pair
-
-            if next_time - now > _MAX_AHEAD_SCHEDULE:
-                await asyncio.sleep(_MAX_AHEAD_SCHEDULE.total_seconds())
-                continue
-
-            _logger.info("Dispatch %s scheduled for %s", dispatch.id, next_time)
-            await asyncio.sleep((next_time - now).total_seconds())
-
-            _logger.info("Dispatch %s executing...", dispatch)
-            await self._running_state_change_sender.send(dispatch)
-
-            # Wait for the duration of the dispatch if set
-            if dispatch.duration:
-                _logger.info(
-                    "Dispatch %s running for %s", dispatch.id, dispatch.duration
-                )
-                await asyncio.sleep(dispatch.duration.total_seconds())
-
-                _logger.info("Dispatch %s runtime duration reached", dispatch.id)
-                await self._running_state_change_sender.send(dispatch)
-
-        _logger.info("Dispatch completed: %s", dispatch)
-        self._scheduled.pop(dispatch.id)
-
-    def _running_state_change(
-        self, updated_dispatch: Dispatch | None, previous_dispatch: Dispatch | None
+    def _update_changed_running_state(
+        self, updated_dispatch: Dispatch, previous_dispatch: Dispatch
     ) -> bool:
         """Check if the running state of a dispatch has changed.
 
@@ -215,29 +298,12 @@ class DispatchingActor(Actor):
         in which case we need to send the message now.
 
         Args:
-            updated_dispatch: The new dispatch, if available.
-            previous_dispatch: The old dispatch, if available.
+            updated_dispatch: The new dispatch
+            previous_dispatch: The old dispatch
 
         Returns:
             True if the running state has changed, False otherwise.
         """
-        # New dispatch
-        if previous_dispatch is None:
-            assert updated_dispatch is not None
-
-            # Client was not informed about the dispatch, do it now
-            # pylint: disable=protected-access
-            if not updated_dispatch._running_status_notified:
-                return True
-
-        # Deleted dispatch
-        if updated_dispatch is None:
-            assert previous_dispatch is not None
-            return (
-                previous_dispatch.running(previous_dispatch.type)
-                == RunningState.RUNNING
-            )
-
         # If any of the runtime attributes changed, we need to send a message
         runtime_state_attributes = [
             "running",
