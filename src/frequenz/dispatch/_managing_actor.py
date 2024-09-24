@@ -5,7 +5,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Set
 
 from frequenz.channels import Receiver, Sender
 from frequenz.client.dispatch.types import ComponentSelector
@@ -93,20 +93,20 @@ class DispatchManagingActor(Actor):
 
         status_receiver = dispatcher.running_status_change.new_receiver()
 
-        dispatch_runner = DispatchManagingActor(
+        managing_actor = DispatchManagingActor(
             actor=my_actor,
             dispatch_type="EXAMPLE",
             running_status_receiver=status_receiver,
             updates_sender=dispatch_updates_channel.new_sender(),
         )
 
-        await asyncio.gather(dispatcher.start(), dispatch_runner.start())
+        await asyncio.gather(dispatcher.start(), managing_actor.start())
     ```
     """
 
     def __init__(
         self,
-        actor: Actor,
+        actor: Actor | Set[Actor],
         dispatch_type: str,
         running_status_receiver: Receiver[Dispatch],
         updates_sender: Sender[DispatchUpdate] | None = None,
@@ -114,34 +114,36 @@ class DispatchManagingActor(Actor):
         """Initialize the dispatch handler.
 
         Args:
-            actor: The actor to manage.
+            actor: A set of actors or a single actor to manage.
             dispatch_type: The type of dispatches to handle.
             running_status_receiver: The receiver for dispatch running status changes.
             updates_sender: The sender for dispatch events
         """
         super().__init__()
         self._dispatch_rx = running_status_receiver
-        self._actor = actor
+        self._actors = frozenset([actor] if isinstance(actor, Actor) else actor)
         self._dispatch_type = dispatch_type
         self._updates_sender = updates_sender
 
-    def _start_actor(self) -> None:
-        """Start the actor."""
-        if self._actor.is_running:
-            _logger.warning("Actor %s is already running", self._actor.name)
-        else:
-            self._actor.start()
+    def _start_actors(self) -> None:
+        """Start all actors."""
+        for actor in self._actors:
+            if actor.is_running:
+                _logger.warning("Actor %s is already running", actor.name)
+            else:
+                actor.start()
 
-    async def _stop_actor(self, msg: str) -> None:
-        """Stop the actor.
+    async def _stop_actors(self, msg: str) -> None:
+        """Stop all actors.
 
         Args:
-            msg: The message to be passed to the actor being stopped.
+            msg: The message to be passed to the actors being stopped.
         """
-        if self._actor.is_running:
-            await self._actor.stop(msg)
-        else:
-            _logger.warning("Actor %s is not running", self._actor.name)
+        for actor in self._actors:
+            if actor.is_running:
+                await actor.stop(msg)
+            else:
+                _logger.warning("Actor %s is not running", actor.name)
 
     async def _run(self) -> None:
         """Wait for dispatches and handle them."""
@@ -158,7 +160,7 @@ class DispatchManagingActor(Actor):
         match running:
             case RunningState.STOPPED:
                 _logger.info("Stopped by dispatch %s", dispatch.id)
-                await self._stop_actor("Dispatch stopped")
+                await self._stop_actors("Dispatch stopped")
             case RunningState.RUNNING:
                 if self._updates_sender is not None:
                     _logger.info("Updated by dispatch %s", dispatch.id)
@@ -171,7 +173,7 @@ class DispatchManagingActor(Actor):
                     )
 
                 _logger.info("Started by dispatch %s", dispatch.id)
-                self._start_actor()
+                self._start_actors()
             case RunningState.DIFFERENT_TYPE:
                 _logger.debug(
                     "Unknown dispatch! Ignoring dispatch of type %s", dispatch.type
