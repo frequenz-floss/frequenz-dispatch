@@ -119,11 +119,11 @@ class Dispatch(BaseDispatch):
 
         now = datetime.now(tz=timezone.utc)
 
+        if now < self.start_time:
+            return RunningState.STOPPED
         # A dispatch without duration is always running once it started
         if self.duration is None:
-            if self.start_time <= now:
-                return RunningState.RUNNING
-            return RunningState.STOPPED
+            return RunningState.RUNNING
 
         if until := self._until(now):
             return RunningState.RUNNING if now < until else RunningState.STOPPED
