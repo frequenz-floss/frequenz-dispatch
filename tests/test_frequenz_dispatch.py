@@ -454,3 +454,45 @@ async def test_dispatch_new_but_finished(
     fake_time.shift(timedelta(seconds=100))
 
     assert await actor_env.running_state_change.receive() == new_dispatch
+
+
+async def test_notification_on_actor_start(
+    actor_env: ActorTestEnv,
+    generator: DispatchGenerator,
+    fake_time: time_machine.Coordinates,
+) -> None:
+    """Test that the actor sends notifications for all running dispatches on start."""
+    # Generate a dispatch that is already running
+    running_dispatch = generator.generate_dispatch()
+    running_dispatch = replace(
+        running_dispatch,
+        active=True,
+        duration=timedelta(seconds=10),
+        start_time=_now() - timedelta(seconds=5),
+        recurrence=RecurrenceRule(),
+        type="I_SHOULD_RUN",
+    )
+    # Generate a dispatch that is not running
+    stopped_dispatch = generator.generate_dispatch()
+    stopped_dispatch = replace(
+        stopped_dispatch,
+        active=False,
+        duration=timedelta(seconds=5),
+        start_time=_now() - timedelta(seconds=5),
+        recurrence=RecurrenceRule(),
+        type="I_SHOULD_NOT_RUN",
+    )
+    await actor_env.actor.stop()
+
+    # Create the dispatches
+    actor_env.client.set_dispatches(
+        actor_env.microgrid_id, [running_dispatch, stopped_dispatch]
+    )
+    actor_env.actor.start()
+
+    fake_time.shift(timedelta(seconds=1))
+    await asyncio.sleep(1)
+
+    # Expect notification of the running dispatch being ready to run
+    ready_dispatch = await actor_env.running_state_change.receive()
+    assert ready_dispatch.running(running_dispatch.type) == RunningState.RUNNING
