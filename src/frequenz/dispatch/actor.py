@@ -130,6 +130,8 @@ class DispatchingActor(Actor):
         else:
             self._schedule_start(dispatch)
 
+        self._update_timer()
+
     async def _fetch(self) -> None:
         """Fetch all relevant dispatches using list.
 
@@ -234,10 +236,14 @@ class DispatchingActor(Actor):
                 self._schedule_start(dispatch)
 
         # We modified the schedule, so we need to reset the timer
+        self._update_timer()
+
+    def _update_timer(self) -> None:
+        """Update the timer to the next event."""
         if self._scheduled_events:
-            _logger.debug("Next event scheduled at %s", self._scheduled_events[0][0])
             due_at: datetime = self._scheduled_events[0][0]
             self._next_event_timer.reset(interval=due_at - datetime.now(timezone.utc))
+            _logger.debug("Next event scheduled at %s", self._scheduled_events[0][0])
 
     def _remove_scheduled(self, dispatch: Dispatch) -> bool:
         """Remove a dispatch from the scheduled events.
