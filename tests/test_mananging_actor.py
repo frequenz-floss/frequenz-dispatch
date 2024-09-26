@@ -9,7 +9,6 @@ from datetime import datetime, timedelta, timezone
 from typing import AsyncIterator, Iterator
 
 import async_solipsism
-import pytest
 import time_machine
 from frequenz.channels import Broadcast, Receiver, Sender
 from frequenz.client.dispatch.test.generator import DispatchGenerator
@@ -20,11 +19,12 @@ from pytest import fixture
 from frequenz.dispatch import Dispatch, DispatchManagingActor, DispatchUpdate
 
 
-# This method replaces the event loop for all tests in the file.
-@pytest.fixture
+@fixture
 def event_loop_policy() -> async_solipsism.EventLoopPolicy:
-    """Return an event loop policy that uses the async solipsism event loop."""
-    return async_solipsism.EventLoopPolicy()
+    """Set the event loop policy to use async_solipsism."""
+    policy = async_solipsism.EventLoopPolicy()
+    asyncio.set_event_loop_policy(policy)
+    return policy
 
 
 @fixture
