@@ -71,6 +71,8 @@ class DispatchingActor(Actor):
 
     async def _run(self) -> None:
         """Run the actor."""
+        _logger.info("Starting dispatch actor for microgrid %s", self._microgrid_id)
+
         # Initial fetch
         await self._fetch()
 
@@ -272,11 +274,16 @@ class DispatchingActor(Actor):
             return
 
         # Schedule the next run
-        if next_run := dispatch.next_run:
-            heappush(self._scheduled_events, (next_run, dispatch))
-            _logger.debug("Scheduled dispatch %s to start at %s", dispatch.id, next_run)
-        else:
-            _logger.debug("Dispatch %s has no next run", dispatch.id)
+        try:
+            if next_run := dispatch.next_run:
+                heappush(self._scheduled_events, (next_run, dispatch))
+                _logger.debug(
+                    "Scheduled dispatch %s to start at %s", dispatch.id, next_run
+                )
+            else:
+                _logger.debug("Dispatch %s has no next run", dispatch.id)
+        except ValueError as error:
+            _logger.error("Error scheduling dispatch %s: %s", dispatch.id, error)
 
     def _schedule_stop(self, dispatch: Dispatch) -> None:
         """Schedule a dispatch to stop.
