@@ -6,7 +6,7 @@
 import asyncio
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
-from typing import AsyncIterator, Iterator
+from typing import AsyncIterator, Generator, Iterator
 
 import async_solipsism
 import time_machine
@@ -20,11 +20,11 @@ from frequenz.dispatch import Dispatch, DispatchManagingActor, DispatchUpdate
 
 
 @fixture
-def event_loop_policy() -> async_solipsism.EventLoopPolicy:
-    """Set the event loop policy to use async_solipsism."""
-    policy = async_solipsism.EventLoopPolicy()
-    asyncio.set_event_loop_policy(policy)
-    return policy
+def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
+    """Return an instance of the event loop."""
+    loop: asyncio.AbstractEventLoop = async_solipsism.EventLoop()
+    yield loop
+    loop.close()
 
 
 @fixture
