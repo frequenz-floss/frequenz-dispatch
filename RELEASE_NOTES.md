@@ -10,7 +10,7 @@
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
+* We now provide the `DispatchManagingActor` class, a class to manage actors based on incoming dispatches.
 
 ## Bug Fixes
 

@@ -39,9 +39,9 @@ dependencies = [
   # Make sure to update the version for cross-referencing also in the
   # mkdocs.yml file when changing the version here (look for the config key
   # plugins.mkdocstrings.handlers.python.import)
-  "frequenz-sdk >= 1.0.0-rc900, < 1.0.0-rc1000",
-  "frequenz-channels >= 1.1.0, < 2.0.0",
-  "frequenz-client-dispatch >= 0.6.0, < 0.7.0",
+  "frequenz-sdk == 1.0.0-rc900, < 1.0.0-rc1000",
+  "frequenz-channels >= 1.2.0, < 2.0.0",
+  "frequenz-client-dispatch >= 0.7.0, < 0.8.0",
 ]
 dynamic = ["version"]
 
@@ -165,6 +165,7 @@ disable = [
 [tool.pytest.ini_options]
 testpaths = ["tests", "src"]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 required_plugins = ["pytest-asyncio", "pytest-mock"]
 
 [tool.mypy]
