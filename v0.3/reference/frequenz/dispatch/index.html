@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../_img/logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.34">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.8c3ca2c6.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -1472,7 +1472,7 @@
 
     <div class="doc doc-contents first">
 
-      <p>A highlevel interface for the dispatch API.</p>
+        <p>A highlevel interface for the dispatch API.</p>
 <p>A small overview of the most important classes in this module:</p>
 <ul>
 <li><a class="autorefs autorefs-internal" href="#frequenz.dispatch.Dispatcher">Dispatcher</a>: The entry point for the API.</li>
@@ -1512,7 +1512,7 @@
 
     <div class="doc doc-contents ">
 
-      <p>Type that is sent over the channel for dispatch updates.</p>
+        <p>Type that is sent over the channel for dispatch updates.</p>
 <p>This type is used to send dispatches that were created, updated or deleted
 over the channel.</p>
     </div>
@@ -1538,7 +1538,7 @@ over the channel.</p>
     <div class="doc doc-contents ">
 
 
-      <p>A dispatch created event.</p>
+        <p>A dispatch created event.</p>
 
               <details class="quote">
                 <summary>Source code in <code>frequenz/dispatch/_event.py</code></summary>
@@ -1584,7 +1584,7 @@ over the channel.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The dispatch that was created.</p>
+        <p>The dispatch that was created.</p>
     </div>
 
 </div>
@@ -1617,7 +1617,7 @@ over the channel.</p>
     <div class="doc doc-contents ">
 
 
-      <p>A dispatch deleted event.</p>
+        <p>A dispatch deleted event.</p>
 
               <details class="quote">
                 <summary>Source code in <code>frequenz/dispatch/_event.py</code></summary>
@@ -1663,7 +1663,7 @@ over the channel.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The dispatch that was deleted.</p>
+        <p>The dispatch that was deleted.</p>
     </div>
 
 </div>
@@ -1698,7 +1698,7 @@ over the channel.</p>
               Bases: <code><a class="autorefs autorefs-external" title="frequenz.client.dispatch.types.Dispatch" href="https://frequenz-floss.github.io/frequenz-client-dispatch-python/v0.6/reference/frequenz/client/dispatch/types/#frequenz.client.dispatch.types.Dispatch">Dispatch</a></code></p>
 
 
-      <p>Dispatch type with extra functionality.</p>
+        <p>Dispatch type with extra functionality.</p>
 
               <details class="quote">
                 <summary>Source code in <code>frequenz/dispatch/_dispatch.py</code></summary>
@@ -2156,7 +2156,7 @@ over the channel.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Indicates whether the dispatch is active and eligible for processing.</p>
+        <p>Indicates whether the dispatch is active and eligible for processing.</p>
     </div>
 
 </div>
@@ -2179,7 +2179,7 @@ over the channel.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The creation time of the dispatch in UTC. Set when a dispatch is created.</p>
+        <p>The creation time of the dispatch in UTC. Set when a dispatch is created.</p>
     </div>
 
 </div>
@@ -2203,7 +2203,7 @@ over the channel.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Whether the dispatch is deleted.</p>
+        <p>Whether the dispatch is deleted.</p>
     </div>
 
 </div>
@@ -2226,7 +2226,7 @@ over the channel.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Indicates if the dispatch is a dry run.</p>
+        <p>Indicates if the dispatch is a dry run.</p>
 <p>Executed for logging and monitoring without affecting actual component states.</p>
     </div>
 
@@ -2250,7 +2250,7 @@ over the channel.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The duration of the dispatch, represented as a timedelta.</p>
+        <p>The duration of the dispatch, represented as a timedelta.</p>
     </div>
 
 </div>
@@ -2273,7 +2273,7 @@ over the channel.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The unique identifier for the dispatch.</p>
+        <p>The unique identifier for the dispatch.</p>
     </div>
 
 </div>
@@ -2296,7 +2296,7 @@ over the channel.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Yield all missed runs of a dispatch.</p>
+        <p>Yield all missed runs of a dispatch.</p>
 <p>Yields all missed runs of a dispatch.</p>
 <p>If a running state change notification was not sent in time
 due to connection issues, this method will yield all missed runs
@@ -2347,7 +2347,7 @@ since the last sent notification.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Calculate the next run of a dispatch.</p>
+        <p>Calculate the next run of a dispatch.</p>
 
 
 <table>
@@ -2394,7 +2394,7 @@ since the last sent notification.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The dispatch payload containing arbitrary data.</p>
+        <p>The dispatch payload containing arbitrary data.</p>
 <p>It is structured as needed for the dispatch operation.</p>
     </div>
 
@@ -2418,7 +2418,7 @@ since the last sent notification.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The recurrence rule for the dispatch.</p>
+        <p>The recurrence rule for the dispatch.</p>
 <p>Defining any repeating patterns or schedules.</p>
     </div>
 
@@ -2443,7 +2443,7 @@ since the last sent notification.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The last time a message was sent about the running state change.</p>
+        <p>The last time a message was sent about the running state change.</p>
     </div>
 
 </div>
@@ -2466,7 +2466,7 @@ since the last sent notification.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The component selector specifying which components the dispatch targets.</p>
+        <p>The component selector specifying which components the dispatch targets.</p>
     </div>
 
 </div>
@@ -2489,7 +2489,7 @@ since the last sent notification.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The start time of the dispatch in UTC.</p>
+        <p>The start time of the dispatch in UTC.</p>
     </div>
 
 </div>
@@ -2512,7 +2512,7 @@ since the last sent notification.</p>
 
     <div class="doc doc-contents ">
 
-      <p>User-defined information about the type of dispatch.</p>
+        <p>User-defined information about the type of dispatch.</p>
 <p>This is understood and processed by downstream applications.</p>
     </div>
 
@@ -2536,7 +2536,7 @@ since the last sent notification.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Time when the dispatch should end.</p>
+        <p>Time when the dispatch should end.</p>
 <p>Returns the time that a running dispatch should end.
 If the dispatch is not running, None is returned.</p>
 
@@ -2585,7 +2585,7 @@ If the dispatch is not running, None is returned.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The last update time of the dispatch in UTC. Set when a dispatch is modified.</p>
+        <p>The last update time of the dispatch in UTC. Set when a dispatch is modified.</p>
     </div>
 
 </div>
@@ -2609,7 +2609,7 @@ If the dispatch is not running, None is returned.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Initialize the dispatch.</p>
+        <p>Initialize the dispatch.</p>
 
 
 <table>
@@ -2739,7 +2739,7 @@ If the dispatch is not running, None is returned.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Convert a protobuf dispatch to a dispatch.</p>
+        <p>Convert a protobuf dispatch to a dispatch.</p>
 
 
 <table>
@@ -2793,8 +2793,7 @@ If the dispatch is not running, None is returned.</p>
 
             <details class="quote">
               <summary>Source code in <code>frequenz/client/dispatch/types.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-307">307</a></span>
-<span class="normal"><a href="#__codelineno-0-308">308</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-308">308</a></span>
 <span class="normal"><a href="#__codelineno-0-309">309</a></span>
 <span class="normal"><a href="#__codelineno-0-310">310</a></span>
 <span class="normal"><a href="#__codelineno-0-311">311</a></span>
@@ -2819,33 +2818,34 @@ If the dispatch is not running, None is returned.</p>
 <span class="normal"><a href="#__codelineno-0-330">330</a></span>
 <span class="normal"><a href="#__codelineno-0-331">331</a></span>
 <span class="normal"><a href="#__codelineno-0-332">332</a></span>
-<span class="normal"><a href="#__codelineno-0-333">333</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-307"><a id="__codelineno-0-307" name="__codelineno-0-307"></a><span class="nd">@classmethod</span>
-</span><span id="__span-0-308"><a id="__codelineno-0-308" name="__codelineno-0-308"></a><span class="k">def</span> <span class="nf">from_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pb_object</span><span class="p">:</span> <span class="n">PBDispatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Dispatch&quot;</span><span class="p">:</span>
-</span><span id="__span-0-309"><a id="__codelineno-0-309" name="__codelineno-0-309"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a protobuf dispatch to a dispatch.</span>
-</span><span id="__span-0-310"><a id="__codelineno-0-310" name="__codelineno-0-310"></a>
-</span><span id="__span-0-311"><a id="__codelineno-0-311" name="__codelineno-0-311"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-312"><a id="__codelineno-0-312" name="__codelineno-0-312"></a><span class="sd">        pb_object: The protobuf dispatch to convert.</span>
-</span><span id="__span-0-313"><a id="__codelineno-0-313" name="__codelineno-0-313"></a>
-</span><span id="__span-0-314"><a id="__codelineno-0-314" name="__codelineno-0-314"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-315"><a id="__codelineno-0-315" name="__codelineno-0-315"></a><span class="sd">        The converted dispatch.</span>
-</span><span id="__span-0-316"><a id="__codelineno-0-316" name="__codelineno-0-316"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-317"><a id="__codelineno-0-317" name="__codelineno-0-317"></a>    <span class="k">return</span> <span class="n">Dispatch</span><span class="p">(</span>
-</span><span id="__span-0-318"><a id="__codelineno-0-318" name="__codelineno-0-318"></a>        <span class="nb">id</span><span class="o">=</span><span class="n">pb_object</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">dispatch_id</span><span class="p">,</span>
-</span><span id="__span-0-319"><a id="__codelineno-0-319" name="__codelineno-0-319"></a>        <span class="nb">type</span><span class="o">=</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
-</span><span id="__span-0-320"><a id="__codelineno-0-320" name="__codelineno-0-320"></a>        <span class="n">create_time</span><span class="o">=</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_time</span><span class="p">),</span>
-</span><span id="__span-0-321"><a id="__codelineno-0-321" name="__codelineno-0-321"></a>        <span class="n">update_time</span><span class="o">=</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">modification_time</span><span class="p">),</span>
-</span><span id="__span-0-322"><a id="__codelineno-0-322" name="__codelineno-0-322"></a>        <span class="n">start_time</span><span class="o">=</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">start_time</span><span class="p">),</span>
-</span><span id="__span-0-323"><a id="__codelineno-0-323" name="__codelineno-0-323"></a>        <span class="n">duration</span><span class="o">=</span><span class="p">(</span>
-</span><span id="__span-0-324"><a id="__codelineno-0-324" name="__codelineno-0-324"></a>            <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
-</span><span id="__span-0-325"><a id="__codelineno-0-325" name="__codelineno-0-325"></a>            <span class="k">if</span> <span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">duration</span>
-</span><span id="__span-0-326"><a id="__codelineno-0-326" name="__codelineno-0-326"></a>            <span class="k">else</span> <span class="kc">None</span>
-</span><span id="__span-0-327"><a id="__codelineno-0-327" name="__codelineno-0-327"></a>        <span class="p">),</span>
-</span><span id="__span-0-328"><a id="__codelineno-0-328" name="__codelineno-0-328"></a>        <span class="n">selector</span><span class="o">=</span><span class="n">component_selector_from_protobuf</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">selector</span><span class="p">),</span>
-</span><span id="__span-0-329"><a id="__codelineno-0-329" name="__codelineno-0-329"></a>        <span class="n">active</span><span class="o">=</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">is_active</span><span class="p">,</span>
-</span><span id="__span-0-330"><a id="__codelineno-0-330" name="__codelineno-0-330"></a>        <span class="n">dry_run</span><span class="o">=</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">is_dry_run</span><span class="p">,</span>
-</span><span id="__span-0-331"><a id="__codelineno-0-331" name="__codelineno-0-331"></a>        <span class="n">payload</span><span class="o">=</span><span class="n">MessageToDict</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">payload</span><span class="p">),</span>
-</span><span id="__span-0-332"><a id="__codelineno-0-332" name="__codelineno-0-332"></a>        <span class="n">recurrence</span><span class="o">=</span><span class="n">RecurrenceRule</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">recurrence</span><span class="p">),</span>
-</span><span id="__span-0-333"><a id="__codelineno-0-333" name="__codelineno-0-333"></a>    <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-333">333</a></span>
+<span class="normal"><a href="#__codelineno-0-334">334</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-308"><a id="__codelineno-0-308" name="__codelineno-0-308"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-309"><a id="__codelineno-0-309" name="__codelineno-0-309"></a><span class="k">def</span> <span class="nf">from_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pb_object</span><span class="p">:</span> <span class="n">PBDispatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Dispatch&quot;</span><span class="p">:</span>
+</span><span id="__span-0-310"><a id="__codelineno-0-310" name="__codelineno-0-310"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a protobuf dispatch to a dispatch.</span>
+</span><span id="__span-0-311"><a id="__codelineno-0-311" name="__codelineno-0-311"></a>
+</span><span id="__span-0-312"><a id="__codelineno-0-312" name="__codelineno-0-312"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-313"><a id="__codelineno-0-313" name="__codelineno-0-313"></a><span class="sd">        pb_object: The protobuf dispatch to convert.</span>
+</span><span id="__span-0-314"><a id="__codelineno-0-314" name="__codelineno-0-314"></a>
+</span><span id="__span-0-315"><a id="__codelineno-0-315" name="__codelineno-0-315"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-316"><a id="__codelineno-0-316" name="__codelineno-0-316"></a><span class="sd">        The converted dispatch.</span>
+</span><span id="__span-0-317"><a id="__codelineno-0-317" name="__codelineno-0-317"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-318"><a id="__codelineno-0-318" name="__codelineno-0-318"></a>    <span class="k">return</span> <span class="n">Dispatch</span><span class="p">(</span>
+</span><span id="__span-0-319"><a id="__codelineno-0-319" name="__codelineno-0-319"></a>        <span class="nb">id</span><span class="o">=</span><span class="n">pb_object</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">dispatch_id</span><span class="p">,</span>
+</span><span id="__span-0-320"><a id="__codelineno-0-320" name="__codelineno-0-320"></a>        <span class="nb">type</span><span class="o">=</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+</span><span id="__span-0-321"><a id="__codelineno-0-321" name="__codelineno-0-321"></a>        <span class="n">create_time</span><span class="o">=</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_time</span><span class="p">),</span>
+</span><span id="__span-0-322"><a id="__codelineno-0-322" name="__codelineno-0-322"></a>        <span class="n">update_time</span><span class="o">=</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">modification_time</span><span class="p">),</span>
+</span><span id="__span-0-323"><a id="__codelineno-0-323" name="__codelineno-0-323"></a>        <span class="n">start_time</span><span class="o">=</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">start_time</span><span class="p">),</span>
+</span><span id="__span-0-324"><a id="__codelineno-0-324" name="__codelineno-0-324"></a>        <span class="n">duration</span><span class="o">=</span><span class="p">(</span>
+</span><span id="__span-0-325"><a id="__codelineno-0-325" name="__codelineno-0-325"></a>            <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+</span><span id="__span-0-326"><a id="__codelineno-0-326" name="__codelineno-0-326"></a>            <span class="k">if</span> <span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">duration</span>
+</span><span id="__span-0-327"><a id="__codelineno-0-327" name="__codelineno-0-327"></a>            <span class="k">else</span> <span class="kc">None</span>
+</span><span id="__span-0-328"><a id="__codelineno-0-328" name="__codelineno-0-328"></a>        <span class="p">),</span>
+</span><span id="__span-0-329"><a id="__codelineno-0-329" name="__codelineno-0-329"></a>        <span class="n">selector</span><span class="o">=</span><span class="n">component_selector_from_protobuf</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">selector</span><span class="p">),</span>
+</span><span id="__span-0-330"><a id="__codelineno-0-330" name="__codelineno-0-330"></a>        <span class="n">active</span><span class="o">=</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">is_active</span><span class="p">,</span>
+</span><span id="__span-0-331"><a id="__codelineno-0-331" name="__codelineno-0-331"></a>        <span class="n">dry_run</span><span class="o">=</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">is_dry_run</span><span class="p">,</span>
+</span><span id="__span-0-332"><a id="__codelineno-0-332" name="__codelineno-0-332"></a>        <span class="n">payload</span><span class="o">=</span><span class="n">MessageToDict</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">payload</span><span class="p">),</span>
+</span><span id="__span-0-333"><a id="__codelineno-0-333" name="__codelineno-0-333"></a>        <span class="n">recurrence</span><span class="o">=</span><span class="n">RecurrenceRule</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">pb_object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">recurrence</span><span class="p">),</span>
+</span><span id="__span-0-334"><a id="__codelineno-0-334" name="__codelineno-0-334"></a>    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2865,7 +2865,7 @@ If the dispatch is not running, None is returned.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Calculate the next run of a dispatch.</p>
+        <p>Calculate the next run of a dispatch.</p>
 
 
 <table>
@@ -2987,7 +2987,7 @@ If the dispatch is not running, None is returned.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Check if the dispatch is currently supposed to be running.</p>
+        <p>Check if the dispatch is currently supposed to be running.</p>
 
 
 <table>
@@ -3141,7 +3141,7 @@ If the dispatch is not running, None is returned.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Convert a dispatch to a protobuf dispatch.</p>
+        <p>Convert a dispatch to a protobuf dispatch.</p>
 
 
 <table>
@@ -3169,8 +3169,7 @@ If the dispatch is not running, None is returned.</p>
 
             <details class="quote">
               <summary>Source code in <code>frequenz/client/dispatch/types.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-335">335</a></span>
-<span class="normal"><a href="#__codelineno-0-336">336</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-336">336</a></span>
 <span class="normal"><a href="#__codelineno-0-337">337</a></span>
 <span class="normal"><a href="#__codelineno-0-338">338</a></span>
 <span class="normal"><a href="#__codelineno-0-339">339</a></span>
@@ -3196,34 +3195,35 @@ If the dispatch is not running, None is returned.</p>
 <span class="normal"><a href="#__codelineno-0-359">359</a></span>
 <span class="normal"><a href="#__codelineno-0-360">360</a></span>
 <span class="normal"><a href="#__codelineno-0-361">361</a></span>
-<span class="normal"><a href="#__codelineno-0-362">362</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-335"><a id="__codelineno-0-335" name="__codelineno-0-335"></a><span class="k">def</span> <span class="nf">to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PBDispatch</span><span class="p">:</span>
-</span><span id="__span-0-336"><a id="__codelineno-0-336" name="__codelineno-0-336"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a dispatch to a protobuf dispatch.</span>
-</span><span id="__span-0-337"><a id="__codelineno-0-337" name="__codelineno-0-337"></a>
-</span><span id="__span-0-338"><a id="__codelineno-0-338" name="__codelineno-0-338"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-339"><a id="__codelineno-0-339" name="__codelineno-0-339"></a><span class="sd">        The converted protobuf dispatch.</span>
-</span><span id="__span-0-340"><a id="__codelineno-0-340" name="__codelineno-0-340"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-341"><a id="__codelineno-0-341" name="__codelineno-0-341"></a>    <span class="n">payload</span> <span class="o">=</span> <span class="n">Struct</span><span class="p">()</span>
-</span><span id="__span-0-342"><a id="__codelineno-0-342" name="__codelineno-0-342"></a>    <span class="n">payload</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
-</span><span id="__span-0-343"><a id="__codelineno-0-343" name="__codelineno-0-343"></a>
-</span><span id="__span-0-344"><a id="__codelineno-0-344" name="__codelineno-0-344"></a>    <span class="k">return</span> <span class="n">PBDispatch</span><span class="p">(</span>
-</span><span id="__span-0-345"><a id="__codelineno-0-345" name="__codelineno-0-345"></a>        <span class="n">metadata</span><span class="o">=</span><span class="n">DispatchMetadata</span><span class="p">(</span>
-</span><span id="__span-0-346"><a id="__codelineno-0-346" name="__codelineno-0-346"></a>            <span class="n">dispatch_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-</span><span id="__span-0-347"><a id="__codelineno-0-347" name="__codelineno-0-347"></a>            <span class="n">create_time</span><span class="o">=</span><span class="n">to_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_time</span><span class="p">),</span>
-</span><span id="__span-0-348"><a id="__codelineno-0-348" name="__codelineno-0-348"></a>            <span class="n">modification_time</span><span class="o">=</span><span class="n">to_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_time</span><span class="p">),</span>
-</span><span id="__span-0-349"><a id="__codelineno-0-349" name="__codelineno-0-349"></a>        <span class="p">),</span>
-</span><span id="__span-0-350"><a id="__codelineno-0-350" name="__codelineno-0-350"></a>        <span class="n">data</span><span class="o">=</span><span class="n">DispatchData</span><span class="p">(</span>
-</span><span id="__span-0-351"><a id="__codelineno-0-351" name="__codelineno-0-351"></a>            <span class="nb">type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
-</span><span id="__span-0-352"><a id="__codelineno-0-352" name="__codelineno-0-352"></a>            <span class="n">start_time</span><span class="o">=</span><span class="n">to_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">),</span>
-</span><span id="__span-0-353"><a id="__codelineno-0-353" name="__codelineno-0-353"></a>            <span class="n">duration</span><span class="o">=</span><span class="p">(</span>
-</span><span id="__span-0-354"><a id="__codelineno-0-354" name="__codelineno-0-354"></a>                <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="k">else</span> <span class="kc">None</span>
-</span><span id="__span-0-355"><a id="__codelineno-0-355" name="__codelineno-0-355"></a>            <span class="p">),</span>
-</span><span id="__span-0-356"><a id="__codelineno-0-356" name="__codelineno-0-356"></a>            <span class="n">selector</span><span class="o">=</span><span class="n">component_selector_to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selector</span><span class="p">),</span>
-</span><span id="__span-0-357"><a id="__codelineno-0-357" name="__codelineno-0-357"></a>            <span class="n">is_active</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span>
-</span><span id="__span-0-358"><a id="__codelineno-0-358" name="__codelineno-0-358"></a>            <span class="n">is_dry_run</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dry_run</span><span class="p">,</span>
-</span><span id="__span-0-359"><a id="__codelineno-0-359" name="__codelineno-0-359"></a>            <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
-</span><span id="__span-0-360"><a id="__codelineno-0-360" name="__codelineno-0-360"></a>            <span class="n">recurrence</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">recurrence</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">recurrence</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-361"><a id="__codelineno-0-361" name="__codelineno-0-361"></a>        <span class="p">),</span>
-</span><span id="__span-0-362"><a id="__codelineno-0-362" name="__codelineno-0-362"></a>    <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-362">362</a></span>
+<span class="normal"><a href="#__codelineno-0-363">363</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-336"><a id="__codelineno-0-336" name="__codelineno-0-336"></a><span class="k">def</span> <span class="nf">to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PBDispatch</span><span class="p">:</span>
+</span><span id="__span-0-337"><a id="__codelineno-0-337" name="__codelineno-0-337"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a dispatch to a protobuf dispatch.</span>
+</span><span id="__span-0-338"><a id="__codelineno-0-338" name="__codelineno-0-338"></a>
+</span><span id="__span-0-339"><a id="__codelineno-0-339" name="__codelineno-0-339"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-340"><a id="__codelineno-0-340" name="__codelineno-0-340"></a><span class="sd">        The converted protobuf dispatch.</span>
+</span><span id="__span-0-341"><a id="__codelineno-0-341" name="__codelineno-0-341"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-342"><a id="__codelineno-0-342" name="__codelineno-0-342"></a>    <span class="n">payload</span> <span class="o">=</span> <span class="n">Struct</span><span class="p">()</span>
+</span><span id="__span-0-343"><a id="__codelineno-0-343" name="__codelineno-0-343"></a>    <span class="n">payload</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+</span><span id="__span-0-344"><a id="__codelineno-0-344" name="__codelineno-0-344"></a>
+</span><span id="__span-0-345"><a id="__codelineno-0-345" name="__codelineno-0-345"></a>    <span class="k">return</span> <span class="n">PBDispatch</span><span class="p">(</span>
+</span><span id="__span-0-346"><a id="__codelineno-0-346" name="__codelineno-0-346"></a>        <span class="n">metadata</span><span class="o">=</span><span class="n">DispatchMetadata</span><span class="p">(</span>
+</span><span id="__span-0-347"><a id="__codelineno-0-347" name="__codelineno-0-347"></a>            <span class="n">dispatch_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+</span><span id="__span-0-348"><a id="__codelineno-0-348" name="__codelineno-0-348"></a>            <span class="n">create_time</span><span class="o">=</span><span class="n">to_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_time</span><span class="p">),</span>
+</span><span id="__span-0-349"><a id="__codelineno-0-349" name="__codelineno-0-349"></a>            <span class="n">modification_time</span><span class="o">=</span><span class="n">to_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_time</span><span class="p">),</span>
+</span><span id="__span-0-350"><a id="__codelineno-0-350" name="__codelineno-0-350"></a>        <span class="p">),</span>
+</span><span id="__span-0-351"><a id="__codelineno-0-351" name="__codelineno-0-351"></a>        <span class="n">data</span><span class="o">=</span><span class="n">DispatchData</span><span class="p">(</span>
+</span><span id="__span-0-352"><a id="__codelineno-0-352" name="__codelineno-0-352"></a>            <span class="nb">type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+</span><span id="__span-0-353"><a id="__codelineno-0-353" name="__codelineno-0-353"></a>            <span class="n">start_time</span><span class="o">=</span><span class="n">to_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">),</span>
+</span><span id="__span-0-354"><a id="__codelineno-0-354" name="__codelineno-0-354"></a>            <span class="n">duration</span><span class="o">=</span><span class="p">(</span>
+</span><span id="__span-0-355"><a id="__codelineno-0-355" name="__codelineno-0-355"></a>                <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="__span-0-356"><a id="__codelineno-0-356" name="__codelineno-0-356"></a>            <span class="p">),</span>
+</span><span id="__span-0-357"><a id="__codelineno-0-357" name="__codelineno-0-357"></a>            <span class="n">selector</span><span class="o">=</span><span class="n">component_selector_to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selector</span><span class="p">),</span>
+</span><span id="__span-0-358"><a id="__codelineno-0-358" name="__codelineno-0-358"></a>            <span class="n">is_active</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span>
+</span><span id="__span-0-359"><a id="__codelineno-0-359" name="__codelineno-0-359"></a>            <span class="n">is_dry_run</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dry_run</span><span class="p">,</span>
+</span><span id="__span-0-360"><a id="__codelineno-0-360" name="__codelineno-0-360"></a>            <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+</span><span id="__span-0-361"><a id="__codelineno-0-361" name="__codelineno-0-361"></a>            <span class="n">recurrence</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">recurrence</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">recurrence</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-362"><a id="__codelineno-0-362" name="__codelineno-0-362"></a>        <span class="p">),</span>
+</span><span id="__span-0-363"><a id="__codelineno-0-363" name="__codelineno-0-363"></a>    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3254,7 +3254,7 @@ If the dispatch is not running, None is returned.</p>
               Bases: <code><a class="autorefs autorefs-external" title="frequenz.sdk.actor.Actor" href="https://frequenz-floss.github.io/frequenz-sdk-python/v1.0-pre/reference/frequenz/sdk/actor/#frequenz.sdk.actor.Actor">Actor</a></code></p>
 
 
-      <p>Helper class to manage actors based on dispatches.</p>
+        <p>Helper class to manage actors based on dispatches.</p>
 <p>Example usage:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span> <span class="nn">os</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">import</span> <span class="nn">asyncio</span>
@@ -3652,7 +3652,7 @@ If the dispatch is not running, None is returned.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The delay to wait between restarts of this actor.</p>
+        <p>The delay to wait between restarts of this actor.</p>
     </div>
 
 </div>
@@ -3675,7 +3675,7 @@ If the dispatch is not running, None is returned.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Return whether this background service is running.</p>
+        <p>Return whether this background service is running.</p>
 <p>A service is considered running when at least one task is running.</p>
 
 
@@ -3723,7 +3723,7 @@ If the dispatch is not running, None is returned.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The name of this background service.</p>
+        <p>The name of this background service.</p>
 
 
 <table>
@@ -3770,7 +3770,7 @@ If the dispatch is not running, None is returned.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Return the set of running tasks spawned by this background service.</p>
+        <p>Return the set of running tasks spawned by this background service.</p>
 <p>Users typically should not modify the tasks in the returned set and only use
 them for informational purposes.</p>
 <div class="admonition danger">
@@ -3825,7 +3825,7 @@ unless the class explicitly documents it is safe to do so.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Enter an async context.</p>
+        <p>Enter an async context.</p>
 <p>Start this background service.</p>
 
 
@@ -3900,7 +3900,7 @@ unless the class explicitly documents it is safe to do so.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Exit an async context.</p>
+        <p>Exit an async context.</p>
 <p>Stop this background service.</p>
 
 
@@ -4009,7 +4009,7 @@ unless the class explicitly documents it is safe to do so.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Await this background service.</p>
+        <p>Await this background service.</p>
 <p>An awaited background service will wait for all its tasks to finish.</p>
 
 
@@ -4074,7 +4074,7 @@ unless the class explicitly documents it is safe to do so.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Destroy this instance.</p>
+        <p>Destroy this instance.</p>
 <p>Cancel all running tasks spawned by this background service.</p>
 
             <details class="quote">
@@ -4114,7 +4114,7 @@ unless the class explicitly documents it is safe to do so.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Initialize the dispatch handler.</p>
+        <p>Initialize the dispatch handler.</p>
 
 
 <table>
@@ -4248,7 +4248,7 @@ unless the class explicitly documents it is safe to do so.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Return a string representation of this instance.</p>
+        <p>Return a string representation of this instance.</p>
 
 
 <table>
@@ -4308,7 +4308,7 @@ unless the class explicitly documents it is safe to do so.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Return a string representation of this instance.</p>
+        <p>Return a string representation of this instance.</p>
 
 
 <table>
@@ -4368,7 +4368,7 @@ unless the class explicitly documents it is safe to do so.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Cancel all running tasks spawned by this background service.</p>
+        <p>Cancel all running tasks spawned by this background service.</p>
 
 
 <table>
@@ -4436,7 +4436,7 @@ unless the class explicitly documents it is safe to do so.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Start this actor.</p>
+        <p>Start this actor.</p>
 <p>If this actor is already running, this method does nothing.</p>
 
             <details class="quote">
@@ -4481,7 +4481,7 @@ unless the class explicitly documents it is safe to do so.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Stop this background service.</p>
+        <p>Stop this background service.</p>
 <p>This method cancels all running tasks spawned by this service and waits for them
 to finish.</p>
 
@@ -4616,7 +4616,7 @@ exception.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Wait this background service to finish.</p>
+        <p>Wait this background service to finish.</p>
 <p>Wait until all background service tasks are finished.</p>
 
 
@@ -4742,7 +4742,7 @@ the exception group).</p>
     <div class="doc doc-contents ">
 
 
-      <p>Event emitted when the dispatch changes.</p>
+        <p>Event emitted when the dispatch changes.</p>
 
               <details class="quote">
                 <summary>Source code in <code>frequenz/dispatch/_managing_actor.py</code></summary>
@@ -4800,7 +4800,7 @@ the exception group).</p>
 
     <div class="doc doc-contents ">
 
-      <p>Components to be used.</p>
+        <p>Components to be used.</p>
     </div>
 
 </div>
@@ -4823,7 +4823,7 @@ the exception group).</p>
 
     <div class="doc doc-contents ">
 
-      <p>Whether this is a dry run.</p>
+        <p>Whether this is a dry run.</p>
     </div>
 
 </div>
@@ -4846,7 +4846,7 @@ the exception group).</p>
 
     <div class="doc doc-contents ">
 
-      <p>Additional options.</p>
+        <p>Additional options.</p>
     </div>
 
 </div>
@@ -4875,7 +4875,7 @@ the exception group).</p>
     <div class="doc doc-contents ">
 
 
-      <p>A highlevel interface for the dispatch API.</p>
+        <p>A highlevel interface for the dispatch API.</p>
 <p>This class provides a highlevel interface to the dispatch API.
 It provides two channels:</p>
 
@@ -5514,7 +5514,7 @@ stop or reconfigure itself.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Return the client.</p>
+        <p>Return the client.</p>
     </div>
 
 </div>
@@ -5537,7 +5537,7 @@ stop or reconfigure itself.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Return new, updated or deleted dispatches receiver fetcher.</p>
+        <p>Return new, updated or deleted dispatches receiver fetcher.</p>
 
 
 <table>
@@ -5584,7 +5584,7 @@ stop or reconfigure itself.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Return running status change receiver fetcher.</p>
+        <p>Return running status change receiver fetcher.</p>
 <p>This receiver will receive a message whenever the current running
 status of a dispatch changes.</p>
 <p>Usually, one message per scheduled run is to be expected.
@@ -5609,7 +5609,7 @@ sent.</p>
 <li>The payload changed</li>
 <li>The dispatch was deleted</li>
 </ul>
-</details>      <p>Note: Reaching the end time (start_time + duration) will not
+</details>        <p>Note: Reaching the end time (start_time + duration) will not
 send a message, except when it was reached by modifying the duration.</p>
 
 
@@ -5654,7 +5654,7 @@ send a message, except when it was reached by modifying the duration.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Initialize the dispatcher.</p>
+        <p>Initialize the dispatcher.</p>
 
 
 <table>
@@ -5784,7 +5784,7 @@ send a message, except when it was reached by modifying the duration.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Start the actor.</p>
+        <p>Start the actor.</p>
 
             <details class="quote">
               <summary>Source code in <code>frequenz/dispatch/_dispatcher.py</code></summary>
@@ -5823,7 +5823,7 @@ send a message, except when it was reached by modifying the duration.</p>
               Bases: <code><a class="autorefs autorefs-external" title="typing.Protocol" href="https://docs.python.org/3/library/typing.html#typing.Protocol">Protocol</a>[<span title="frequenz.dispatch._dispatcher.ReceivedT_co">ReceivedT_co</span>]</code></p>
 
 
-      <p>An interface that just exposes a <code>new_receiver</code> method.</p>
+        <p>An interface that just exposes a <code>new_receiver</code> method.</p>
 
               <details class="quote">
                 <summary>Source code in <code>frequenz/dispatch/_dispatcher.py</code></summary>
@@ -5892,7 +5892,7 @@ send a message, except when it was reached by modifying the duration.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Get a receiver from the channel.</p>
+        <p>Get a receiver from the channel.</p>
 
 
 <table>
@@ -6023,7 +6023,7 @@ send a message, except when it was reached by modifying the duration.</p>
               Bases: <code><a class="autorefs autorefs-external" title="enum.Enum" href="https://docs.python.org/3/library/enum.html#enum.Enum">Enum</a></code></p>
 
 
-      <p>The running state of a dispatch.</p>
+        <p>The running state of a dispatch.</p>
 
               <details class="quote">
                 <summary>Source code in <code>frequenz/dispatch/_dispatch.py</code></summary>
@@ -6080,7 +6080,7 @@ send a message, except when it was reached by modifying the duration.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The dispatch is for a different type.</p>
+        <p>The dispatch is for a different type.</p>
     </div>
 
 </div>
@@ -6104,7 +6104,7 @@ send a message, except when it was reached by modifying the duration.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The dispatch is running.</p>
+        <p>The dispatch is running.</p>
     </div>
 
 </div>
@@ -6128,7 +6128,7 @@ send a message, except when it was reached by modifying the duration.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The dispatch is stopped.</p>
+        <p>The dispatch is stopped.</p>
     </div>
 
 </div>
@@ -6161,7 +6161,7 @@ send a message, except when it was reached by modifying the duration.</p>
     <div class="doc doc-contents ">
 
 
-      <p>A dispatch updated event.</p>
+        <p>A dispatch updated event.</p>
 
               <details class="quote">
                 <summary>Source code in <code>frequenz/dispatch/_event.py</code></summary>
@@ -6207,7 +6207,7 @@ send a message, except when it was reached by modifying the duration.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The dispatch that was updated.</p>
+        <p>The dispatch that was updated.</p>
     </div>
 
 </div>
@@ -6352,10 +6352,10 @@ send a message, except when it was reached by modifying the duration.</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "content.code.copy", "navigation.indexes", "navigation.instant", "navigation.footer", "navigation.tabs", "navigation.top", "navigation.tracking", "toc.follow"], "search": "../../../assets/javascripts/workers/search.07f07601.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "content.code.copy", "navigation.indexes", "navigation.instant", "navigation.footer", "navigation.tabs", "navigation.top", "navigation.tracking", "toc.follow"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.525ec568.min.js"></script>
       
     
   </body>
