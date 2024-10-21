@@ -2,4 +2,4 @@
 
 ## Summary
 
-* This fixes a crash when the `YEARLY` frequency is used in a dispatch.
+* `frequenz-sdk` dependency has been extended to include version `1.0.0-rc1000`.
