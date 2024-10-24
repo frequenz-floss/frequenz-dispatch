@@ -222,13 +222,14 @@ class Dispatch(BaseDispatch):
             dtstart=self.start_time,
             count=count,
             until=until,
-            byminute=self.recurrence.byminutes,
-            byhour=self.recurrence.byhours,
+            byminute=self.recurrence.byminutes or None,
+            byhour=self.recurrence.byhours or None,
             byweekday=[
                 _RRULE_WEEKDAY_MAP[weekday] for weekday in self.recurrence.byweekdays
-            ],
-            bymonthday=self.recurrence.bymonthdays,
-            bymonth=self.recurrence.bymonths,
+            ]
+            or None,
+            bymonthday=self.recurrence.bymonthdays or None,
+            bymonth=self.recurrence.bymonths or None,
             interval=self.recurrence.interval,
         )
 
