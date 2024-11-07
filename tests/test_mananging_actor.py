@@ -4,6 +4,7 @@
 """Test the dispatch runner."""
 
 import asyncio
+import heapq
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from typing import AsyncIterator, Iterator
@@ -17,6 +18,7 @@ from frequenz.sdk.actor import Actor
 from pytest import fixture
 
 from frequenz.dispatch import Dispatch, DispatchManagingActor, DispatchUpdate
+from frequenz.dispatch.actor import DispatchingActor
 
 
 @fixture
@@ -126,6 +128,27 @@ async def test_simple_start_stop(
     await asyncio.sleep(0.1)
 
     assert test_env.actor.is_running is False
+
+
+def test_heapq_dispatch_compare(test_env: TestEnv) -> None:
+    """Test that the heapq compare function works."""
+    dispatch1 = test_env.generator.generate_dispatch()
+    dispatch2 = test_env.generator.generate_dispatch()
+
+    # Simulate two dispatches with the same 'until' time
+    now = datetime.now(timezone.utc)
+    until_time = now + timedelta(minutes=5)
+
+    # Create the heap
+    scheduled_events: list[DispatchingActor.QueueItem] = []
+
+    # Push two events with the same 'until' time onto the heap
+    heapq.heappush(
+        scheduled_events, DispatchingActor.QueueItem(until_time, Dispatch(dispatch1))
+    )
+    heapq.heappush(
+        scheduled_events, DispatchingActor.QueueItem(until_time, Dispatch(dispatch2))
+    )
 
 
 async def test_dry_run(test_env: TestEnv, fake_time: time_machine.Coordinates) -> None:

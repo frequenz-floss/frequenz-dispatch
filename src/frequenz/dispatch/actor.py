@@ -4,6 +4,7 @@
 """The dispatch actor."""
 
 import logging
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from heapq import heappop, heappush
 
@@ -29,6 +30,20 @@ class DispatchingActor(Actor):
     This means staying in sync with the API and scheduling
     dispatches as necessary.
     """
+
+    @dataclass(order=True)
+    class QueueItem:
+        """A queue item for the scheduled events."""
+
+        time: datetime
+        dispatch_id: int
+        dispatch: Dispatch = field(compare=False)
+
+        def __init__(self, time: datetime, dispatch: Dispatch) -> None:
+            """Initialize the queue item."""
+            self.time = time
+            self.dispatch_id = dispatch.id
+            self.dispatch = dispatch
 
     # pylint: disable=too-many-arguments
     def __init__(
@@ -61,7 +76,7 @@ class DispatchingActor(Actor):
         Interval is chosen arbitrarily, as it will be reset on the first event.
         """
 
-        self._scheduled_events: list[tuple[datetime, Dispatch]] = []
+        self._scheduled_events: list["DispatchingActor.QueueItem"] = []
         """The scheduled events, sorted by time.
 
         Each event is a tuple of the scheduled time and the dispatch.
@@ -84,9 +99,11 @@ class DispatchingActor(Actor):
                 if not self._scheduled_events:
                     continue
                 _logger.debug(
-                    "Executing scheduled event: %s", self._scheduled_events[0][1]
+                    "Executing scheduled event: %s", self._scheduled_events[0].dispatch
                 )
-                await self._execute_scheduled_event(heappop(self._scheduled_events)[1])
+                await self._execute_scheduled_event(
+                    heappop(self._scheduled_events).dispatch
+                )
             elif selected_from(selected, stream):
                 _logger.debug("Received dispatch event: %s", selected.message)
                 dispatch = Dispatch(selected.message.dispatch)
@@ -243,9 +260,9 @@ class DispatchingActor(Actor):
     def _update_timer(self) -> None:
         """Update the timer to the next event."""
         if self._scheduled_events:
-            due_at: datetime = self._scheduled_events[0][0]
+            due_at: datetime = self._scheduled_events[0].time
             self._next_event_timer.reset(interval=due_at - datetime.now(timezone.utc))
-            _logger.debug("Next event scheduled at %s", self._scheduled_events[0][0])
+            _logger.debug("Next event scheduled at %s", self._scheduled_events[0].time)
 
     def _remove_scheduled(self, dispatch: Dispatch) -> bool:
         """Remove a dispatch from the scheduled events.
@@ -256,8 +273,8 @@ class DispatchingActor(Actor):
         Returns:
             True if the dispatch was found and removed, False otherwise.
         """
-        for idx, (_, sched_dispatch) in enumerate(self._scheduled_events):
-            if dispatch.id == sched_dispatch.id:
+        for idx, item in enumerate(self._scheduled_events):
+            if dispatch.id == item.dispatch.id:
                 self._scheduled_events.pop(idx)
                 return True
 
@@ -276,7 +293,7 @@ class DispatchingActor(Actor):
         # Schedule the next run
         try:
             if next_run := dispatch.next_run:
-                heappush(self._scheduled_events, (next_run, dispatch))
+                heappush(self._scheduled_events, self.QueueItem(next_run, dispatch))
                 _logger.debug(
                     "Scheduled dispatch %s to start at %s", dispatch.id, next_run
                 )
@@ -295,7 +312,7 @@ class DispatchingActor(Actor):
         if dispatch.duration and dispatch.duration > timedelta(seconds=0):
             until = dispatch.until
             assert until is not None
-            heappush(self._scheduled_events, (until, dispatch))
+            heappush(self._scheduled_events, self.QueueItem(until, dispatch))
             _logger.debug("Scheduled dispatch %s to stop at %s", dispatch, until)
 
     def _update_changed_running_state(

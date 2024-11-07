@@ -211,11 +211,17 @@ class Dispatch(BaseDispatch):
 
         Returns:
             The rrule object.
+
+        Raises:
+            ValueError: If the interval is invalid.
         """
         count, until = (None, None)
         if end := self.recurrence.end_criteria:
             count = end.count
             until = end.until
+
+        if self.recurrence.interval is None or self.recurrence.interval < 1:
+            raise ValueError("Interval must be at least 1")
 
         rrule_obj = rrule.rrule(
             freq=_RRULE_FREQ_MAP[self.recurrence.frequency],
