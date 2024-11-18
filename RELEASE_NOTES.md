@@ -2,7 +2,11 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
+* Updates lots of dependencies and through those gets a few new features:
+ * `start_immediately` when creating dispatches is now supported.
+ * `http2 keepalive` is now supported and enabled by default.
+ * Some bugfixes from the channels & sdk libraries. are now included.
+
 
 ## Upgrading
 

@@ -47,7 +47,7 @@ async def run():
                 print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
                 if actor.is_running:
                     actor.reconfigure(
-                        components=dispatch.selector,
+                        components=dispatch.target,
                         run_parameters=dispatch.payload, # custom actor parameters
                         dry_run=dispatch.dry_run,
                         until=dispatch.until,
@@ -56,7 +56,7 @@ async def run():
                     # this will start a new actor with the given components
                     # and run it for the duration of the dispatch
                     actor.start(
-                        components=dispatch.selector,
+                        components=dispatch.target,
                         run_parameters=dispatch.payload, # custom actor parameters
                         dry_run=dispatch.dry_run,
                         until=dispatch.until,

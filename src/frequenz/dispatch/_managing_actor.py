@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Any, Set
 
 from frequenz.channels import Receiver, Sender
-from frequenz.client.dispatch.types import ComponentSelector
+from frequenz.client.dispatch.types import TargetComponents
 from frequenz.sdk.actor import Actor
 
 from ._dispatch import Dispatch, RunningState
@@ -20,7 +20,7 @@ _logger = logging.getLogger(__name__)
 class DispatchUpdate:
     """Event emitted when the dispatch changes."""
 
-    components: ComponentSelector
+    components: TargetComponents
     """Components to be used."""
 
     dry_run: bool
@@ -39,7 +39,7 @@ class DispatchManagingActor(Actor):
     import os
     import asyncio
     from frequenz.dispatch import Dispatcher, DispatchManagingActor, DispatchUpdate
-    from frequenz.client.dispatch.types import ComponentSelector
+    from frequenz.client.dispatch.types import TargetComponents
     from frequenz.client.common.microgrid.components import ComponentCategory
 
     from frequenz.channels import Receiver, Broadcast
@@ -60,7 +60,7 @@ class DispatchManagingActor(Actor):
                 self._dry_run = update.dry_run
                 self._options = update.options
 
-        def set_components(self, components: ComponentSelector) -> None:
+        def set_components(self, components: TargetComponents) -> None:
             match components:
                 case [int(), *_] as component_ids:
                     print("Dispatch: Setting components to %s", components)
@@ -68,7 +68,7 @@ class DispatchManagingActor(Actor):
                     print("Dispatch: Using all battery components")
                 case unsupported:
                     print(
-                        "Dispatch: Requested an unsupported selector %r, "
+                        "Dispatch: Requested an unsupported target component %r, "
                         "but only component IDs or category BATTERY are supported.",
                         unsupported,
                     )
@@ -166,7 +166,7 @@ class DispatchManagingActor(Actor):
                     _logger.info("Updated by dispatch %s", dispatch.id)
                     await self._updates_sender.send(
                         DispatchUpdate(
-                            components=dispatch.selector,
+                            components=dispatch.target,
                             dry_run=dispatch.dry_run,
                             options=dispatch.payload,
                         )

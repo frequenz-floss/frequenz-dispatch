@@ -11,8 +11,8 @@ from enum import Enum
 from typing import Iterator, cast
 
 from dateutil import rrule
+from frequenz.client.dispatch.recurrence import Frequency, Weekday
 from frequenz.client.dispatch.types import Dispatch as BaseDispatch
-from frequenz.client.dispatch.types import Frequency, Weekday
 
 _logger = logging.getLogger(__name__)
 """The logger for this module."""
