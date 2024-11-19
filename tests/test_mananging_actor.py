@@ -12,8 +12,8 @@ from typing import AsyncIterator, Iterator
 import async_solipsism
 import time_machine
 from frequenz.channels import Broadcast, Receiver, Sender
+from frequenz.client.dispatch.recurrence import Frequency
 from frequenz.client.dispatch.test.generator import DispatchGenerator
-from frequenz.client.dispatch.types import Frequency
 from frequenz.sdk.actor import Actor
 from pytest import fixture
 
@@ -116,7 +116,7 @@ async def test_simple_start_stop(
 
     event = await test_env.updates_receiver.receive()
     assert event.options == {"test": True}
-    assert event.components == dispatch.selector
+    assert event.components == dispatch.target
     assert event.dry_run is False
 
     assert test_env.actor.is_running is True
@@ -173,7 +173,7 @@ async def test_dry_run(test_env: TestEnv, fake_time: time_machine.Coordinates) -
     event = await test_env.updates_receiver.receive()
 
     assert event.dry_run is dispatch.dry_run
-    assert event.components == dispatch.selector
+    assert event.components == dispatch.target
     assert event.options == dispatch.payload
     assert test_env.actor.is_running is True
 

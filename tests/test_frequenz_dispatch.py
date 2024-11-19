@@ -1,5 +1,5 @@
 # License: MIT
-# Copyright Â© 2024 Frequenz Energy-as-a-Service GmbH
+# Copyright © 2024 Frequenz Energy-as-a-Service GmbH
 
 """Tests for the frequenz.dispatch.actor package."""
 
@@ -12,10 +12,10 @@ from typing import AsyncIterator, Iterator
 import async_solipsism
 import time_machine
 from frequenz.channels import Broadcast, Receiver
+from frequenz.client.dispatch.recurrence import Frequency, RecurrenceRule
 from frequenz.client.dispatch.test.client import FakeClient, to_create_params
 from frequenz.client.dispatch.test.generator import DispatchGenerator
 from frequenz.client.dispatch.types import Dispatch as BaseDispatch
-from frequenz.client.dispatch.types import Frequency, RecurrenceRule
 from pytest import fixture
 
 from frequenz.dispatch import (
@@ -195,6 +195,8 @@ async def test_existing_dispatch_updated(
                 updated,
                 running_state_change_synced=dispatch.running_state_change_synced,
             )
+
+    await asyncio.sleep(1)
 
 
 async def test_existing_dispatch_deleted(

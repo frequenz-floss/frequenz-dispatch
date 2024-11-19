@@ -338,7 +338,7 @@ class DispatchingActor(Actor):
         runtime_state_attributes = [
             "running",
             "type",
-            "selector",
+            "target",
             "duration",
             "dry_run",
             "payload",

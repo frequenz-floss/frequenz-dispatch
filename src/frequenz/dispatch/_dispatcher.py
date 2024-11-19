@@ -80,7 +80,7 @@ class Dispatcher:
                         print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
                         if actor.is_running:
                             actor.reconfigure(
-                                components=dispatch.selector,
+                                components=dispatch.target,
                                 run_parameters=dispatch.payload, # custom actor parameters
                                 dry_run=dispatch.dry_run,
                                 until=dispatch.until,
@@ -89,7 +89,7 @@ class Dispatcher:
                             # this will start a new actor with the given components
                             # and run it for the duration of the dispatch
                             actor.start(
-                                components=dispatch.selector,
+                                components=dispatch.target,
                                 run_parameters=dispatch.payload, # custom actor parameters
                                 dry_run=dispatch.dry_run,
                                 until=dispatch.until,
@@ -164,7 +164,7 @@ class Dispatcher:
                 type="ECHO_FREQUENCY",  # replace with your own type
                 start_time=datetime.now(tz=timezone.utc) + timedelta(minutes=10),
                 duration=timedelta(minutes=5),
-                selector=ComponentCategory.INVERTER,
+                target=ComponentCategory.INVERTER,
                 payload={"font": "Times New Roman"},  # Arbitrary payload data
             )
 
