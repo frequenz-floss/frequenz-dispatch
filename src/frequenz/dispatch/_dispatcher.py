@@ -54,7 +54,7 @@ class Dispatcher:
     Example: Processing running state change dispatches
         ```python
         import os
-        from frequenz.dispatch import Dispatcher, RunningState
+        from frequenz.dispatch import Dispatcher
         from unittest.mock import MagicMock
 
         async def run():
@@ -75,29 +75,29 @@ class Dispatcher:
             changed_running_status = dispatcher.running_status_change.new_receiver()
 
             async for dispatch in changed_running_status:
-                match dispatch.running("DEMO_TYPE"):
-                    case RunningState.RUNNING:
-                        print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
-                        if actor.is_running:
-                            actor.reconfigure(
-                                components=dispatch.target,
-                                run_parameters=dispatch.payload, # custom actor parameters
-                                dry_run=dispatch.dry_run,
-                                until=dispatch.until,
-                            )  # this will reconfigure the actor
-                        else:
-                            # this will start a new actor with the given components
-                            # and run it for the duration of the dispatch
-                            actor.start(
-                                components=dispatch.target,
-                                run_parameters=dispatch.payload, # custom actor parameters
-                                dry_run=dispatch.dry_run,
-                                until=dispatch.until,
-                            )
-                    case RunningState.STOPPED:
-                        actor.stop()  # this will stop the actor
-                    case RunningState.DIFFERENT_TYPE:
-                        pass  # dispatch not for this type
+                if dispatch.type != "YOUR_DISPATCH_TYPE":
+                    continue
+
+                if dispatch.started:
+                    print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
+                    if actor.is_running:
+                        actor.reconfigure(
+                            components=dispatch.target,
+                            run_parameters=dispatch.payload, # custom actor parameters
+                            dry_run=dispatch.dry_run,
+                            until=dispatch.until,
+                        )  # this will reconfigure the actor
+                    else:
+                        # this will start a new actor with the given components
+                        # and run it for the duration of the dispatch
+                        actor.start(
+                            components=dispatch.target,
+                            run_parameters=dispatch.payload, # custom actor parameters
+                            dry_run=dispatch.dry_run,
+                            until=dispatch.until,
+                        )
+                else:
+                    actor.stop()  # this will stop the actor
         ```
 
     Example: Getting notification about dispatch lifecycle events

@@ -6,7 +6,7 @@
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
+* The method `Dispatch.running(type: str)` was replaced with the property `Dispatch.started: bool`.
 
 ## New Features
 
