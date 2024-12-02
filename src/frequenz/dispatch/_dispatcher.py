@@ -213,6 +213,10 @@ class Dispatcher:
         """Start the actor."""
         self._actor.start()
 
+    async def refresh(self) -> None:
+        """Re-fetch all dispatches."""
+        await self._actor.fetch()
+
     @property
     def client(self) -> Client:
         """Return the client."""

@@ -14,7 +14,7 @@
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
+* A new method `Dispatcher.refresh()` was added, for when you need to refresh the dispatcher's state.
 
 ## Bug Fixes
 
