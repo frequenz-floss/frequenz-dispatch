@@ -19,3 +19,4 @@
 ## Bug Fixes
 
 * Fixed a crash in the `DispatchManagingActor` when dispatches shared an equal start time.
+* Fixed a crash when reading a Dispatch with frequency YEARLY.
