@@ -34,7 +34,6 @@ classifiers = [
 ]
 requires-python = ">= 3.11, < 4"
 dependencies = [
-  "python-dateutil >= 2.8.2, < 3.0",
   "typing-extensions >= 4.11.0, < 5.0.0",
   # Make sure to update the version for cross-referencing also in the
   # mkdocs.yml file when changing the version here (look for the config key
@@ -74,7 +73,6 @@ dev-mypy = [
   "mypy == 1.13.0",
   "grpc-stubs == 1.53.0.5",               # This dependency introduces breaking changes in patch releases
   "types-Markdown == 3.7.0.20240822",
-  "types-python-dateutil==2.9.0.20241003",
   # For checking the noxfile, docs/ script, and tests
   "frequenz-dispatch[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
