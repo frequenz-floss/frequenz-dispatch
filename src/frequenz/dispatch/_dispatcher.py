@@ -255,10 +255,6 @@ class Dispatcher:
          - The payload changed
          - The dispatch was deleted
 
-        Note: Reaching the end time (start_time + duration) will not
-        send a message, except when it was reached by modifying the duration.
-
-
         Returns:
             A new receiver for dispatches whose running status changed.
         """
