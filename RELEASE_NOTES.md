@@ -10,7 +10,7 @@
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
+* Added method `Dispatcher.resend_current_running_states()` to resend the current dispatch running status.
 
 ## Bug Fixes
 

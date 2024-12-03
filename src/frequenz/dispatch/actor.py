@@ -84,6 +84,23 @@ class DispatchingActor(Actor):
         always at index 0.
         """
 
+    async def resend_current_running_states(self, dispatch_type: str) -> None:
+        """Trigger a resend of all running states.
+
+        Causes the current state to be sent out again on the running state
+        change channel.
+
+        Args:
+            dispatch_type: The type of dispatches to resend.
+        """
+        _logger.info(
+            "Resending current running states for dispatch type %s", dispatch_type
+        )
+        for dispatch in self._dispatches.values():
+            if dispatch.type == dispatch_type:
+                _logger.debug("Resending dispatch %s", dispatch)
+                await self._send_running_state_change(dispatch)
+
     async def _run(self) -> None:
         """Run the actor."""
         _logger.info("Starting dispatch actor for microgrid %s", self._microgrid_id)

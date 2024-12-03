@@ -498,3 +498,48 @@ async def test_notification_on_actor_start(
     # Expect notification of the running dispatch being ready to run
     ready_dispatch = await actor_env.running_state_change.receive()
     assert ready_dispatch.running(running_dispatch.type) == RunningState.RUNNING
+
+
+async def test_notification_on_resend(
+    actor_env: ActorTestEnv,
+    generator: DispatchGenerator,
+) -> None:
+    """Test that the correct notifications are sent when resending dispatches."""
+    # Generate a dispatch that is already running
+    running_dispatch = generator.generate_dispatch()
+    running_dispatch = replace(
+        running_dispatch,
+        active=True,
+        duration=timedelta(seconds=10),
+        start_time=_now() - timedelta(seconds=5),
+        recurrence=RecurrenceRule(),
+        type="I_SHOULD_RUN",
+    )
+    # Generate a dispatch that is not running
+    stopped_dispatch = generator.generate_dispatch()
+    stopped_dispatch = replace(
+        stopped_dispatch,
+        active=False,
+        duration=timedelta(seconds=5),
+        start_time=_now() - timedelta(seconds=5),
+        recurrence=RecurrenceRule(),
+        type="I_SHOULD_NOT_RUN",
+    )
+    await actor_env.actor.stop()
+
+    # Create the dispatches
+    actor_env.client.set_dispatches(
+        actor_env.microgrid_id, [running_dispatch, stopped_dispatch]
+    )
+
+    # Start the actor
+    actor_env.actor.start()
+    # Resend the stopped dispatch, but expect no notification
+    await actor_env.actor.resend_current_running_states(stopped_dispatch.type)
+    # Resend the running dispatch
+    await actor_env.actor.resend_current_running_states(running_dispatch.type)
+
+    # Expect notification of the running dispatch being ready to run
+    ready_dispatch = await actor_env.running_state_change.receive()
+    assert ready_dispatch.running(running_dispatch.type) == RunningState.RUNNING
+    assert ready_dispatch.type == running_dispatch.type

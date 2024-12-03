@@ -213,6 +213,17 @@ class Dispatcher:
         """Start the actor."""
         self._actor.start()
 
+    async def resend_current_running_states(self, dispatch_type: str) -> None:
+        """Resend the current running states of all dispatches of a given type.
+
+        Warning: Usually you don't need to call this method. It is only useful
+        when you need to recover the current running state of your actor.
+
+        Args:
+            dispatch_type: The type of dispatches to resend.
+        """
+        await self._actor.resend_current_running_states(dispatch_type)
+
     @property
     def client(self) -> Client:
         """Return the client."""
