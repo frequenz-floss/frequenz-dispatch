@@ -121,7 +121,9 @@ class DispatchManagingActor(Actor):
         """
         super().__init__()
         self._dispatch_rx = running_status_receiver
-        self._actors = frozenset([actor] if isinstance(actor, Actor) else actor)
+        self._actors: frozenset[Actor] = frozenset(
+            [actor] if isinstance(actor, Actor) else actor
+        )
         self._dispatch_type = dispatch_type
         self._updates_sender = updates_sender
 
