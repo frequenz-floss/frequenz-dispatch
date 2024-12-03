@@ -144,8 +144,6 @@ async def _test_new_dispatch_created(
             assert False, "Expected a created event"
         case Created(dispatch):
             received = Dispatch(update_dispatch(sample, dispatch))
-            received._set_running_status_notified()  # pylint: disable=protected-access
-            dispatch._set_running_status_notified()  # pylint: disable=protected-access
             assert dispatch == received
 
     return dispatch
@@ -184,10 +182,7 @@ async def test_existing_dispatch_updated(
         case Created(dispatch) | Deleted(dispatch):
             assert False, f"Expected an updated event, got {dispatch_event}"
         case Updated(dispatch):
-            assert dispatch == Dispatch(
-                updated,
-                running_state_change_synced=dispatch.running_state_change_synced,
-            )
+            assert dispatch == Dispatch(updated)
 
     await asyncio.sleep(1)
 
@@ -212,7 +207,6 @@ async def test_existing_dispatch_deleted(
             assert False, "Expected a deleted event"
         case Deleted(dispatch):
             sample._set_deleted()  # pylint: disable=protected-access
-            dispatch._set_running_status_notified()  # pylint: disable=protected-access
             assert dispatch == sample
 
 
@@ -351,9 +345,6 @@ async def test_dispatch_schedule(
 
     # Expect notification of the dispatch being ready to run
     ready_dispatch = await actor_env.running_state_change.receive()
-
-    # Set flag we expect to be different to compare the dispatch with the one received
-    dispatch._set_running_status_notified()  # pylint: disable=protected-access
 
     assert ready_dispatch == dispatch
 

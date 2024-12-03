@@ -359,6 +359,3 @@ class DispatchingActor(Actor):
             dispatch: The dispatch that changed.
         """
         await self._running_state_change_sender.send(dispatch)
-        # Update the last sent notification time
-        # so we know if this change was already sent
-        dispatch._set_running_status_notified()  # pylint: disable=protected-access
