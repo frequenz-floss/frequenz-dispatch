@@ -126,7 +126,6 @@ class DispatchingActor(Actor):
                         self._dispatches.pop(dispatch.id)
                         await self._update_dispatch_schedule_and_notify(None, dispatch)
 
-                        dispatch._set_deleted()  # pylint: disable=protected-access
                         await self._lifecycle_updates_sender.send(
                             Deleted(dispatch=dispatch)
                         )
@@ -221,8 +220,11 @@ class DispatchingActor(Actor):
         if not dispatch and old_dispatch:
             self._remove_scheduled(old_dispatch)
 
+            was_running = old_dispatch.started
+            old_dispatch._set_deleted()  # pylint: disable=protected-access)
+
             # If the dispatch was running, we need to notify
-            if old_dispatch.started:
+            if was_running:
                 await self._send_running_state_change(old_dispatch)
 
         # A new dispatch was created
@@ -230,7 +232,6 @@ class DispatchingActor(Actor):
             assert not self._remove_scheduled(
                 dispatch
             ), "New dispatch already scheduled?!"
-
             # If its currently running, send notification right away
             if dispatch.started:
                 await self._send_running_state_change(dispatch)
