@@ -18,14 +18,7 @@ from frequenz.client.dispatch.test.generator import DispatchGenerator
 from frequenz.client.dispatch.types import Dispatch as BaseDispatch
 from pytest import fixture
 
-from frequenz.dispatch import (
-    Created,
-    Deleted,
-    Dispatch,
-    DispatchEvent,
-    RunningState,
-    Updated,
-)
+from frequenz.dispatch import Created, Deleted, Dispatch, DispatchEvent, Updated
 from frequenz.dispatch.actor import DispatchingActor
 
 
@@ -151,8 +144,6 @@ async def _test_new_dispatch_created(
             assert False, "Expected a created event"
         case Created(dispatch):
             received = Dispatch(update_dispatch(sample, dispatch))
-            received._set_running_status_notified()  # pylint: disable=protected-access
-            dispatch._set_running_status_notified()  # pylint: disable=protected-access
             assert dispatch == received
 
     return dispatch
@@ -191,10 +182,7 @@ async def test_existing_dispatch_updated(
         case Created(dispatch) | Deleted(dispatch):
             assert False, f"Expected an updated event, got {dispatch_event}"
         case Updated(dispatch):
-            assert dispatch == Dispatch(
-                updated,
-                running_state_change_synced=dispatch.running_state_change_synced,
-            )
+            assert dispatch == Dispatch(updated)
 
     await asyncio.sleep(1)
 
@@ -219,7 +207,6 @@ async def test_existing_dispatch_deleted(
             assert False, "Expected a deleted event"
         case Deleted(dispatch):
             sample._set_deleted()  # pylint: disable=protected-access
-            dispatch._set_running_status_notified()  # pylint: disable=protected-access
             assert dispatch == sample
 
 
@@ -241,7 +228,7 @@ async def test_dispatch_inf_duration_deleted(
     await asyncio.sleep(40)
     # Expect notification of the dispatch being ready to run
     ready_dispatch = await actor_env.running_state_change.receive()
-    assert ready_dispatch.running(sample.type) == RunningState.RUNNING
+    assert ready_dispatch.started
 
     # Now delete the dispatch
     await actor_env.client.delete(
@@ -251,7 +238,7 @@ async def test_dispatch_inf_duration_deleted(
     await asyncio.sleep(1)
     # Expect notification to stop the dispatch
     done_dispatch = await actor_env.running_state_change.receive()
-    assert done_dispatch.running(sample.type) == RunningState.STOPPED
+    assert done_dispatch.started is False
 
 
 async def test_dispatch_inf_duration_updated_stopped_started(
@@ -272,7 +259,7 @@ async def test_dispatch_inf_duration_updated_stopped_started(
     await asyncio.sleep(40)
     # Expect notification of the dispatch being ready to run
     ready_dispatch = await actor_env.running_state_change.receive()
-    assert ready_dispatch.running(sample.type) == RunningState.RUNNING
+    assert ready_dispatch.started
 
     # Now update the dispatch to set active=False (stop it)
     await actor_env.client.update(
@@ -284,7 +271,7 @@ async def test_dispatch_inf_duration_updated_stopped_started(
     await asyncio.sleep(1)
     # Expect notification to stop the dispatch
     stopped_dispatch = await actor_env.running_state_change.receive()
-    assert stopped_dispatch.running(sample.type) == RunningState.STOPPED
+    assert stopped_dispatch.started is False
 
     # Now update the dispatch to set active=True (start it again)
     await actor_env.client.update(
@@ -296,7 +283,7 @@ async def test_dispatch_inf_duration_updated_stopped_started(
     await asyncio.sleep(1)
     # Expect notification of the dispatch being ready to run again
     started_dispatch = await actor_env.running_state_change.receive()
-    assert started_dispatch.running(sample.type) == RunningState.RUNNING
+    assert started_dispatch.started
 
 
 async def test_dispatch_inf_duration_updated_to_finite_and_stops(
@@ -321,7 +308,7 @@ async def test_dispatch_inf_duration_updated_to_finite_and_stops(
     await asyncio.sleep(1)
     # Expect notification of the dispatch being ready to run
     ready_dispatch = await actor_env.running_state_change.receive()
-    assert ready_dispatch.running(sample.type) == RunningState.RUNNING
+    assert ready_dispatch.started
 
     # Update the dispatch to set duration to a finite duration that has already passed
     # The dispatch has been running for 5 seconds; set duration to 5 seconds
@@ -335,7 +322,7 @@ async def test_dispatch_inf_duration_updated_to_finite_and_stops(
     await asyncio.sleep(1)
     # Expect notification to stop the dispatch because the duration has passed
     stopped_dispatch = await actor_env.running_state_change.receive()
-    assert stopped_dispatch.running(sample.type) == RunningState.STOPPED
+    assert stopped_dispatch.started is False
 
 
 async def test_dispatch_schedule(
@@ -358,9 +345,6 @@ async def test_dispatch_schedule(
 
     # Expect notification of the dispatch being ready to run
     ready_dispatch = await actor_env.running_state_change.receive()
-
-    # Set flag we expect to be different to compare the dispatch with the one received
-    dispatch._set_running_status_notified()  # pylint: disable=protected-access
 
     assert ready_dispatch == dispatch
 
@@ -396,7 +380,7 @@ async def test_dispatch_inf_duration_updated_to_finite_and_continues(
     await asyncio.sleep(1)
     # Expect notification of the dispatch being ready to run
     ready_dispatch = await actor_env.running_state_change.receive()
-    assert ready_dispatch.running(sample.type) == RunningState.RUNNING
+    assert ready_dispatch.started
 
     # Update the dispatch to set duration to a finite duration that hasn't passed yet
     # The dispatch has been running for 5 seconds; set duration to 100 seconds
@@ -414,7 +398,7 @@ async def test_dispatch_inf_duration_updated_to_finite_and_continues(
     await asyncio.sleep(1)
     # Expect notification to stop the dispatch because the duration has now passed
     stopped_dispatch = await actor_env.running_state_change.receive()
-    assert stopped_dispatch.running(sample.type) == RunningState.STOPPED
+    assert stopped_dispatch.started is False
 
 
 async def test_dispatch_new_but_finished(
@@ -497,4 +481,4 @@ async def test_notification_on_actor_start(
 
     # Expect notification of the running dispatch being ready to run
     ready_dispatch = await actor_env.running_state_change.receive()
-    assert ready_dispatch.running(running_dispatch.type) == RunningState.RUNNING
+    assert ready_dispatch.started

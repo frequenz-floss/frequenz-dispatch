@@ -11,7 +11,7 @@ from frequenz.channels import Receiver, Sender
 from frequenz.client.dispatch.types import TargetComponents
 from frequenz.sdk.actor import Actor
 
-from ._dispatch import Dispatch, RunningState
+from ._dispatch import Dispatch
 
 _logger = logging.getLogger(__name__)
 
@@ -121,7 +121,9 @@ class DispatchManagingActor(Actor):
         """
         super().__init__()
         self._dispatch_rx = running_status_receiver
-        self._actors = frozenset([actor] if isinstance(actor, Actor) else actor)
+        self._actors: frozenset[Actor] = frozenset(
+            [actor] if isinstance(actor, Actor) else actor
+        )
         self._dispatch_type = dispatch_type
         self._updates_sender = updates_sender
 
@@ -156,25 +158,23 @@ class DispatchManagingActor(Actor):
         Args:
             dispatch: The dispatch to handle.
         """
-        running = dispatch.running(self._dispatch_type)
-        match running:
-            case RunningState.STOPPED:
-                _logger.info("Stopped by dispatch %s", dispatch.id)
-                await self._stop_actors("Dispatch stopped")
-            case RunningState.RUNNING:
-                if self._updates_sender is not None:
-                    _logger.info("Updated by dispatch %s", dispatch.id)
-                    await self._updates_sender.send(
-                        DispatchUpdate(
-                            components=dispatch.target,
-                            dry_run=dispatch.dry_run,
-                            options=dispatch.payload,
-                        )
-                    )
+        if dispatch.type != self._dispatch_type:
+            _logger.debug("Ignoring dispatch %s", dispatch.id)
+            return
 
-                _logger.info("Started by dispatch %s", dispatch.id)
-                self._start_actors()
-            case RunningState.DIFFERENT_TYPE:
-                _logger.debug(
-                    "Unknown dispatch! Ignoring dispatch of type %s", dispatch.type
+        if dispatch.started:
+            if self._updates_sender is not None:
+                _logger.info("Updated by dispatch %s", dispatch.id)
+                await self._updates_sender.send(
+                    DispatchUpdate(
+                        components=dispatch.target,
+                        dry_run=dispatch.dry_run,
+                        options=dispatch.payload,
+                    )
                 )
+
+            _logger.info("Started by dispatch %s", dispatch.id)
+            self._start_actors()
+        else:
+            _logger.info("Stopped by dispatch %s", dispatch.id)
+            await self._stop_actors("Dispatch stopped")

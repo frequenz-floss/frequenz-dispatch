@@ -15,7 +15,7 @@ from frequenz.client.dispatch import Client
 from frequenz.client.dispatch.types import Event
 from frequenz.sdk.actor import Actor
 
-from ._dispatch import Dispatch, RunningState
+from ._dispatch import Dispatch
 from ._event import Created, Deleted, DispatchEvent, Updated
 
 _logger = logging.getLogger(__name__)
@@ -126,7 +126,6 @@ class DispatchingActor(Actor):
                         self._dispatches.pop(dispatch.id)
                         await self._update_dispatch_schedule_and_notify(None, dispatch)
 
-                        dispatch._set_deleted()  # pylint: disable=protected-access
                         await self._lifecycle_updates_sender.send(
                             Deleted(dispatch=dispatch)
                         )
@@ -142,7 +141,7 @@ class DispatchingActor(Actor):
         # The timer is always a tiny bit delayed, so we need to check if the
         # actor is supposed to be running now (we're assuming it wasn't already
         # running, as all checks are done before scheduling)
-        if dispatch.running(dispatch.type) == RunningState.RUNNING:
+        if dispatch.started:
             # If it should be running, schedule the stop event
             self._schedule_stop(dispatch)
         # If the actor is not running, we need to schedule the next start
@@ -193,7 +192,7 @@ class DispatchingActor(Actor):
             await self._lifecycle_updates_sender.send(Deleted(dispatch=dispatch))
             await self._update_dispatch_schedule_and_notify(None, dispatch)
 
-            # Set deleted only here as it influences the result of dispatch.running()
+            # Set deleted only here as it influences the result of dispatch.started
             # which is used in above in _running_state_change
             dispatch._set_deleted()  # pylint: disable=protected-access
             await self._lifecycle_updates_sender.send(Deleted(dispatch=dispatch))
@@ -221,8 +220,11 @@ class DispatchingActor(Actor):
         if not dispatch and old_dispatch:
             self._remove_scheduled(old_dispatch)
 
+            was_running = old_dispatch.started
+            old_dispatch._set_deleted()  # pylint: disable=protected-access)
+
             # If the dispatch was running, we need to notify
-            if old_dispatch.running(old_dispatch.type) == RunningState.RUNNING:
+            if was_running:
                 await self._send_running_state_change(old_dispatch)
 
         # A new dispatch was created
@@ -230,9 +232,8 @@ class DispatchingActor(Actor):
             assert not self._remove_scheduled(
                 dispatch
             ), "New dispatch already scheduled?!"
-
             # If its currently running, send notification right away
-            if dispatch.running(dispatch.type) == RunningState.RUNNING:
+            if dispatch.started:
                 await self._send_running_state_change(dispatch)
 
                 self._schedule_stop(dispatch)
@@ -249,7 +250,7 @@ class DispatchingActor(Actor):
             if self._update_changed_running_state(dispatch, old_dispatch):
                 await self._send_running_state_change(dispatch)
 
-            if dispatch.running(dispatch.type) == RunningState.RUNNING:
+            if dispatch.started:
                 self._schedule_stop(dispatch)
             else:
                 self._schedule_start(dispatch)
@@ -336,7 +337,7 @@ class DispatchingActor(Actor):
         """
         # If any of the runtime attributes changed, we need to send a message
         runtime_state_attributes = [
-            "running",
+            "started",
             "type",
             "target",
             "duration",
@@ -359,6 +360,3 @@ class DispatchingActor(Actor):
             dispatch: The dispatch that changed.
         """
         await self._running_state_change_sender.send(dispatch)
-        # Update the last sent notification time
-        # so we know if this change was already sent
-        dispatch._set_running_status_notified()  # pylint: disable=protected-access

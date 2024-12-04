@@ -78,7 +78,7 @@ jobs:
         env:
           NOX_SESSION: ${{ matrix.nox-session }}
         run: nox -R -e "$NOX_SESSION"
-        timeout-minutes: 10
+        timeout-minutes: 2
 
   # This job runs if all the `nox` matrix jobs ran and succeeded.
   # It is only used to have a single job that we can require in branch
@@ -185,7 +185,7 @@ jobs:
             --platform linux/${{ matrix.arch }} \
             localhost/nox-cross-arch:latest \
             bash -c "pip install -e .[dev-noxfile]; nox --install-only -e ${{ matrix.nox-session }}; pip freeze; nox -R -e ${{ matrix.nox-session }}"
-        timeout-minutes: 30
+        timeout-minutes: 6
 
       # This ensures that the runner has access to the pip cache.
       - name: Reset pip cache ownership
