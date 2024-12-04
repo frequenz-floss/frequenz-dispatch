@@ -7,6 +7,7 @@
 ## Upgrading
 
 * The method `Dispatch.running(type: str)` was replaced with the property `Dispatch.started: bool`.
+* The SDK dependency was widened to allow versions up to (excluding) v1.0.0-rc1500
 
 ## New Features
 
