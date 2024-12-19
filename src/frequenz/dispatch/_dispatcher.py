@@ -3,36 +3,13 @@
 
 """A highlevel interface for the dispatch API."""
 
-import abc
-from typing import Protocol, TypeVar
 
-from frequenz.channels import Broadcast, Receiver
+from frequenz.channels import Receiver
 from frequenz.client.dispatch import Client
 
 from ._dispatch import Dispatch
 from ._event import DispatchEvent
 from .actor import DispatchingActor
-
-ReceivedT_co = TypeVar("ReceivedT_co", covariant=True)
-"""The type being received."""
-
-
-class ReceiverFetcher(Protocol[ReceivedT_co]):
-    """An interface that just exposes a `new_receiver` method."""
-
-    @abc.abstractmethod
-    def new_receiver(
-        self, *, name: str | None = None, limit: int = 50
-    ) -> Receiver[ReceivedT_co]:
-        """Get a receiver from the channel.
-
-        Args:
-            name: A name to identify the receiver in the logs.
-            limit: The maximum size of the receiver.
-
-        Returns:
-            A receiver instance.
-        """
 
 
 class Dispatcher:
@@ -72,12 +49,9 @@ class Dispatcher:
 
             actor = MagicMock() # replace with your actor
 
-            changed_running_status = dispatcher.running_status_change.new_receiver()
+            changed_running_status = dispatcher.new_running_state_event_receiver("DISPATCH_TYPE")
 
             async for dispatch in changed_running_status:
-                if dispatch.type != "YOUR_DISPATCH_TYPE":
-                    continue
-
                 if dispatch.started:
                     print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
                     if actor.is_running:
@@ -120,7 +94,7 @@ class Dispatcher:
             )
             await dispatcher.start()  # this will start the actor
 
-            events_receiver = dispatcher.lifecycle_events.new_receiver()
+            events_receiver = dispatcher.new_lifecycle_events_receiver("DISPATCH_TYPE")
 
             async for event in events_receiver:
                 match event:
@@ -197,16 +171,10 @@ class Dispatcher:
             server_url: The URL of the dispatch service.
             key: The key to access the service.
         """
-        self._running_state_channel = Broadcast[Dispatch](name="running_state_change")
-        self._lifecycle_events_channel = Broadcast[DispatchEvent](
-            name="lifecycle_events"
-        )
         self._client = Client(server_url=server_url, key=key)
         self._actor = DispatchingActor(
             microgrid_id,
             self._client,
-            self._lifecycle_events_channel.new_sender(),
-            self._running_state_channel.new_sender(),
         )
 
     async def start(self) -> None:
@@ -218,18 +186,23 @@ class Dispatcher:
         """Return the client."""
         return self._client
 
-    @property
-    def lifecycle_events(self) -> ReceiverFetcher[DispatchEvent]:
-        """Return new, updated or deleted dispatches receiver fetcher.
+    def new_lifecycle_events_receiver(
+        self, dispatch_type: str
+    ) -> Receiver[DispatchEvent]:
+        """Return new, updated or deleted dispatches receiver.
+
+        Args:
+            dispatch_type: The type of the dispatch to listen for.
 
         Returns:
             A new receiver for new dispatches.
         """
-        return self._lifecycle_events_channel
+        return self._actor.new_lifecycle_events_receiver(type)
 
-    @property
-    def running_status_change(self) -> ReceiverFetcher[Dispatch]:
-        """Return running status change receiver fetcher.
+    async def new_running_state_event_receiver(
+        self, dispatch_type: str
+    ) -> Receiver[Dispatch]:
+        """Return running state event receiver.
 
         This receiver will receive a message whenever the current running
         status of a dispatch changes.
@@ -242,7 +215,7 @@ class Dispatcher:
         then a message will be sent.
 
         In other words: Any change that is expected to make an actor start, stop
-        or reconfigure itself with new parameters causes a message to be
+        or adjust itself according to new dispatch options causes a message to be
         sent.
 
         A non-exhaustive list of possible changes that will cause a message to be sent:
@@ -255,7 +228,10 @@ class Dispatcher:
          - The payload changed
          - The dispatch was deleted
 
+        Args:
+            dispatch_type: The type of the dispatch to listen for.
+
         Returns:
             A new receiver for dispatches whose running status changed.
         """
-        return self._running_state_channel
+        return await self._actor.new_running_state_event_receiver(type)

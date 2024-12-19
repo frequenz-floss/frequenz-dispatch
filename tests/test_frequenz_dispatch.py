@@ -11,7 +11,7 @@ from typing import AsyncIterator, Iterator
 
 import async_solipsism
 import time_machine
-from frequenz.channels import Broadcast, Receiver
+from frequenz.channels import Receiver
 from frequenz.client.dispatch.recurrence import Frequency, RecurrenceRule
 from frequenz.client.dispatch.test.client import FakeClient, to_create_params
 from frequenz.client.dispatch.test.generator import DispatchGenerator
@@ -50,7 +50,7 @@ class ActorTestEnv:
 
     actor: DispatchingActor
     """The actor under test."""
-    updated_dispatches: Receiver[DispatchEvent]
+    lifecycle_events: Receiver[DispatchEvent]
     """The receiver for updated dispatches."""
     running_state_change: Receiver[Dispatch]
     """The receiver for ready dispatches."""
@@ -63,15 +63,11 @@ class ActorTestEnv:
 @fixture
 async def actor_env() -> AsyncIterator[ActorTestEnv]:
     """Return an actor test environment."""
-    lifecycle_updates_dispatches = Broadcast[DispatchEvent](name="lifecycle_updates")
-    running_state_change_dispatches = Broadcast[Dispatch](name="running_state_change")
     microgrid_id = randint(1, 100)
     client = FakeClient()
 
     actor = DispatchingActor(
         microgrid_id=microgrid_id,
-        lifecycle_updates_sender=lifecycle_updates_dispatches.new_sender(),
-        running_state_change_sender=running_state_change_dispatches.new_sender(),
         client=client,
     )
 
@@ -82,8 +78,10 @@ async def actor_env() -> AsyncIterator[ActorTestEnv]:
     try:
         yield ActorTestEnv(
             actor=actor,
-            updated_dispatches=lifecycle_updates_dispatches.new_receiver(),
-            running_state_change=running_state_change_dispatches.new_receiver(),
+            lifecycle_events=actor.new_lifecycle_events_receiver("TEST_TYPE"),
+            running_state_change=await actor.new_running_state_event_receiver(
+                "TEST_TYPE"
+            ),
             client=client,
             microgrid_id=microgrid_id,
         )
@@ -138,9 +136,10 @@ async def _test_new_dispatch_created(
     Returns:
         The sample dispatch that was created
     """
+    sample = replace(sample, type="TEST_TYPE")
     await actor_env.client.create(**to_create_params(actor_env.microgrid_id, sample))
 
-    dispatch_event = await actor_env.updated_dispatches.receive()
+    dispatch_event = await actor_env.lifecycle_events.receive()
 
     match dispatch_event:
         case Deleted(dispatch) | Updated(dispatch):
@@ -180,7 +179,7 @@ async def test_existing_dispatch_updated(
     )
     fake_time.shift(timedelta(seconds=1))
 
-    dispatch_event = await actor_env.updated_dispatches.receive()
+    dispatch_event = await actor_env.lifecycle_events.receive()
     match dispatch_event:
         case Created(dispatch) | Deleted(dispatch):
             assert False, f"Expected an updated event, got {dispatch_event}"
@@ -204,7 +203,7 @@ async def test_existing_dispatch_deleted(
     fake_time.shift(timedelta(seconds=10))
     await asyncio.sleep(10)
 
-    dispatch_event = await actor_env.updated_dispatches.receive()
+    dispatch_event = await actor_env.lifecycle_events.receive()
     match dispatch_event:
         case Created(dispatch) | Updated(dispatch):
             assert False, "Expected a deleted event"
@@ -222,7 +221,11 @@ async def test_dispatch_inf_duration_deleted(
     # Generate a dispatch with infinite duration (duration=None)
     sample = generator.generate_dispatch()
     sample = replace(
-        sample, active=True, duration=None, start_time=_now() + timedelta(seconds=5)
+        sample,
+        active=True,
+        duration=None,
+        start_time=_now() + timedelta(seconds=5),
+        type="TEST_TYPE",
     )
     # Create the dispatch
     sample = await _test_new_dispatch_created(actor_env, sample)
@@ -253,7 +256,11 @@ async def test_dispatch_inf_duration_updated_stopped_started(
     # Generate a dispatch with infinite duration (duration=None)
     sample = generator.generate_dispatch()
     sample = replace(
-        sample, active=True, duration=None, start_time=_now() + timedelta(seconds=5)
+        sample,
+        active=True,
+        duration=None,
+        start_time=_now() + timedelta(seconds=5),
+        type="TEST_TYPE",
     )
     # Create the dispatch
     sample = await _test_new_dispatch_created(actor_env, sample)
@@ -302,7 +309,11 @@ async def test_dispatch_inf_duration_updated_to_finite_and_stops(
     # Generate a dispatch with infinite duration (duration=None)
     sample = generator.generate_dispatch()
     sample = replace(
-        sample, active=True, duration=None, start_time=_now() + timedelta(seconds=5)
+        sample,
+        active=True,
+        duration=None,
+        start_time=_now() + timedelta(seconds=5),
+        type="TEST_TYPE",
     )
     # Create the dispatch
     sample = await _test_new_dispatch_created(actor_env, sample)
@@ -335,7 +346,10 @@ async def test_dispatch_schedule(
 ) -> None:
     """Test that a random dispatch is scheduled correctly."""
     sample = replace(
-        generator.generate_dispatch(), active=True, duration=timedelta(seconds=10)
+        generator.generate_dispatch(),
+        active=True,
+        duration=timedelta(seconds=10),
+        type="TEST_TYPE",
     )
     await actor_env.client.create(**to_create_params(actor_env.microgrid_id, sample))
     dispatch = Dispatch(actor_env.client.dispatches(actor_env.microgrid_id)[0])
@@ -374,7 +388,11 @@ async def test_dispatch_inf_duration_updated_to_finite_and_continues(
     # Generate a dispatch with infinite duration (duration=None)
     sample = generator.generate_dispatch()
     sample = replace(
-        sample, active=True, duration=None, start_time=_now() + timedelta(seconds=5)
+        sample,
+        active=True,
+        duration=None,
+        start_time=_now() + timedelta(seconds=5),
+        type="TEST_TYPE",
     )
     # Create the dispatch
     sample = await _test_new_dispatch_created(actor_env, sample)
@@ -418,7 +436,7 @@ async def test_dispatch_new_but_finished(
         duration=timedelta(seconds=5),
         start_time=_now() - timedelta(seconds=50),
         recurrence=RecurrenceRule(),
-        type="I_SHOULD_NEVER_RUN",
+        type="TEST_TYPE",
     )
     # Create an old dispatch
     actor_env.client.set_dispatches(actor_env.microgrid_id, [finished_dispatch])
@@ -433,10 +451,10 @@ async def test_dispatch_new_but_finished(
         duration=timedelta(seconds=10),
         start_time=_now() + timedelta(seconds=5),
         recurrence=RecurrenceRule(),
-        type="NEW_BETTER_DISPATCH",
+        type="TEST_TYPE",
     )
     # Consume one lifecycle_updates event
-    await actor_env.updated_dispatches.receive()
+    await actor_env.lifecycle_events.receive()
     new_dispatch = await _test_new_dispatch_created(actor_env, new_dispatch)
 
     # Advance time to when the new dispatch should still not start
@@ -459,7 +477,7 @@ async def test_notification_on_actor_start(
         duration=timedelta(seconds=10),
         start_time=_now() - timedelta(seconds=5),
         recurrence=RecurrenceRule(),
-        type="I_SHOULD_RUN",
+        type="TEST_TYPE",
     )
     # Generate a dispatch that is not running
     stopped_dispatch = generator.generate_dispatch()
@@ -469,7 +487,7 @@ async def test_notification_on_actor_start(
         duration=timedelta(seconds=5),
         start_time=_now() - timedelta(seconds=5),
         recurrence=RecurrenceRule(),
-        type="I_SHOULD_NOT_RUN",
+        type="TEST_TYPE",
     )
     await actor_env.actor.stop()
 
