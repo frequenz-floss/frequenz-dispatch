@@ -7,9 +7,9 @@
 from frequenz.channels import Receiver
 from frequenz.client.dispatch import Client
 
+from ._bg_service import DispatchScheduler
 from ._dispatch import Dispatch
 from ._event import DispatchEvent
-from .actor import DispatchingActor
 
 
 class Dispatcher:
@@ -172,14 +172,14 @@ class Dispatcher:
             key: The key to access the service.
         """
         self._client = Client(server_url=server_url, key=key)
-        self._actor = DispatchingActor(
+        self._bg_service = DispatchScheduler(
             microgrid_id,
             self._client,
         )
 
     async def start(self) -> None:
-        """Start the actor."""
-        self._actor.start()
+        """Start the local dispatch service."""
+        self._bg_service.start()
 
     @property
     def client(self) -> Client:
@@ -197,7 +197,7 @@ class Dispatcher:
         Returns:
             A new receiver for new dispatches.
         """
-        return self._actor.new_lifecycle_events_receiver(type)
+        return self._bg_service.new_lifecycle_events_receiver(dispatch_type)
 
     async def new_running_state_event_receiver(
         self, dispatch_type: str
@@ -234,4 +234,4 @@ class Dispatcher:
         Returns:
             A new receiver for dispatches whose running status changed.
         """
-        return await self._actor.new_running_state_event_receiver(type)
+        return await self._bg_service.new_running_state_event_receiver(dispatch_type)

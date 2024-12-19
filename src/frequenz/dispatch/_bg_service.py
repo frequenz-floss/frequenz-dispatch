@@ -1,8 +1,9 @@
 # License: MIT
 # Copyright © 2024 Frequenz Energy-as-a-Service GmbH
 
-"""The dispatch actor."""
+"""The dispatch background service."""
 
+import asyncio
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -13,7 +14,7 @@ from frequenz.channels import Broadcast, Receiver, select, selected_from
 from frequenz.channels.timer import SkipMissedAndResync, Timer
 from frequenz.client.dispatch import Client
 from frequenz.client.dispatch.types import Event
-from frequenz.sdk.actor import Actor
+from frequenz.sdk.actor import BackgroundService
 
 from ._dispatch import Dispatch
 from ._event import Created, Deleted, DispatchEvent, Updated
@@ -23,13 +24,11 @@ _logger = logging.getLogger(__name__)
 
 
 # pylint: disable=too-many-instance-attributes
-class DispatchingActor(Actor):
-    """Dispatch actor.
+class DispatchScheduler(BackgroundService):
+    """Dispatch background service.
 
-    This actor is responsible for handling dispatches for a microgrid.
-
-    This means staying in sync with the API and scheduling
-    dispatches as necessary.
+    This service is responsible for managing dispatches and scheduling them
+    based on their start and stop times.
     """
 
     @dataclass(order=True)
@@ -52,7 +51,7 @@ class DispatchingActor(Actor):
         microgrid_id: int,
         client: Client,
     ) -> None:
-        """Initialize the actor.
+        """Initialize the background service.
 
         Args:
             microgrid_id: The microgrid ID to handle dispatches for.
@@ -81,7 +80,7 @@ class DispatchingActor(Actor):
         Interval is chosen arbitrarily, as it will be reset on the first event.
         """
 
-        self._scheduled_events: list["DispatchingActor.QueueItem"] = []
+        self._scheduled_events: list["DispatchScheduler.QueueItem"] = []
         """The scheduled events, sorted by time.
 
         Each event is a tuple of the scheduled time and the dispatch.
@@ -130,9 +129,16 @@ class DispatchingActor(Actor):
 
     # pylint: enable=redefined-builtin
 
+    def start(self) -> None:
+        """Start the background service."""
+        self._tasks.add(asyncio.create_task(self._run()))
+
     async def _run(self) -> None:
-        """Run the actor."""
-        _logger.info("Starting dispatch actor for microgrid %s", self._microgrid_id)
+        """Run the background service."""
+        _logger.info(
+            "Starting dispatching background service for microgrid %s",
+            self._microgrid_id,
+        )
 
         # Initial fetch
         await self._fetch()
