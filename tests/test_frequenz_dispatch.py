@@ -77,7 +77,7 @@ async def test_env() -> AsyncIterator[TestEnv]:
             service=service,
             lifecycle_events=service.new_lifecycle_events_receiver("TEST_TYPE"),
             running_state_change=await service.new_running_state_event_receiver(
-                "TEST_TYPE"
+                "TEST_TYPE", unify_running_intervals=False
             ),
             client=client,
             microgrid_id=microgrid_id,
@@ -371,6 +371,8 @@ async def test_dispatch_schedule(
     done_dispatch = await test_env.running_state_change.receive()
     assert done_dispatch == dispatch
 
+    await asyncio.sleep(1)
+
 
 async def test_dispatch_inf_duration_updated_to_finite_and_continues(
     test_env: TestEnv,
@@ -459,6 +461,8 @@ async def test_dispatch_new_but_finished(
 
     assert await test_env.running_state_change.receive() == new_dispatch
 
+    await asyncio.sleep(1)
+
 
 async def test_notification_on_actor_start(
     test_env: TestEnv,
@@ -500,3 +504,226 @@ async def test_notification_on_actor_start(
     # Expect notification of the running dispatch being ready to run
     ready_dispatch = await test_env.running_state_change.receive()
     assert ready_dispatch.started
+
+
+async def test_multiple_dispatches_unify_running_intervals(
+    fake_time: time_machine.Coordinates,
+    generator: DispatchGenerator,
+) -> None:
+    """Test that multiple dispatches are merged into a single running interval."""
+    microgrid_id = randint(1, 100)
+    client = FakeClient()
+    service = DispatchScheduler(
+        microgrid_id=microgrid_id,
+        client=client,
+    )
+    service.start()
+
+    receiver = await service.new_running_state_event_receiver(
+        "TEST_TYPE", unify_running_intervals=True
+    )
+
+    # Create two overlapping dispatches
+    dispatch1 = replace(
+        generator.generate_dispatch(),
+        active=True,
+        duration=timedelta(seconds=30),
+        start_time=_now() + timedelta(seconds=5),
+        recurrence=RecurrenceRule(),
+        type="TEST_TYPE",
+    )
+    dispatch2 = replace(
+        generator.generate_dispatch(),
+        active=True,
+        duration=timedelta(seconds=10),
+        start_time=_now() + timedelta(seconds=10),  # starts after dispatch1
+        recurrence=RecurrenceRule(),
+        type="TEST_TYPE",
+    )
+    lifecycle_events = service.new_lifecycle_events_receiver("TEST_TYPE")
+
+    await client.create(**to_create_params(microgrid_id, dispatch1))
+    await client.create(**to_create_params(microgrid_id, dispatch2))
+
+    # Wait for both to be registered
+    await lifecycle_events.receive()
+    await lifecycle_events.receive()
+
+    # Move time forward to start both dispatches
+    fake_time.shift(timedelta(seconds=15))
+    await asyncio.sleep(1)
+
+    started1 = await receiver.receive()
+    started2 = await receiver.receive()
+
+    assert started1.started
+    assert started2.started
+
+    # Stop dispatch2 first, but unify_running_intervals=True means as long as dispatch1 runs,
+    # we do not send a stop event
+    await client.update(
+        microgrid_id=microgrid_id, dispatch_id=started2.id, new_fields={"active": False}
+    )
+    fake_time.shift(timedelta(seconds=5))
+    await asyncio.sleep(1)
+
+    # Now stop dispatch1 as well
+    fake_time.shift(timedelta(seconds=15))
+    await asyncio.sleep(1)
+
+    # Now we expect a single stop event for the merged window
+    stopped = await receiver.receive()
+    assert not stopped.started
+
+    await service.stop()
+
+
+async def test_multiple_dispatches_sequential_intervals_unify(
+    fake_time: time_machine.Coordinates,
+    generator: DispatchGenerator,
+) -> None:
+    """Test that multiple dispatches are merged into a single running interval.
+
+    Even if dispatches don't overlap but are consecutive,
+    unify_running_intervals=True should treat them as continuous if any event tries to stop.
+    """
+    microgrid_id = randint(1, 100)
+    client = FakeClient()
+    service = DispatchScheduler(microgrid_id=microgrid_id, client=client)
+    service.start()
+
+    receiver = await service.new_running_state_event_receiver(
+        "TEST_TYPE", unify_running_intervals=True
+    )
+
+    dispatch1 = replace(
+        generator.generate_dispatch(),
+        active=True,
+        duration=timedelta(seconds=5),
+        start_time=_now() + timedelta(seconds=5),
+        recurrence=RecurrenceRule(),
+        type="TEST_TYPE",
+    )
+    assert dispatch1.duration is not None
+    dispatch2 = replace(
+        generator.generate_dispatch(),
+        active=True,
+        duration=timedelta(seconds=5),
+        start_time=dispatch1.start_time + dispatch1.duration,
+        recurrence=RecurrenceRule(),
+        type="TEST_TYPE",
+    )
+    lifecycle = service.new_lifecycle_events_receiver("TEST_TYPE")
+
+    await client.create(**to_create_params(microgrid_id, dispatch1))
+    await client.create(**to_create_params(microgrid_id, dispatch2))
+
+    # Consume lifecycle events
+    await lifecycle.receive()
+    await lifecycle.receive()
+
+    fake_time.shift(timedelta(seconds=11))
+    await asyncio.sleep(1)
+    started1 = await receiver.receive()
+    assert started1.started
+
+    # Wait for the second dispatch to start
+    fake_time.shift(timedelta(seconds=3))
+    await asyncio.sleep(1)
+    started2 = await receiver.receive()
+    assert started2.started
+
+    # Now stop the second dispatch
+    fake_time.shift(timedelta(seconds=5))
+    await asyncio.sleep(1)
+    stopped = await receiver.receive()
+    assert not stopped.started
+
+    await service.stop()
+    await asyncio.sleep(1)
+
+
+async def test_at_least_one_running_filter(
+    fake_time: time_machine.Coordinates,
+    generator: DispatchGenerator,
+) -> None:
+    """Test scenarios directly tied to the _at_least_one_running logic."""
+    microgrid_id = randint(1, 100)
+    client = FakeClient()
+    service = DispatchScheduler(microgrid_id=microgrid_id, client=client)
+    service.start()
+
+    # unify_running_intervals is True, so we use merged intervals
+    receiver = await service.new_running_state_event_receiver(
+        "TEST_TYPE", unify_running_intervals=True
+    )
+
+    # Single dispatch that starts and stops normally
+    dispatch = replace(
+        generator.generate_dispatch(),
+        active=True,
+        duration=timedelta(seconds=10),
+        start_time=_now() + timedelta(seconds=5),
+        recurrence=RecurrenceRule(),
+        type="TEST_TYPE",
+    )
+    lifecycle = service.new_lifecycle_events_receiver("TEST_TYPE")
+    await client.create(**to_create_params(microgrid_id, dispatch))
+    await lifecycle.receive()
+
+    # Move time so it starts
+    fake_time.shift(timedelta(seconds=6))
+    await asyncio.sleep(1)
+    started = await receiver.receive()
+    assert started.started
+
+    # Now stop it
+    await client.update(
+        microgrid_id=microgrid_id, dispatch_id=started.id, new_fields={"active": False}
+    )
+    fake_time.shift(timedelta(seconds=2))
+    await asyncio.sleep(1)
+    stopped = await receiver.receive()
+    assert not stopped.started
+
+    # Now test scenario with multiple dispatches: one never starts, one starts and stops
+    dispatch_a = replace(
+        generator.generate_dispatch(),
+        active=False,
+        duration=timedelta(seconds=10),
+        start_time=_now() + timedelta(seconds=50),
+        recurrence=RecurrenceRule(),
+        type="TEST_TYPE",
+    )
+    dispatch_b = replace(
+        generator.generate_dispatch(),
+        active=True,
+        duration=timedelta(seconds=5),
+        start_time=_now() + timedelta(seconds=5),
+        recurrence=RecurrenceRule(),
+        type="TEST_TYPE",
+    )
+    await client.create(**to_create_params(microgrid_id, dispatch_a))
+    await client.create(**to_create_params(microgrid_id, dispatch_b))
+    lifecycle = service.new_lifecycle_events_receiver("TEST_TYPE")
+    await lifecycle.receive()
+    await lifecycle.receive()
+
+    fake_time.shift(timedelta(seconds=6))
+    await asyncio.sleep(1)
+    started_b = await receiver.receive()
+    assert started_b.started
+
+    # Stop dispatch_b before dispatch_a ever becomes active
+    await client.update(
+        microgrid_id=microgrid_id,
+        dispatch_id=started_b.id,
+        new_fields={"active": False},
+    )
+    fake_time.shift(timedelta(seconds=2))
+    await asyncio.sleep(1)
+    stopped_b = await receiver.receive()
+    assert not stopped_b.started
+
+    # Since dispatch_a never started, no merging logic needed here.
+    await service.stop()
