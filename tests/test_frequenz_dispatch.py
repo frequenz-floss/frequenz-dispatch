@@ -75,6 +75,9 @@ async def actor_env() -> AsyncIterator[ActorTestEnv]:
         client=client,
     )
 
+    # pylint: disable=protected-access
+    actor._restart_limit = 0
+
     actor.start()
     try:
         yield ActorTestEnv(

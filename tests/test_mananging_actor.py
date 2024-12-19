@@ -77,6 +77,8 @@ async def test_env() -> AsyncIterator[TestEnv]:
         updates_sender=updates_channel.new_sender(),
     )
 
+    # pylint: disable=protected-access
+    runner_actor._restart_limit = 0
     runner_actor.start()
 
     yield TestEnv(
