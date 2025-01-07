@@ -39,12 +39,9 @@ async def run():
 
     actor = MagicMock() # replace with your actor
 
-    changed_running_status_rx = dispatcher.running_status_change.new_receiver()
+    changed_running_status_rx = dispatcher.new_running_state_event_receiver("MY_TYPE")
 
     async for dispatch in changed_running_status_rx:
-        if dispatch.type != "MY_TYPE":
-            continue
-
         if dispatch.started:
             print(f"Executing dispatch {dispatch.id}, due on {dispatch.start_time}")
             if actor.is_running:

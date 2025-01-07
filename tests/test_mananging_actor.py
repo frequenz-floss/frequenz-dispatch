@@ -18,7 +18,7 @@ from frequenz.sdk.actor import Actor
 from pytest import fixture
 
 from frequenz.dispatch import Dispatch, DispatchManagingActor, DispatchUpdate
-from frequenz.dispatch.actor import DispatchingActor
+from frequenz.dispatch._bg_service import DispatchScheduler
 
 
 @fixture
@@ -77,6 +77,8 @@ async def test_env() -> AsyncIterator[TestEnv]:
         updates_sender=updates_channel.new_sender(),
     )
 
+    # pylint: disable=protected-access
+    runner_actor._restart_limit = 0
     runner_actor.start()
 
     yield TestEnv(
@@ -140,14 +142,16 @@ def test_heapq_dispatch_compare(test_env: TestEnv) -> None:
     until_time = now + timedelta(minutes=5)
 
     # Create the heap
-    scheduled_events: list[DispatchingActor.QueueItem] = []
+    scheduled_events: list[DispatchScheduler.QueueItem] = []
 
     # Push two events with the same 'until' time onto the heap
     heapq.heappush(
-        scheduled_events, DispatchingActor.QueueItem(until_time, Dispatch(dispatch1))
+        scheduled_events,
+        DispatchScheduler.QueueItem(until_time, Dispatch(dispatch1)),
     )
     heapq.heappush(
-        scheduled_events, DispatchingActor.QueueItem(until_time, Dispatch(dispatch2))
+        scheduled_events,
+        DispatchScheduler.QueueItem(until_time, Dispatch(dispatch2)),
     )
 
 
