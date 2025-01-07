@@ -33,16 +33,32 @@ class DispatchScheduler(BackgroundService):
 
     @dataclass(order=True)
     class QueueItem:
-        """A queue item for the scheduled events."""
+        """A queue item for the scheduled events.
+
+        This class is used to define the order of the queue items based on the
+        scheduled time, whether it is a stop event and finally the dispatch ID
+        (for uniqueness).
+        """
 
         time: datetime
+        priority: int
+        """Sort priority when the time is the same.
+
+        Exists to make sure that when two events are scheduled at the same time,
+        the start event is executed first, allowing filters down the data pipeline
+        to consider the start event when deciding whether to execute the
+        stop event.
+        """
         dispatch_id: int
         dispatch: Dispatch = field(compare=False)
 
-        def __init__(self, time: datetime, dispatch: Dispatch) -> None:
+        def __init__(
+            self, time: datetime, dispatch: Dispatch, stop_event: bool
+        ) -> None:
             """Initialize the queue item."""
             self.time = time
             self.dispatch_id = dispatch.id
+            self.priority = int(stop_event)
             self.dispatch = dispatch
 
     # pylint: disable=too-many-arguments
@@ -103,7 +119,7 @@ class DispatchScheduler(BackgroundService):
         )
 
     async def new_running_state_event_receiver(
-        self, type: str, unify_running_intervals: bool = True
+        self, type: str, *, unify_running_intervals: bool = True
     ) -> Receiver[Dispatch]:
         """Create a new receiver for running state events of the specified type.
 
@@ -365,7 +381,10 @@ class DispatchScheduler(BackgroundService):
         # Schedule the next run
         try:
             if next_run := dispatch.next_run:
-                heappush(self._scheduled_events, self.QueueItem(next_run, dispatch))
+                heappush(
+                    self._scheduled_events,
+                    self.QueueItem(next_run, dispatch, stop_event=False),
+                )
                 _logger.debug(
                     "Scheduled dispatch %s to start at %s", dispatch.id, next_run
                 )
@@ -384,7 +403,9 @@ class DispatchScheduler(BackgroundService):
         if dispatch.duration and dispatch.duration > timedelta(seconds=0):
             until = dispatch.until
             assert until is not None
-            heappush(self._scheduled_events, self.QueueItem(until, dispatch))
+            heappush(
+                self._scheduled_events, self.QueueItem(until, dispatch, stop_event=True)
+            )
             _logger.debug("Scheduled dispatch %s to stop at %s", dispatch, until)
 
     def _update_changed_running_state(

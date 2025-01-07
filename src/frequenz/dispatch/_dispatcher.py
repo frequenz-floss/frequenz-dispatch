@@ -200,7 +200,7 @@ class Dispatcher:
         return self._bg_service.new_lifecycle_events_receiver(dispatch_type)
 
     async def new_running_state_event_receiver(
-        self, dispatch_type: str, unify_running_intervals: bool = True
+        self, dispatch_type: str, *, unify_running_intervals: bool = True
     ) -> Receiver[Dispatch]:
         """Return running state event receiver.
 
@@ -241,5 +241,5 @@ class Dispatcher:
             A new receiver for dispatches whose running status changed.
         """
         return await self._bg_service.new_running_state_event_receiver(
-            dispatch_type, unify_running_intervals
+            dispatch_type, unify_running_intervals=unify_running_intervals
         )
