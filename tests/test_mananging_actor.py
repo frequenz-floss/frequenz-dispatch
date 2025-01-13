@@ -147,12 +147,38 @@ def test_heapq_dispatch_compare(test_env: TestEnv) -> None:
     # Push two events with the same 'until' time onto the heap
     heapq.heappush(
         scheduled_events,
-        DispatchScheduler.QueueItem(until_time, Dispatch(dispatch1)),
+        DispatchScheduler.QueueItem(until_time, Dispatch(dispatch1), True),
     )
     heapq.heappush(
         scheduled_events,
-        DispatchScheduler.QueueItem(until_time, Dispatch(dispatch2)),
+        DispatchScheduler.QueueItem(until_time, Dispatch(dispatch2), True),
     )
+
+
+def test_heapq_dispatch_start_stop_compare(test_env: TestEnv) -> None:
+    """Test that the heapq compare function works."""
+    dispatch1 = test_env.generator.generate_dispatch()
+    dispatch2 = test_env.generator.generate_dispatch()
+
+    # Simulate two dispatches with the same 'until' time
+    now = datetime.now(timezone.utc)
+    until_time = now + timedelta(minutes=5)
+
+    # Create the heap
+    scheduled_events: list[DispatchScheduler.QueueItem] = []
+
+    # Push two events with the same 'until' time onto the heap
+    heapq.heappush(
+        scheduled_events,
+        DispatchScheduler.QueueItem(until_time, Dispatch(dispatch1), stop_event=False),
+    )
+    heapq.heappush(
+        scheduled_events,
+        DispatchScheduler.QueueItem(until_time, Dispatch(dispatch2), stop_event=True),
+    )
+
+    assert scheduled_events[0].dispatch_id == dispatch1.id
+    assert scheduled_events[1].dispatch_id == dispatch2.id
 
 
 async def test_dry_run(test_env: TestEnv, fake_time: time_machine.Coordinates) -> None:
