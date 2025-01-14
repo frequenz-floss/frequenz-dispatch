@@ -200,7 +200,7 @@ class Dispatcher:
         return self._bg_service.new_lifecycle_events_receiver(dispatch_type)
 
     async def new_running_state_event_receiver(
-        self, dispatch_type: str
+        self, dispatch_type: str, *, unify_running_intervals: bool = True
     ) -> Receiver[Dispatch]:
         """Return running state event receiver.
 
@@ -228,10 +228,18 @@ class Dispatcher:
          - The payload changed
          - The dispatch was deleted
 
+        If `unify_running_intervals` is True, running intervals from multiple
+        dispatches of the same type are considered as one continuous running
+        period. In this mode, any stop events are ignored as long as at least
+        one dispatch remains active.
+
         Args:
             dispatch_type: The type of the dispatch to listen for.
+            unify_running_intervals: Whether to unify running intervals.
 
         Returns:
             A new receiver for dispatches whose running status changed.
         """
-        return await self._bg_service.new_running_state_event_receiver(dispatch_type)
+        return await self._bg_service.new_running_state_event_receiver(
+            dispatch_type, unify_running_intervals=unify_running_intervals
+        )
