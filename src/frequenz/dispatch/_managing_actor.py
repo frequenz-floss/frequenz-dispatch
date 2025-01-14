@@ -91,7 +91,7 @@ class DispatchManagingActor(Actor):
         # Start actor and give it an dispatch updates channel receiver
         my_actor = MyActor(dispatch_updates_channel.new_receiver())
 
-        status_receiver = dispatcher.running_status_change.new_receiver()
+        status_receiver = dispatcher.new_running_state_event_receiver("EXAMPLE_TYPE")
 
         managing_actor = DispatchManagingActor(
             actor=my_actor,
