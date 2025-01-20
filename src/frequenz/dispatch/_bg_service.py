@@ -259,15 +259,17 @@ class DispatchScheduler(BackgroundService):
                     self._dispatches[dispatch.id] = Dispatch(client_dispatch)
                     old_dispatch = old_dispatches.pop(dispatch.id, None)
                     if not old_dispatch:
-                        _logger.info("New dispatch: %s", dispatch)
+                        _logger.debug("New dispatch: %s", dispatch)
                         await self._update_dispatch_schedule_and_notify(dispatch, None)
                         await self._lifecycle_events_tx.send(Created(dispatch=dispatch))
                     elif dispatch.update_time != old_dispatch.update_time:
-                        _logger.info("Updated dispatch: %s", dispatch)
+                        _logger.debug("Updated dispatch: %s", dispatch)
                         await self._update_dispatch_schedule_and_notify(
                             dispatch, old_dispatch
                         )
                         await self._lifecycle_events_tx.send(Updated(dispatch=dispatch))
+
+            _logger.info("Received %s dispatches", len(self._dispatches))
 
         except grpc.aio.AioRpcError as error:
             _logger.error("Error fetching dispatches: %s", error)
