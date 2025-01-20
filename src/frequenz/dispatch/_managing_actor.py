@@ -62,13 +62,15 @@ class DispatchManagingActor(Actor):
 
         def set_components(self, components: TargetComponents) -> None:
             match components:
-                case [int(), *_] as component_ids:
-                    print("Dispatch: Setting components to %s", components)
+                case []:
+                    print("Dispatch: Using all components")
+                case list() as ids if isinstance(ids[0], int):
+                    component_ids = ids
                 case [ComponentCategory.BATTERY, *_]:
-                    print("Dispatch: Using all battery components")
+                    component_category = ComponentCategory.BATTERY
                 case unsupported:
                     print(
-                        "Dispatch: Requested an unsupported target component %r, "
+                        "Dispatch: Requested an unsupported selector %r, "
                         "but only component IDs or category BATTERY are supported.",
                         unsupported,
                     )
