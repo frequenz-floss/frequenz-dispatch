@@ -97,7 +97,6 @@ class DispatchManagingActor(Actor):
 
         managing_actor = DispatchManagingActor(
             actor=my_actor,
-            dispatch_type="EXAMPLE",
             running_status_receiver=status_receiver,
             updates_sender=dispatch_updates_channel.new_sender(),
         )
@@ -109,7 +108,6 @@ class DispatchManagingActor(Actor):
     def __init__(
         self,
         actor: Actor | Set[Actor],
-        dispatch_type: str,
         running_status_receiver: Receiver[Dispatch],
         updates_sender: Sender[DispatchUpdate] | None = None,
     ) -> None:
@@ -117,7 +115,6 @@ class DispatchManagingActor(Actor):
 
         Args:
             actor: A set of actors or a single actor to manage.
-            dispatch_type: The type of dispatches to handle.
             running_status_receiver: The receiver for dispatch running status changes.
             updates_sender: The sender for dispatch events
         """
@@ -126,7 +123,6 @@ class DispatchManagingActor(Actor):
         self._actors: frozenset[Actor] = frozenset(
             [actor] if isinstance(actor, Actor) else actor
         )
-        self._dispatch_type = dispatch_type
         self._updates_sender = updates_sender
 
     def _start_actors(self) -> None:
@@ -160,10 +156,6 @@ class DispatchManagingActor(Actor):
         Args:
             dispatch: The dispatch to handle.
         """
-        if dispatch.type != self._dispatch_type:
-            _logger.debug("Ignoring dispatch %s", dispatch.id)
-            return
-
         if dispatch.started:
             if self._updates_sender is not None:
                 _logger.info("Updated by dispatch %s", dispatch.id)

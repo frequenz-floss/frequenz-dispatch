@@ -72,7 +72,6 @@ async def test_env() -> AsyncIterator[TestEnv]:
 
     runner_actor = DispatchManagingActor(
         actor=actor,
-        dispatch_type="UNIT_TEST",
         running_status_receiver=channel.new_receiver(),
         updates_sender=updates_channel.new_sender(),
     )
