@@ -10,6 +10,7 @@ from random import randint
 from typing import AsyncIterator, Iterator
 
 import async_solipsism
+import pytest
 import time_machine
 from frequenz.channels import Receiver
 from frequenz.client.dispatch.recurrence import Frequency, RecurrenceRule
@@ -18,7 +19,16 @@ from frequenz.client.dispatch.test.generator import DispatchGenerator
 from frequenz.client.dispatch.types import Dispatch as BaseDispatch
 from pytest import fixture
 
-from frequenz.dispatch import Created, Deleted, Dispatch, DispatchEvent, Updated
+from frequenz.dispatch import (
+    Created,
+    Deleted,
+    Dispatch,
+    DispatchEvent,
+    MergeByType,
+    MergeByTypeTarget,
+    MergeStrategy,
+    Updated,
+)
 from frequenz.dispatch._bg_service import DispatchScheduler
 
 
@@ -77,7 +87,7 @@ async def test_env() -> AsyncIterator[TestEnv]:
             service=service,
             lifecycle_events=service.new_lifecycle_events_receiver("TEST_TYPE"),
             running_state_change=await service.new_running_state_event_receiver(
-                "TEST_TYPE", unify_running_intervals=False
+                "TEST_TYPE", merge_strategy=MergeByType()
             ),
             client=client,
             microgrid_id=microgrid_id,
@@ -446,7 +456,7 @@ async def test_dispatch_new_but_finished(
         lifecycle_events=test_env.service.new_lifecycle_events_receiver("TEST_TYPE"),
         running_state_change=(
             await test_env.service.new_running_state_event_receiver(
-                "TEST_TYPE", unify_running_intervals=False
+                "TEST_TYPE", merge_strategy=MergeByType()
             )
         ),
     )
@@ -520,9 +530,11 @@ async def test_notification_on_actor_start(
     assert ready_dispatch.started
 
 
-async def test_multiple_dispatches_unify_running_intervals(
+@pytest.mark.parametrize("merge_strategy", [MergeByType(), MergeByTypeTarget()])
+async def test_multiple_dispatches_merge_running_intervals(
     fake_time: time_machine.Coordinates,
     generator: DispatchGenerator,
+    merge_strategy: MergeStrategy,
 ) -> None:
     """Test that multiple dispatches are merged into a single running interval."""
     microgrid_id = randint(1, 100)
@@ -534,7 +546,7 @@ async def test_multiple_dispatches_unify_running_intervals(
     service.start()
 
     receiver = await service.new_running_state_event_receiver(
-        "TEST_TYPE", unify_running_intervals=True
+        "TEST_TYPE", merge_strategy=merge_strategy
     )
 
     # Create two overlapping dispatches
@@ -542,6 +554,7 @@ async def test_multiple_dispatches_unify_running_intervals(
         generator.generate_dispatch(),
         active=True,
         duration=timedelta(seconds=30),
+        target=[1, 2] if isinstance(merge_strategy, MergeByType) else [3, 4],
         start_time=_now() + timedelta(seconds=5),
         recurrence=RecurrenceRule(),
         type="TEST_TYPE",
@@ -550,6 +563,7 @@ async def test_multiple_dispatches_unify_running_intervals(
         generator.generate_dispatch(),
         active=True,
         duration=timedelta(seconds=10),
+        target=[3, 4],
         start_time=_now() + timedelta(seconds=10),  # starts after dispatch1
         recurrence=RecurrenceRule(),
         type="TEST_TYPE",
@@ -573,7 +587,7 @@ async def test_multiple_dispatches_unify_running_intervals(
     assert started1.started
     assert started2.started
 
-    # Stop dispatch2 first, but unify_running_intervals=True means as long as dispatch1 runs,
+    # Stop dispatch2 first, but merge_running_intervals=TYPE means as long as dispatch1 runs,
     # we do not send a stop event
     await client.update(
         microgrid_id=microgrid_id, dispatch_id=started2.id, new_fields={"active": False}
@@ -592,14 +606,16 @@ async def test_multiple_dispatches_unify_running_intervals(
     await service.stop()
 
 
-async def test_multiple_dispatches_sequential_intervals_unify(
+@pytest.mark.parametrize("merge_strategy", [MergeByType(), MergeByTypeTarget()])
+async def test_multiple_dispatches_sequential_intervals_merge(
     fake_time: time_machine.Coordinates,
     generator: DispatchGenerator,
+    merge_strategy: MergeStrategy,
 ) -> None:
     """Test that multiple dispatches are merged into a single running interval.
 
     Even if dispatches don't overlap but are consecutive,
-    unify_running_intervals=True should treat them as continuous if any event tries to stop.
+    merge_running_intervals=TPYE should treat them as continuous if any event tries to stop.
     """
     microgrid_id = randint(1, 100)
     client = FakeClient()
@@ -607,13 +623,15 @@ async def test_multiple_dispatches_sequential_intervals_unify(
     service.start()
 
     receiver = await service.new_running_state_event_receiver(
-        "TEST_TYPE", unify_running_intervals=True
+        "TEST_TYPE", merge_strategy=merge_strategy
     )
 
     dispatch1 = replace(
         generator.generate_dispatch(),
         active=True,
         duration=timedelta(seconds=5),
+        # If merging by type, we want to test having different targets in dispatch 1 and 2
+        target=[3, 4] if isinstance(merge_strategy, MergeByType) else [1, 2],
         start_time=_now() + timedelta(seconds=5),
         recurrence=RecurrenceRule(),
         type="TEST_TYPE",
@@ -623,6 +641,7 @@ async def test_multiple_dispatches_sequential_intervals_unify(
         generator.generate_dispatch(),
         active=True,
         duration=timedelta(seconds=5),
+        target=[1, 2],
         start_time=dispatch1.start_time + dispatch1.duration,
         recurrence=RecurrenceRule(),
         type="TEST_TYPE",
@@ -636,30 +655,30 @@ async def test_multiple_dispatches_sequential_intervals_unify(
     await lifecycle.receive()
     await lifecycle.receive()
 
-    fake_time.shift(timedelta(seconds=11))
+    fake_time.move_to(dispatch1.start_time + timedelta(seconds=1))
     await asyncio.sleep(1)
     started1 = await receiver.receive()
     assert started1.started
 
     # Wait for the second dispatch to start
-    fake_time.shift(timedelta(seconds=3))
+    fake_time.move_to(dispatch2.start_time + timedelta(seconds=1))
     await asyncio.sleep(1)
     started2 = await receiver.receive()
     assert started2.started
+    assert started2.target == dispatch2.target
 
     # Now stop the second dispatch
-    fake_time.shift(timedelta(seconds=5))
-    await asyncio.sleep(1)
+    assert dispatch2.duration is not None
+    fake_time.move_to(dispatch2.start_time + dispatch2.duration + timedelta(seconds=1))
     stopped = await receiver.receive()
     assert not stopped.started
 
-    await service.stop()
-    await asyncio.sleep(1)
 
-
+@pytest.mark.parametrize("merge_strategy", [MergeByType(), MergeByTypeTarget()])
 async def test_at_least_one_running_filter(
     fake_time: time_machine.Coordinates,
     generator: DispatchGenerator,
+    merge_strategy: MergeStrategy,
 ) -> None:
     """Test scenarios directly tied to the _at_least_one_running logic."""
     microgrid_id = randint(1, 100)
@@ -667,9 +686,9 @@ async def test_at_least_one_running_filter(
     service = DispatchScheduler(microgrid_id=microgrid_id, client=client)
     service.start()
 
-    # unify_running_intervals is True, so we use merged intervals
+    # merge_running_intervals is TYPE, so we use merged intervals
     receiver = await service.new_running_state_event_receiver(
-        "TEST_TYPE", unify_running_intervals=True
+        "TEST_TYPE", merge_strategy=merge_strategy
     )
 
     # Single dispatch that starts and stops normally
@@ -677,6 +696,7 @@ async def test_at_least_one_running_filter(
         generator.generate_dispatch(),
         active=True,
         duration=timedelta(seconds=10),
+        target=[1, 2] if isinstance(merge_strategy, MergeByType) else [3, 4],
         start_time=_now() + timedelta(seconds=5),
         recurrence=RecurrenceRule(),
         type="TEST_TYPE",
@@ -705,6 +725,7 @@ async def test_at_least_one_running_filter(
         generator.generate_dispatch(),
         active=False,
         duration=timedelta(seconds=10),
+        target=[3, 4],
         start_time=_now() + timedelta(seconds=50),
         recurrence=RecurrenceRule(),
         type="TEST_TYPE",
@@ -738,6 +759,3 @@ async def test_at_least_one_running_filter(
     await asyncio.sleep(1)
     stopped_b = await receiver.receive()
     assert not stopped_b.started
-
-    # Since dispatch_a never started, no merging logic needed here.
-    await service.stop()
