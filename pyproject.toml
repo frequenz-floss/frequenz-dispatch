@@ -40,7 +40,7 @@ dependencies = [
   # plugins.mkdocstrings.handlers.python.import)
   "frequenz-sdk >= 1.0.0-rc1302, < 1.0.0-rc1500",
   "frequenz-channels >= 1.3.0, < 2.0.0",
-  "frequenz-client-dispatch >= 0.8.2, < 0.9.0",
+  "frequenz-client-dispatch >= 0.8.4, < 0.9.0",
 ]
 dynamic = ["version"]
 

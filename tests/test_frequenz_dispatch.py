@@ -426,7 +426,7 @@ async def test_dispatch_new_but_finished(
     generator: DispatchGenerator,
     fake_time: time_machine.Coordinates,
 ) -> None:
-    """Test that a dispatch that is already finished is not started."""
+    """Test that a finished dispatch is not started at startup."""
     # Generate a dispatch that is already finished
     finished_dispatch = generator.generate_dispatch()
     finished_dispatch = replace(
@@ -437,10 +437,25 @@ async def test_dispatch_new_but_finished(
         recurrence=RecurrenceRule(),
         type="TEST_TYPE",
     )
-    # Create an old dispatch
+    # Inject an old dispatch
     test_env.client.set_dispatches(test_env.microgrid_id, [finished_dispatch])
     await test_env.service.stop()
     test_env.service.start()
+    test_env = replace(
+        test_env,
+        lifecycle_events=test_env.service.new_lifecycle_events_receiver("TEST_TYPE"),
+        running_state_change=(
+            await test_env.service.new_running_state_event_receiver(
+                "TEST_TYPE", unify_running_intervals=False
+            )
+        ),
+    )
+
+    fake_time.shift(timedelta(seconds=1))
+    # Process the lifecycle event caused by the old dispatch at startup
+    await test_env.lifecycle_events.receive()
+
+    await asyncio.sleep(1)
 
     # Create another dispatch the normal way
     new_dispatch = generator.generate_dispatch()
@@ -452,8 +467,7 @@ async def test_dispatch_new_but_finished(
         recurrence=RecurrenceRule(),
         type="TEST_TYPE",
     )
-    # Consume one lifecycle_updates event
-    await test_env.lifecycle_events.receive()
+
     new_dispatch = await _test_new_dispatch_created(test_env, new_dispatch)
 
     # Advance time to when the new dispatch should still not start
