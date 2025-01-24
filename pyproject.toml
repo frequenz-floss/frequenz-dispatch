@@ -38,7 +38,7 @@ dependencies = [
   # Make sure to update the version for cross-referencing also in the
   # mkdocs.yml file when changing the version here (look for the config key
   # plugins.mkdocstrings.handlers.python.import)
-  "frequenz-sdk >= 1.0.0-rc1302, < 1.0.0-rc1500",
+  "frequenz-sdk >= 1.0.0-rc1302, < 1.0.0-rc1600",
   "frequenz-channels >= 1.3.0, < 2.0.0",
   "frequenz-client-dispatch >= 0.8.4, < 0.9.0",
 ]
