@@ -3,11 +3,15 @@
 
 """The dispatch background service."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from heapq import heappop, heappush
+from typing import Callable
 
 import grpc.aio
 from frequenz.channels import Broadcast, Receiver, select, selected_from
@@ -21,6 +25,77 @@ from ._event import Created, Deleted, DispatchEvent, Updated
 
 _logger = logging.getLogger(__name__)
 """The logger for this module."""
+
+
+class _MergeStrategy(ABC):
+    """Base class for strategies to merge running intervals."""
+
+    @abstractmethod
+    def _get_filter_function(
+        self,
+        scheduler: DispatchScheduler,
+    ) -> Callable[[Dispatch], bool]:
+        """Get a filter function for dispatches.
+
+        Args:
+            scheduler: The dispatch scheduler.
+
+        Returns:
+            A filter function.
+        """
+
+
+class MergeByType(_MergeStrategy):
+    """Merge running intervals based on the dispatch type."""
+
+    def __init__(self) -> None:
+        """Initialize the strategy."""
+        self._scheduler: DispatchScheduler
+        self._new_dispatch: Dispatch
+
+    def _get_filter_function(
+        self, scheduler: DispatchScheduler
+    ) -> Callable[[Dispatch], bool]:
+        """Get a filter function for dispatches."""
+        self._scheduler = scheduler
+        return self._filter_func
+
+    def _criteria(self, dispatch: Dispatch) -> bool:
+        """Define the criteria for checking other running dispatches."""
+        return dispatch.type == self._new_dispatch.type
+
+    def _filter_func(self, new_dispatch: Dispatch) -> bool:
+        """Filter dispatches based on the merge strategy.
+
+        Keeps start events.
+        Keeps stop events only if no other dispatches matching the
+        strategy's criteria are running.
+        """
+        if new_dispatch.started:
+            return True
+
+        self._new_dispatch = new_dispatch
+
+        # pylint: disable=protected-access
+        other_dispatches_running = any(
+            dispatch.started
+            for dispatch in self._scheduler._dispatches.values()
+            if self._criteria(dispatch)
+        )
+        # pylint: enable=protected-access
+
+        return not other_dispatches_running
+
+
+class MergeByTypeTarget(MergeByType):
+    """Merge running intervals based on the dispatch type and target."""
+
+    def _criteria(self, dispatch: Dispatch) -> bool:
+        """Define the criteria for checking other running dispatches."""
+        return (
+            dispatch.type == self._new_dispatch.type
+            and dispatch.target == self._new_dispatch.target
+        )
 
 
 # pylint: disable=too-many-instance-attributes
@@ -119,54 +194,35 @@ class DispatchScheduler(BackgroundService):
         )
 
     async def new_running_state_event_receiver(
-        self, type: str, *, unify_running_intervals: bool = True
+        self, type: str, *, merge_strategy: _MergeStrategy | None = None
     ) -> Receiver[Dispatch]:
         """Create a new receiver for running state events of the specified type.
 
-        If `unify_running_intervals` is True, running intervals from multiple
-        dispatches of the same type are considered as one continuous running
-        period. In this mode, any stop events are ignored as long as at least
-        one dispatch remains active.
+        `merge_strategy` can be one of `MergeByType` or `MergeByTypeTarget`.
+        If set, running intervals from multiple dispatches will be merged,
+        depending on the chosen strategy.
+        When merging, stop events are ignored as long as at least one
+        merge-criteria-matching dispatch remains active.
 
         Args:
             type: The type of events to receive.
-            unify_running_intervals: Whether to unify running intervals.
-
+            merge_strategy: The merge strategy to use.
         Returns:
             A new receiver for running state status.
         """
-        # Find all matching dispatches based on the type and collect them
         dispatches = [
             dispatch for dispatch in self._dispatches.values() if dispatch.type == type
         ]
 
-        # Create receiver with enough capacity to hold all matching dispatches
         receiver = self._running_state_status_channel.new_receiver(
             limit=max(1, len(dispatches))
         ).filter(lambda dispatch: dispatch.type == type)
 
-        if unify_running_intervals:
+        if merge_strategy:
+            # pylint: disable=protected-access
+            receiver = receiver.filter(merge_strategy._get_filter_function(self))
+            # pylint: enable=protected-access
 
-            def _is_type_still_running(new_dispatch: Dispatch) -> bool:
-                """Merge time windows of running dispatches.
-
-                Any event that would cause a stop is filtered if at least one
-                dispatch of the same type is running.
-                """
-                if new_dispatch.started:
-                    return True
-
-                other_dispatches_running = any(
-                    dispatch.started
-                    for dispatch in self._dispatches.values()
-                    if dispatch.type == type
-                )
-                # If no other dispatches are running, we can allow the stop event
-                return not other_dispatches_running
-
-            receiver = receiver.filter(_is_type_still_running)
-
-        # Send all matching dispatches to the receiver
         for dispatch in dispatches:
             await self._send_running_state_change(dispatch)
 

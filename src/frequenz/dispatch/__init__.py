@@ -15,6 +15,7 @@ A small overview of the most important classes in this module:
 
 """
 
+from ._bg_service import MergeByType, MergeByTypeTarget, _MergeStrategy
 from ._dispatch import Dispatch
 from ._dispatcher import Dispatcher
 from ._event import Created, Deleted, DispatchEvent, Updated
@@ -29,4 +30,7 @@ __all__ = [
     "Dispatch",
     "DispatchManagingActor",
     "DispatchUpdate",
+    "_MergeStrategy",  # To allow for user strategies
+    "MergeByType",
+    "MergeByTypeTarget",
 ]
