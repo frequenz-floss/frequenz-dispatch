@@ -32,7 +32,7 @@ class DispatchUpdate:
     """Additional options."""
 
 
-class DispatchManagingActor(BackgroundService):
+class DispatchActorsService(BackgroundService):
     """Helper class to manage actors based on dispatches.
 
     Example usage:
