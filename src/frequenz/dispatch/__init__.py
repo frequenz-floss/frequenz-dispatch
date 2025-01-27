@@ -15,10 +15,11 @@ A small overview of the most important classes in this module:
 
 """
 
+from ._actors_service import DispatchActorsService, DispatchUpdate
+from ._bg_service import MergeByType, MergeByTypeTarget, _MergeStrategy
 from ._dispatch import Dispatch
 from ._dispatcher import Dispatcher
 from ._event import Created, Deleted, DispatchEvent, Updated
-from ._managing_actor import DispatchManagingActor, DispatchUpdate
 
 __all__ = [
     "Created",
@@ -27,6 +28,9 @@ __all__ = [
     "Dispatcher",
     "Updated",
     "Dispatch",
-    "DispatchManagingActor",
+    "DispatchActorsService",
     "DispatchUpdate",
+    "_MergeStrategy",  # To allow for user strategies
+    "MergeByType",
+    "MergeByTypeTarget",
 ]
