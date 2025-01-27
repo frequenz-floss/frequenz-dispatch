@@ -18,7 +18,7 @@ from frequenz.client.dispatch.test.generator import DispatchGenerator
 from frequenz.sdk.actor import Actor
 from pytest import fixture
 
-from frequenz.dispatch import Dispatch, DispatchManagingActor, DispatchUpdate
+from frequenz.dispatch import ActorDispatcher, Dispatch, DispatchUpdate
 from frequenz.dispatch._bg_service import DispatchScheduler
 
 
@@ -65,7 +65,7 @@ class MockActor(Actor):
 class TestEnv:
     """Test environment."""
 
-    actors_service: DispatchManagingActor
+    actors_service: ActorDispatcher
     running_status_sender: Sender[Dispatch]
     generator: DispatchGenerator = DispatchGenerator()
 
@@ -90,7 +90,7 @@ async def test_env() -> AsyncIterator[TestEnv]:
     """Create a test environment."""
     channel = Broadcast[Dispatch](name="dispatch ready test channel")
 
-    actors_service = DispatchManagingActor(
+    actors_service = ActorDispatcher(
         actor_factory=MockActor,
         running_status_receiver=channel.new_receiver(),
     )
@@ -149,7 +149,7 @@ async def test_simple_start_stop(
     fake_time.shift(duration)
     await test_env.running_status_sender.send(Dispatch(dispatch))
 
-    # Give await actor.stop a chance to run in DispatchManagingActor
+    # Give await actor.stop a chance to run
     await asyncio.sleep(1)
 
     assert test_env.actor is None
@@ -237,7 +237,7 @@ async def test_dry_run(test_env: TestEnv, fake_time: time_machine.Coordinates) -
     fake_time.shift(dispatch.duration)
     await test_env.running_status_sender.send(Dispatch(dispatch))
 
-    # Give await actor.stop a chance to run in DispatchManagingActor
+    # Give await actor.stop a chance to run
     await asyncio.sleep(1)
 
     assert test_env.actor is None

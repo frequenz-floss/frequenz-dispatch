@@ -7,18 +7,18 @@ A small overview of the most important classes in this module:
 
 * [Dispatcher][frequenz.dispatch.Dispatcher]: The entry point for the API.
 * [Dispatch][frequenz.dispatch.Dispatch]: A dispatch type with lots of useful extra functionality.
-* [DispatchManagingActor][frequenz.dispatch.DispatchManagingActor]: An actor to
-    manage other actors based on incoming dispatches.
+* [ActorDispatcher][frequenz.dispatch.ActorDispatcher]: A service to manage other actors based on
+  incoming dispatches.
 * [Created][frequenz.dispatch.Created],
   [Updated][frequenz.dispatch.Updated],
   [Deleted][frequenz.dispatch.Deleted]: Dispatch event types.
 
 """
 
+from ._actor_dispatcher import ActorDispatcher, DispatchUpdate
 from ._dispatch import Dispatch
 from ._dispatcher import Dispatcher
 from ._event import Created, Deleted, DispatchEvent, Updated
-from ._managing_actor import DispatchManagingActor, DispatchUpdate
 
 __all__ = [
     "Created",
@@ -27,6 +27,6 @@ __all__ = [
     "Dispatcher",
     "Updated",
     "Dispatch",
-    "DispatchManagingActor",
+    "ActorDispatcher",
     "DispatchUpdate",
 ]
