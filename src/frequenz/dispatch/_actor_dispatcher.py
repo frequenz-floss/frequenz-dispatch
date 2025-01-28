@@ -41,7 +41,7 @@ class ActorDispatcher(BackgroundService):
     import os
     import asyncio
     from typing import override
-    from frequenz.dispatch import Dispatcher, DispatchManagingActor, DispatchInfo
+    from frequenz.dispatch import Dispatcher, ActorDispatcher, DispatchInfo
     from frequenz.client.dispatch.types import TargetComponents
     from frequenz.client.common.microgrid.components import ComponentCategory
     from frequenz.channels import Receiver, Broadcast, select, selected_from
@@ -125,9 +125,10 @@ class ActorDispatcher(BackgroundService):
 
         status_receiver = dispatcher.new_running_state_event_receiver("EXAMPLE_TYPE")
 
-        managing_actor = DispatchManagingActor(
+        managing_actor = ActorDispatcher(
             actor_factory=MyActor.new_with_dispatch,
             running_status_receiver=status_receiver,
+            map_dispatch=lambda dispatch: dispatch.id,
         )
 
         await run(managing_actor)
@@ -138,6 +139,7 @@ class ActorDispatcher(BackgroundService):
         self,
         actor_factory: Callable[[DispatchInfo, Receiver[DispatchInfo]], Actor],
         running_status_receiver: Receiver[Dispatch],
+        map_dispatch: Callable[[Dispatch], int],
     ) -> None:
         """Initialize the dispatch handler.
 
@@ -145,11 +147,13 @@ class ActorDispatcher(BackgroundService):
             actor_factory: A callable that creates an actor with some initial dispatch
                 information.
             running_status_receiver: The receiver for dispatch running status changes.
+            map_dispatch: A function to identify to which actor a dispatch refers.
         """
         super().__init__()
+        self._map_dispatch = map_dispatch
         self._dispatch_rx = running_status_receiver
         self._actor_factory = actor_factory
-        self._actor: Actor | None = None
+        self._actors: dict[int, Actor] = {}
         self._updates_channel = Broadcast[DispatchInfo](
             name="dispatch_updates_channel", resend_latest=True
         )
@@ -167,7 +171,9 @@ class ActorDispatcher(BackgroundService):
             options=dispatch.payload,
         )
 
-        if self._actor:
+        actor: Actor | None = self._actors.get(self._map_dispatch(dispatch))
+
+        if actor:
             sent_str = ""
             if self._updates_sender is not None:
                 sent_str = ", sent a dispatch update instead of creating a new actor"
@@ -179,10 +185,12 @@ class ActorDispatcher(BackgroundService):
             )
         else:
             _logger.info("Starting actor for dispatch type %r", dispatch.type)
-            self._actor = self._actor_factory(
+            actor = self._actor_factory(
                 dispatch_update, self._updates_channel.new_receiver()
             )
-            self._actor.start()
+            self._actors[self._map_dispatch(dispatch)] = actor
+
+            actor.start()
 
     async def _stop_actor(self, stopping_dispatch: Dispatch, msg: str) -> None:
         """Stop all actors.
@@ -191,13 +199,12 @@ class ActorDispatcher(BackgroundService):
             stopping_dispatch: The dispatch that is stopping the actor.
             msg: The message to be passed to the actors being stopped.
         """
-        if self._actor is None:
+        if actor := self._actors.pop(self._map_dispatch(stopping_dispatch), None):
+            await actor.stop(msg)
+        else:
             _logger.warning(
                 "Actor for dispatch type %r is not running", stopping_dispatch.type
             )
-        else:
-            await self._actor.stop(msg)
-            self._actor = None
 
     async def _run(self) -> None:
         """Wait for dispatches and handle them."""

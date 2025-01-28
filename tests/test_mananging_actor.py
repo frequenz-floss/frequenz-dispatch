@@ -69,20 +69,12 @@ class TestEnv:
     running_status_sender: Sender[Dispatch]
     generator: DispatchGenerator = DispatchGenerator()
 
-    @property
-    def actor(self) -> MockActor | None:
+    def actor(self, identity: int) -> MockActor:
         """Return the actor."""
         # pylint: disable=protected-access
-        if self.actors_service._actor is None:
-            return None
-        return cast(MockActor, self.actors_service._actor)
+        assert identity in self.actors_service._actors
+        return cast(MockActor, self.actors_service._actors[identity])
         # pylint: enable=protected-access
-
-    @property
-    def updates_receiver(self) -> Receiver[DispatchInfo]:
-        """Return the updates receiver."""
-        assert self.actor is not None
-        return self.actor.receiver
 
 
 @fixture
@@ -93,6 +85,7 @@ async def test_env() -> AsyncIterator[TestEnv]:
     actors_service = ActorDispatcher(
         actor_factory=MockActor,
         running_status_receiver=channel.new_receiver(),
+        map_dispatch=lambda dispatch: dispatch.id,
     )
 
     actors_service.start()
@@ -116,6 +109,7 @@ async def test_simple_start_stop(
     dispatch = test_env.generator.generate_dispatch()
     dispatch = replace(
         dispatch,
+        id=1,
         active=True,
         dry_run=False,
         duration=duration,
@@ -135,16 +129,14 @@ async def test_simple_start_stop(
     await asyncio.sleep(1)
     logging.info("Sent dispatch")
 
-    assert test_env.actor is not None
-    event = test_env.actor.initial_dispatch
+    event = test_env.actor(1).initial_dispatch
     assert event.options == {"test": True}
     assert event.components == dispatch.target
     assert event.dry_run is False
 
     logging.info("Received dispatch")
 
-    assert test_env.actor is not None
-    assert test_env.actor.is_running is True
+    assert test_env.actor(1).is_running is True
 
     fake_time.shift(duration)
     await test_env.running_status_sender.send(Dispatch(dispatch))
@@ -152,7 +144,9 @@ async def test_simple_start_stop(
     # Give await actor.stop a chance to run
     await asyncio.sleep(1)
 
-    assert test_env.actor is None
+    # pylint: disable=protected-access
+    assert 1 not in test_env.actors_service._actors
+    # pylint: enable=protected-access
 
 
 def test_heapq_dispatch_compare(test_env: TestEnv) -> None:
@@ -209,6 +203,7 @@ async def test_dry_run(test_env: TestEnv, fake_time: time_machine.Coordinates) -
     dispatch = test_env.generator.generate_dispatch()
     dispatch = replace(
         dispatch,
+        id=1,
         dry_run=True,
         active=True,
         start_time=_now(),
@@ -224,14 +219,12 @@ async def test_dry_run(test_env: TestEnv, fake_time: time_machine.Coordinates) -
     fake_time.shift(timedelta(seconds=1))
     await asyncio.sleep(1)
 
-    assert test_env.actor is not None
-    event = test_env.actor.initial_dispatch
+    event = test_env.actor(1).initial_dispatch
 
     assert event.dry_run is dispatch.dry_run
     assert event.components == dispatch.target
     assert event.options == dispatch.payload
-    assert test_env.actor is not None
-    assert test_env.actor.is_running is True
+    assert test_env.actor(1).is_running is True
 
     assert dispatch.duration is not None
     fake_time.shift(dispatch.duration)
@@ -239,5 +232,3 @@ async def test_dry_run(test_env: TestEnv, fake_time: time_machine.Coordinates) -
 
     # Give await actor.stop a chance to run
     await asyncio.sleep(1)
-
-    assert test_env.actor is None
