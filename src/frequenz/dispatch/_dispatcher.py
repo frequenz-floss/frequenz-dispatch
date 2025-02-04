@@ -7,7 +7,7 @@
 from frequenz.channels import Receiver
 from frequenz.client.dispatch import Client
 
-from ._bg_service import DispatchScheduler
+from ._bg_service import DispatchScheduler, MergeStrategy
 from ._dispatch import Dispatch
 from ._event import DispatchEvent
 
@@ -16,17 +16,19 @@ class Dispatcher:
     """A highlevel interface for the dispatch API.
 
     This class provides a highlevel interface to the dispatch API.
-    It provides two channels:
+    It provides two receiver functions:
 
-    Lifecycle events:
-        A channel that sends a dispatch event message whenever a dispatch
-        is created, updated or deleted.
+    * [Lifecycle events receiver][frequenz.dispatch.Dispatcher.new_lifecycle_events_receiver]:
+        Receives an event whenever a dispatch is created, updated or deleted.
+    * [Running status change
+        receiver][frequenz.dispatch.Dispatcher.new_running_state_event_receiver]:
+        Receives an event whenever the running status of a dispatch changes.
+        The running status of a dispatch can change due to a variety of reasons,
+        such as but not limited to the dispatch being started, stopped, modified
+        or deleted or reaching its scheduled start or end time.
 
-    Running status change:
-        Sends a dispatch message whenever a dispatch is ready
-        to be executed according to the schedule or the running status of the
-        dispatch changed in a way that could potentially require the consumer to start,
-        stop or reconfigure itself.
+        Any change that could potentially require the consumer to start, stop or
+        reconfigure itself will cause a message to be sent.
 
     Example: Processing running state change dispatches
         ```python
@@ -200,7 +202,10 @@ class Dispatcher:
         return self._bg_service.new_lifecycle_events_receiver(dispatch_type)
 
     async def new_running_state_event_receiver(
-        self, dispatch_type: str, *, unify_running_intervals: bool = True
+        self,
+        dispatch_type: str,
+        *,
+        merge_strategy: MergeStrategy | None = None,
     ) -> Receiver[Dispatch]:
         """Return running state event receiver.
 
@@ -228,18 +233,29 @@ class Dispatcher:
          - The payload changed
          - The dispatch was deleted
 
-        If `unify_running_intervals` is True, running intervals from multiple
-        dispatches of the same type are considered as one continuous running
-        period. In this mode, any stop events are ignored as long as at least
-        one dispatch remains active.
+        `merge_strategy` is an instance of a class derived from
+        [`MergeStrategy`][frequenz.dispatch.MergeStrategy] Available strategies
+        are:
+
+        * [`MergeByType`][frequenz.dispatch.MergeByType] — merges all dispatches
+          of the same type
+        * [`MergeByTypeTarget`][frequenz.dispatch.MergeByTypeTarget] — merges all
+          dispatches of the same type and target
+        * `None` — no merging, just send all events (default)
+
+        Running intervals from multiple dispatches will be merged, according to
+        the chosen strategy.
+
+        While merging, stop events are ignored as long as at least one
+        merge-criteria-matching dispatch remains active.
 
         Args:
             dispatch_type: The type of the dispatch to listen for.
-            unify_running_intervals: Whether to unify running intervals.
+            merge_strategy: The type of the strategy to merge running intervals.
 
         Returns:
             A new receiver for dispatches whose running status changed.
         """
         return await self._bg_service.new_running_state_event_receiver(
-            dispatch_type, unify_running_intervals=unify_running_intervals
+            dispatch_type, merge_strategy=merge_strategy
         )

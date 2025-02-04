@@ -3,8 +3,13 @@
 
 """The dispatch background service."""
 
+from __future__ import annotations
+
 import asyncio
+import functools
 import logging
+from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from heapq import heappop, heappush
@@ -21,6 +26,22 @@ from ._event import Created, Deleted, DispatchEvent, Updated
 
 _logger = logging.getLogger(__name__)
 """The logger for this module."""
+
+
+class MergeStrategy(ABC):
+    """Base class for strategies to merge running intervals."""
+
+    @abstractmethod
+    def filter(self, dispatches: Mapping[int, Dispatch], dispatch: Dispatch) -> bool:
+        """Filter dispatches based on the strategy.
+
+        Args:
+            dispatches: All dispatches, available as context.
+            dispatch: The dispatch to filter.
+
+        Returns:
+            True if the dispatch should be included, False otherwise.
+        """
 
 
 # pylint: disable=too-many-instance-attributes
@@ -119,19 +140,36 @@ class DispatchScheduler(BackgroundService):
         )
 
     async def new_running_state_event_receiver(
-        self, type: str, *, unify_running_intervals: bool = True
+        self, type: str, *, merge_strategy: MergeStrategy | None = None
     ) -> Receiver[Dispatch]:
         """Create a new receiver for running state events of the specified type.
 
-        If `unify_running_intervals` is True, running intervals from multiple
-        dispatches of the same type are considered as one continuous running
-        period. In this mode, any stop events are ignored as long as at least
-        one dispatch remains active.
+        `merge_strategy` is an instance of a class derived from
+        [`MergeStrategy`][frequenz.dispatch.MergeStrategy]. Available strategies
+        are:
+
+        * [`MergeByType`][frequenz.dispatch.MergeByType] — merges all dispatches
+          of the same type
+        * [`MergeByTypeTarget`][frequenz.dispatch.MergeByTypeTarget] — merges all
+          dispatches of the same type and target
+        * `None` — no merging, just send all events
+
+        You can make your own strategy by subclassing:
+
+        * [`MergeByIdentity`][frequenz.dispatch.MergeByIdentity] — Merges
+          dispatches based on a user defined identity function
+        * [`MergeStrategy`][frequenz.dispatch.MergeStrategy] — Merges based
+          on a user defined filter function
+
+        Running intervals from multiple dispatches will be merged, according to
+        the chosen strategy.
+
+        While merging, stop events are ignored as long as at least one
+        merge-criteria-matching dispatch remains active.
 
         Args:
             type: The type of events to receive.
-            unify_running_intervals: Whether to unify running intervals.
-
+            merge_strategy: The merge strategy to use.
         Returns:
             A new receiver for running state status.
         """
@@ -140,33 +178,21 @@ class DispatchScheduler(BackgroundService):
             dispatch for dispatch in self._dispatches.values() if dispatch.type == type
         ]
 
-        # Create receiver with enough capacity to hold all matching dispatches
+        # Create a new receiver with at least 30 slots, but more if there are
+        # more dispatches.
+        # That way we can send all dispatches initially and don't have to worry
+        # about the receiver being full.
+        # If there are no initial dispatches, we still want to have some slots
+        # available for future dispatches, so we set the limit to 30.
         receiver = self._running_state_status_channel.new_receiver(
-            limit=max(1, len(dispatches))
+            limit=max(30, len(dispatches))
         ).filter(lambda dispatch: dispatch.type == type)
 
-        if unify_running_intervals:
+        if merge_strategy:
+            receiver = receiver.filter(
+                functools.partial(merge_strategy.filter, self._dispatches)
+            )
 
-            def _is_type_still_running(new_dispatch: Dispatch) -> bool:
-                """Merge time windows of running dispatches.
-
-                Any event that would cause a stop is filtered if at least one
-                dispatch of the same type is running.
-                """
-                if new_dispatch.started:
-                    return True
-
-                other_dispatches_running = any(
-                    dispatch.started
-                    for dispatch in self._dispatches.values()
-                    if dispatch.type == type
-                )
-                # If no other dispatches are running, we can allow the stop event
-                return not other_dispatches_running
-
-            receiver = receiver.filter(_is_type_still_running)
-
-        # Send all matching dispatches to the receiver
         for dispatch in dispatches:
             await self._send_running_state_change(dispatch)
 
@@ -195,9 +221,6 @@ class DispatchScheduler(BackgroundService):
             if selected_from(selected, self._next_event_timer):
                 if not self._scheduled_events:
                     continue
-                _logger.debug(
-                    "Executing scheduled event: %s", self._scheduled_events[0].dispatch
-                )
                 await self._execute_scheduled_event(
                     heappop(self._scheduled_events).dispatch
                 )
@@ -227,6 +250,7 @@ class DispatchScheduler(BackgroundService):
         Args:
             dispatch: The dispatch to execute.
         """
+        _logger.debug("Executing scheduled event: %s (%s)", dispatch, dispatch.started)
         await self._send_running_state_change(dispatch)
 
         # The timer is always a tiny bit delayed, so we need to check if the
@@ -256,7 +280,7 @@ class DispatchScheduler(BackgroundService):
                 for client_dispatch in page:
                     dispatch = Dispatch(client_dispatch)
 
-                    self._dispatches[dispatch.id] = Dispatch(client_dispatch)
+                    self._dispatches[dispatch.id] = dispatch
                     old_dispatch = old_dispatches.pop(dispatch.id, None)
                     if not old_dispatch:
                         _logger.debug("New dispatch: %s", dispatch)
@@ -310,7 +334,7 @@ class DispatchScheduler(BackgroundService):
             self._remove_scheduled(old_dispatch)
 
             was_running = old_dispatch.started
-            old_dispatch._set_deleted()  # pylint: disable=protected-access)
+            old_dispatch._set_deleted()  # pylint: disable=protected-access
 
             # If the dispatch was running, we need to notify
             if was_running:

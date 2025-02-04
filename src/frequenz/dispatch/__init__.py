@@ -16,9 +16,11 @@ A small overview of the most important classes in this module:
 """
 
 from ._actor_dispatcher import ActorDispatcher, DispatchInfo
+from ._bg_service import MergeStrategy
 from ._dispatch import Dispatch
 from ._dispatcher import Dispatcher
 from ._event import Created, Deleted, DispatchEvent, Updated
+from ._merge_strategies import MergeByIdentity, MergeByType, MergeByTypeTarget
 
 __all__ = [
     "Created",
@@ -29,4 +31,8 @@ __all__ = [
     "Dispatch",
     "ActorDispatcher",
     "DispatchInfo",
+    "MergeStrategy",
+    "MergeByIdentity",
+    "MergeByType",
+    "MergeByTypeTarget",
 ]
