@@ -221,9 +221,6 @@ class DispatchScheduler(BackgroundService):
             if selected_from(selected, self._next_event_timer):
                 if not self._scheduled_events:
                     continue
-                _logger.debug(
-                    "Executing scheduled event: %s", self._scheduled_events[0].dispatch
-                )
                 await self._execute_scheduled_event(
                     heappop(self._scheduled_events).dispatch
                 )
@@ -253,6 +250,7 @@ class DispatchScheduler(BackgroundService):
         Args:
             dispatch: The dispatch to execute.
         """
+        _logger.debug("Executing scheduled event: %s (%s)", dispatch, dispatch.started)
         await self._send_running_state_change(dispatch)
 
         # The timer is always a tiny bit delayed, so we need to check if the
