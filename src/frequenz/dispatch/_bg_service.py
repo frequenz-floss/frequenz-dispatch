@@ -280,7 +280,7 @@ class DispatchScheduler(BackgroundService):
                 for client_dispatch in page:
                     dispatch = Dispatch(client_dispatch)
 
-                    self._dispatches[dispatch.id] = Dispatch(client_dispatch)
+                    self._dispatches[dispatch.id] = dispatch
                     old_dispatch = old_dispatches.pop(dispatch.id, None)
                     if not old_dispatch:
                         _logger.debug("New dispatch: %s", dispatch)
