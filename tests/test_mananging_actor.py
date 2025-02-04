@@ -5,9 +5,10 @@
 
 import asyncio
 import heapq
+import logging
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
-from typing import AsyncIterator, Iterator
+from typing import AsyncIterator, Iterator, cast
 
 import async_solipsism
 import time_machine
@@ -17,7 +18,7 @@ from frequenz.client.dispatch.test.generator import DispatchGenerator
 from frequenz.sdk.actor import Actor
 from pytest import fixture
 
-from frequenz.dispatch import Dispatch, DispatchManagingActor, DispatchUpdate
+from frequenz.dispatch import ActorDispatcher, Dispatch, DispatchInfo
 from frequenz.dispatch._bg_service import DispatchScheduler
 
 
@@ -46,6 +47,15 @@ def _now() -> datetime:
 class MockActor(Actor):
     """Mock actor for testing."""
 
+    def __init__(
+        self, initial_dispatch: DispatchInfo, receiver: Receiver[DispatchInfo]
+    ) -> None:
+        """Initialize the actor."""
+        super().__init__(name="MockActor")
+        logging.info("MockActor created")
+        self.initial_dispatch = initial_dispatch
+        self.receiver = receiver
+
     async def _run(self) -> None:
         while True:
             await asyncio.sleep(1)
@@ -55,39 +65,45 @@ class MockActor(Actor):
 class TestEnv:
     """Test environment."""
 
-    actor: Actor
-    runner_actor: DispatchManagingActor
+    actors_service: ActorDispatcher
     running_status_sender: Sender[Dispatch]
-    updates_receiver: Receiver[DispatchUpdate]
     generator: DispatchGenerator = DispatchGenerator()
+
+    @property
+    def actor(self) -> MockActor | None:
+        """Return the actor."""
+        # pylint: disable=protected-access
+        if self.actors_service._actor is None:
+            return None
+        return cast(MockActor, self.actors_service._actor)
+        # pylint: enable=protected-access
+
+    @property
+    def updates_receiver(self) -> Receiver[DispatchInfo]:
+        """Return the updates receiver."""
+        assert self.actor is not None
+        return self.actor.receiver
 
 
 @fixture
 async def test_env() -> AsyncIterator[TestEnv]:
     """Create a test environment."""
     channel = Broadcast[Dispatch](name="dispatch ready test channel")
-    updates_channel = Broadcast[DispatchUpdate](name="dispatch update test channel")
 
-    actor = MockActor()
-
-    runner_actor = DispatchManagingActor(
-        actor=actor,
+    actors_service = ActorDispatcher(
+        actor_factory=MockActor,
         running_status_receiver=channel.new_receiver(),
-        updates_sender=updates_channel.new_sender(),
     )
 
-    # pylint: disable=protected-access
-    runner_actor._restart_limit = 0
-    runner_actor.start()
+    actors_service.start()
+    await asyncio.sleep(1)
 
     yield TestEnv(
-        actor=actor,
-        runner_actor=runner_actor,
+        actors_service=actors_service,
         running_status_sender=channel.new_sender(),
-        updates_receiver=updates_channel.new_receiver(),
     )
 
-    await runner_actor.stop()
+    await actors_service.stop()
 
 
 async def test_simple_start_stop(
@@ -112,23 +128,31 @@ async def test_simple_start_stop(
         ),
     )
 
+    # Send status update to start actor, expect no DispatchInfo for the start
     await test_env.running_status_sender.send(Dispatch(dispatch))
     fake_time.shift(timedelta(seconds=1))
+    await asyncio.sleep(1)
+    await asyncio.sleep(1)
+    logging.info("Sent dispatch")
 
-    event = await test_env.updates_receiver.receive()
+    assert test_env.actor is not None
+    event = test_env.actor.initial_dispatch
     assert event.options == {"test": True}
     assert event.components == dispatch.target
     assert event.dry_run is False
 
+    logging.info("Received dispatch")
+
+    assert test_env.actor is not None
     assert test_env.actor.is_running is True
 
     fake_time.shift(duration)
     await test_env.running_status_sender.send(Dispatch(dispatch))
 
-    # Give await actor.stop a chance to run in DispatchManagingActor
-    await asyncio.sleep(0.1)
+    # Give await actor.stop a chance to run
+    await asyncio.sleep(1)
 
-    assert test_env.actor.is_running is False
+    assert test_env.actor is None
 
 
 def test_heapq_dispatch_compare(test_env: TestEnv) -> None:
@@ -198,19 +222,22 @@ async def test_dry_run(test_env: TestEnv, fake_time: time_machine.Coordinates) -
 
     await test_env.running_status_sender.send(Dispatch(dispatch))
     fake_time.shift(timedelta(seconds=1))
+    await asyncio.sleep(1)
 
-    event = await test_env.updates_receiver.receive()
+    assert test_env.actor is not None
+    event = test_env.actor.initial_dispatch
 
     assert event.dry_run is dispatch.dry_run
     assert event.components == dispatch.target
     assert event.options == dispatch.payload
+    assert test_env.actor is not None
     assert test_env.actor.is_running is True
 
     assert dispatch.duration is not None
     fake_time.shift(dispatch.duration)
     await test_env.running_status_sender.send(Dispatch(dispatch))
 
-    # Give await actor.stop a chance to run in DispatchManagingActor
-    await asyncio.sleep(0.1)
+    # Give await actor.stop a chance to run
+    await asyncio.sleep(1)
 
-    assert test_env.actor.is_running is False
+    assert test_env.actor is None
