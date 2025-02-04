@@ -8,18 +8,37 @@ import heapq
 import logging
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
-from typing import AsyncIterator, Iterator, cast
+from typing import AsyncIterator, Callable, Iterator, cast
+from unittest.mock import patch
 
 import async_solipsism
+import pytest
 import time_machine
 from frequenz.channels import Broadcast, Receiver, Sender
+from frequenz.client.dispatch import recurrence
 from frequenz.client.dispatch.recurrence import Frequency
+from frequenz.client.dispatch.test.client import FakeClient
 from frequenz.client.dispatch.test.generator import DispatchGenerator
 from frequenz.sdk.actor import Actor
 from pytest import fixture
 
-from frequenz.dispatch import ActorDispatcher, Dispatch, DispatchInfo
+from frequenz.dispatch import (
+    ActorDispatcher,
+    Dispatch,
+    Dispatcher,
+    DispatchInfo,
+    MergeByIdentity,
+    MergeByType,
+    MergeByTypeTarget,
+    MergeStrategy,
+)
 from frequenz.dispatch._bg_service import DispatchScheduler
+
+
+@fixture
+def generator() -> DispatchGenerator:
+    """Return a dispatch generator."""
+    return DispatchGenerator()
 
 
 @fixture
@@ -232,3 +251,80 @@ async def test_dry_run(test_env: TestEnv, fake_time: time_machine.Coordinates) -
 
     # Give await actor.stop a chance to run
     await asyncio.sleep(1)
+
+
+@pytest.mark.parametrize("strategy", [MergeByTypeTarget(), MergeByType(), None])
+async def test_manage_abstraction(
+    fake_time: time_machine.Coordinates,
+    generator: DispatchGenerator,
+    strategy: MergeByIdentity | None,
+) -> None:
+    """Test Dispatcher.manage sets up correctly."""
+    identity: Callable[[Dispatch], int] = (
+        strategy.identity if strategy else lambda dispatch: dispatch.id
+    )
+
+    class MyFakeClient(FakeClient):
+        """Fake client for testing."""
+
+        def __init__(self, *, server_url: str, key: str):
+            assert server_url
+            assert key
+            super().__init__()
+
+    mid = 1
+
+    # Patch `Client` class in Dispatcher with MyFakeClient
+    with patch("frequenz.dispatch._dispatcher.Client", MyFakeClient):
+        dispatcher = Dispatcher(
+            microgrid_id=mid, server_url="grpc://test-url", key="test-key"
+        )
+        dispatcher.start()
+
+        channel = Broadcast[Dispatch](name="dispatch ready test channel")
+        sender = channel.new_sender()
+
+        async def new_mock_receiver(
+            _: Dispatcher, dispatch_type: str, *, merge_strategy: MergeStrategy | None
+        ) -> Receiver[Dispatch]:
+            assert dispatch_type == "MANAGE_TEST"
+            assert merge_strategy is strategy
+            return channel.new_receiver()
+
+        with patch(
+            "frequenz.dispatch._dispatcher.Dispatcher.new_running_state_event_receiver",
+            new_mock_receiver,
+        ):
+            await dispatcher.manage(
+                dispatch_type="MANAGE_TEST",
+                actor_factory=MockActor,
+                merge_strategy=strategy,
+            )
+
+        # pylint: disable=protected-access
+        assert "MANAGE_TEST" in dispatcher._actor_dispatchers
+        actor_manager = dispatcher._actor_dispatchers["MANAGE_TEST"]
+        assert actor_manager._actor_factory == MockActor
+
+        dispatch = Dispatch(
+            replace(
+                generator.generate_dispatch(),
+                start_time=_now(),
+                duration=timedelta(minutes=10),
+                recurrence=recurrence.RecurrenceRule(),
+                active=True,
+                type="MANAGE_TEST",
+            )
+        )
+
+        fake_time.move_to(dispatch.start_time + timedelta(seconds=1))
+        assert dispatch.started
+
+        # Send a dispatch to start an actor instance
+        await sender.send(dispatch)
+
+        # Give the actor a chance to start
+        await asyncio.sleep(1)
+
+        # Check if actor instance is created
+        assert identity(dispatch) in actor_manager._actors

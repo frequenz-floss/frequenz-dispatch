@@ -4,12 +4,20 @@
 """A highlevel interface for the dispatch API."""
 
 
+import logging
+from typing import Callable
+
 from frequenz.channels import Receiver
 from frequenz.client.dispatch import Client
+from frequenz.sdk.actor import Actor
 
+from ._actor_dispatcher import ActorDispatcher, DispatchInfo
 from ._bg_service import DispatchScheduler, MergeStrategy
 from ._dispatch import Dispatch
 from ._event import DispatchEvent
+from ._merge_strategies import MergeByIdentity
+
+_logger = logging.getLogger(__name__)
 
 
 class Dispatcher:
@@ -178,10 +186,52 @@ class Dispatcher:
             microgrid_id,
             self._client,
         )
+        self._actor_dispatchers: dict[str, ActorDispatcher] = {}
 
     def start(self) -> None:
         """Start the local dispatch service."""
         self._bg_service.start()
+
+    async def manage(
+        self,
+        dispatch_type: str,
+        *,
+        actor_factory: Callable[[DispatchInfo, Receiver[DispatchInfo]], Actor],
+        merge_strategy: MergeByIdentity | None = None,
+    ) -> None:
+        """Manage actors for a given dispatch type.
+
+        Creates and manages an ActorDispatcher for the given type that will
+        start, stop and reconfigure actors based on received dispatches.
+
+        Args:
+            dispatch_type: The type of the dispatch to manage.
+            actor_factory: The factory to create actors.
+            merge_strategy: The strategy to merge running intervals.
+        """
+        dispatcher = self._actor_dispatchers.get(dispatch_type)
+
+        if dispatcher is not None:
+            _logger.debug(
+                "Ignoring duplicate actor dispatcher request for %r", dispatch_type
+            )
+            return
+
+        def id_identity(dispatch: Dispatch) -> int:
+            return dispatch.id
+
+        dispatcher = ActorDispatcher(
+            actor_factory=actor_factory,
+            running_status_receiver=await self.new_running_state_event_receiver(
+                dispatch_type, merge_strategy=merge_strategy
+            ),
+            map_dispatch=(
+                id_identity if merge_strategy is None else merge_strategy.identity
+            ),
+        )
+
+        self._actor_dispatchers[dispatch_type] = dispatcher
+        dispatcher.start()
 
     @property
     def client(self) -> Client:
