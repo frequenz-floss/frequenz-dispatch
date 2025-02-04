@@ -14,6 +14,7 @@ This release introduces a more flexible and powerful mechanism for managing disp
     * It's interface has been simplified and now only requires an actor factory and a running status receiver.
     * It only supports a single actor at a time now.
     * Refer to the updated [usage example](https://frequenz-floss.github.io/frequenz-dispatch-python/latest/reference/frequenz/dispatch/#frequenz.dispatch.DispatchActorsService) for more information.
+* `DispatchUpdate` was renamed to `DispatchInfo`.
 
 ## New Features
 

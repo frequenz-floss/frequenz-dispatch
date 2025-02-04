@@ -18,7 +18,7 @@ from frequenz.client.dispatch.test.generator import DispatchGenerator
 from frequenz.sdk.actor import Actor
 from pytest import fixture
 
-from frequenz.dispatch import ActorDispatcher, Dispatch, DispatchUpdate
+from frequenz.dispatch import ActorDispatcher, Dispatch, DispatchInfo
 from frequenz.dispatch._bg_service import DispatchScheduler
 
 
@@ -48,7 +48,7 @@ class MockActor(Actor):
     """Mock actor for testing."""
 
     def __init__(
-        self, initial_dispatch: DispatchUpdate, receiver: Receiver[DispatchUpdate]
+        self, initial_dispatch: DispatchInfo, receiver: Receiver[DispatchInfo]
     ) -> None:
         """Initialize the actor."""
         super().__init__(name="MockActor")
@@ -79,7 +79,7 @@ class TestEnv:
         # pylint: enable=protected-access
 
     @property
-    def updates_receiver(self) -> Receiver[DispatchUpdate]:
+    def updates_receiver(self) -> Receiver[DispatchInfo]:
         """Return the updates receiver."""
         assert self.actor is not None
         return self.actor.receiver
@@ -128,7 +128,7 @@ async def test_simple_start_stop(
         ),
     )
 
-    # Send status update to start actor, expect no DispatchUpdate for the start
+    # Send status update to start actor, expect no DispatchInfo for the start
     await test_env.running_status_sender.send(Dispatch(dispatch))
     fake_time.shift(timedelta(seconds=1))
     await asyncio.sleep(1)

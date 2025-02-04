@@ -19,7 +19,7 @@ _logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, kw_only=True)
-class DispatchUpdate:
+class DispatchInfo:
     """Event emitted when the dispatch changes."""
 
     components: TargetComponents
@@ -41,7 +41,7 @@ class ActorDispatcher(BackgroundService):
     import os
     import asyncio
     from typing import override
-    from frequenz.dispatch import Dispatcher, DispatchManagingActor, DispatchUpdate
+    from frequenz.dispatch import Dispatcher, DispatchManagingActor, DispatchInfo
     from frequenz.client.dispatch.types import TargetComponents
     from frequenz.client.common.microgrid.components import ComponentCategory
     from frequenz.channels import Receiver, Broadcast, select, selected_from
@@ -54,15 +54,15 @@ class ActorDispatcher(BackgroundService):
                 name: str | None = None,
         ) -> None:
             super().__init__(name=name)
-            self._dispatch_updates_receiver: Receiver[DispatchUpdate] | None = None
+            self._dispatch_updates_receiver: Receiver[DispatchInfo] | None = None
             self._dry_run: bool = False
             self._options: dict[str, Any] = {}
 
         @classmethod
         def new_with_dispatch(
                 cls,
-                initial_dispatch: DispatchUpdate,
-                dispatch_updates_receiver: Receiver[DispatchUpdate],
+                initial_dispatch: DispatchInfo,
+                dispatch_updates_receiver: Receiver[DispatchInfo],
                 *,
                 name: str | None = None,
         ) -> "Self":
@@ -92,7 +92,7 @@ class ActorDispatcher(BackgroundService):
                 else:
                     assert False, f"Unexpected selected receiver: {selected}"
 
-        def _update_dispatch_information(self, dispatch_update: DispatchUpdate) -> None:
+        def _update_dispatch_information(self, dispatch_update: DispatchInfo) -> None:
             print("Received update:", dispatch_update)
             self._dry_run = dispatch_update.dry_run
             self._options = dispatch_update.options
@@ -136,7 +136,7 @@ class ActorDispatcher(BackgroundService):
 
     def __init__(
         self,
-        actor_factory: Callable[[DispatchUpdate, Receiver[DispatchUpdate]], Actor],
+        actor_factory: Callable[[DispatchInfo, Receiver[DispatchInfo]], Actor],
         running_status_receiver: Receiver[Dispatch],
     ) -> None:
         """Initialize the dispatch handler.
@@ -150,7 +150,7 @@ class ActorDispatcher(BackgroundService):
         self._dispatch_rx = running_status_receiver
         self._actor_factory = actor_factory
         self._actor: Actor | None = None
-        self._updates_channel = Broadcast[DispatchUpdate](
+        self._updates_channel = Broadcast[DispatchInfo](
             name="dispatch_updates_channel", resend_latest=True
         )
         self._updates_sender = self._updates_channel.new_sender()
@@ -161,7 +161,7 @@ class ActorDispatcher(BackgroundService):
 
     async def _start_actor(self, dispatch: Dispatch) -> None:
         """Start all actors."""
-        dispatch_update = DispatchUpdate(
+        dispatch_update = DispatchInfo(
             components=dispatch.target,
             dry_run=dispatch.dry_run,
             options=dispatch.payload,

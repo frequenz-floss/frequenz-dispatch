@@ -15,7 +15,7 @@ A small overview of the most important classes in this module:
 
 """
 
-from ._actor_dispatcher import ActorDispatcher, DispatchUpdate
+from ._actor_dispatcher import ActorDispatcher, DispatchInfo
 from ._dispatch import Dispatch
 from ._dispatcher import Dispatcher
 from ._event import Created, Deleted, DispatchEvent, Updated
@@ -28,5 +28,5 @@ __all__ = [
     "Updated",
     "Dispatch",
     "ActorDispatcher",
-    "DispatchUpdate",
+    "DispatchInfo",
 ]
