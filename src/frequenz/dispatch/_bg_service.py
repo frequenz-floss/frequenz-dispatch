@@ -334,7 +334,7 @@ class DispatchScheduler(BackgroundService):
             self._remove_scheduled(old_dispatch)
 
             was_running = old_dispatch.started
-            old_dispatch._set_deleted()  # pylint: disable=protected-access)
+            old_dispatch._set_deleted()  # pylint: disable=protected-access
 
             # If the dispatch was running, we need to notify
             if was_running:
