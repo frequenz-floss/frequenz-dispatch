@@ -64,4 +64,4 @@ class MergeByTypeTarget(MergeByType):
     @override
     def identity(self, dispatch: Dispatch) -> int:
         """Identity function for the merge criteria."""
-        return hash((dispatch.type, dispatch.target))
+        return hash((dispatch.type, tuple(dispatch.target)))
