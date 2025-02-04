@@ -178,9 +178,14 @@ class DispatchScheduler(BackgroundService):
             dispatch for dispatch in self._dispatches.values() if dispatch.type == type
         ]
 
-        # Create receiver with enough capacity to hold all matching dispatches
+        # Create a new receiver with at least 30 slots, but more if there are
+        # more dispatches.
+        # That way we can send all dispatches initially and don't have to worry
+        # about the receiver being full.
+        # If there are no initial dispatches, we still want to have some slots
+        # available for future dispatches, so we set the limit to 30.
         receiver = self._running_state_status_channel.new_receiver(
-            limit=max(1, len(dispatches))
+            limit=max(30, len(dispatches))
         ).filter(lambda dispatch: dispatch.type == type)
 
         if merge_strategy:
