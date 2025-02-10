@@ -128,7 +128,6 @@ class ActorDispatcher(BackgroundService):
         managing_actor = ActorDispatcher(
             actor_factory=MyActor.new_with_dispatch,
             running_status_receiver=status_receiver,
-            dispatch_identity=lambda d: d.id,
         )
 
         await run(managing_actor)
@@ -139,7 +138,7 @@ class ActorDispatcher(BackgroundService):
         self,
         actor_factory: Callable[[DispatchInfo, Receiver[DispatchInfo]], Actor],
         running_status_receiver: Receiver[Dispatch],
-        dispatch_identity: Callable[[Dispatch], int],
+        dispatch_identity: Callable[[Dispatch], int] | None = None,
     ) -> None:
         """Initialize the dispatch handler.
 
@@ -151,7 +150,10 @@ class ActorDispatcher(BackgroundService):
                 By default, it uses the dispatch ID.
         """
         super().__init__()
-        self._dispatch_identity = dispatch_identity
+        self._dispatch_identity: Callable[[Dispatch], int] = (
+            dispatch_identity if dispatch_identity else lambda d: d.id
+        )
+
         self._dispatch_rx = running_status_receiver
         self._actor_factory = actor_factory
         self._actors: dict[int, Actor] = {}
