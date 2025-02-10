@@ -259,7 +259,7 @@ async def test_manage_abstraction(
     generator: DispatchGenerator,
     strategy: MergeByIdentity | None,
 ) -> None:
-    """Test Dispatcher.manage sets up correctly."""
+    """Test Dispatcher.start_dispatching sets up correctly."""
     identity: Callable[[Dispatch], int] = (
         strategy.identity if strategy else lambda dispatch: dispatch.id
     )
@@ -295,7 +295,7 @@ async def test_manage_abstraction(
             "frequenz.dispatch._dispatcher.Dispatcher.new_running_state_event_receiver",
             new_mock_receiver,
         ):
-            await dispatcher.manage(
+            await dispatcher.start_dispatching(
                 dispatch_type="MANAGE_TEST",
                 actor_factory=MockActor,
                 merge_strategy=strategy,

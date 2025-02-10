@@ -192,7 +192,7 @@ class Dispatcher:
         """Start the local dispatch service."""
         self._bg_service.start()
 
-    async def manage(
+    async def start_dispatching(
         self,
         dispatch_type: str,
         *,
@@ -232,6 +232,16 @@ class Dispatcher:
 
         self._actor_dispatchers[dispatch_type] = dispatcher
         dispatcher.start()
+
+    async def stop_dispatching(self, dispatch_type: str) -> None:
+        """Stop managing actors for a given dispatch type.
+
+        Args:
+            dispatch_type: The type of the dispatch to stop managing.
+        """
+        dispatcher = self._actor_dispatchers.pop(dispatch_type, None)
+        if dispatcher is not None:
+            await dispatcher.stop()
 
     @property
     def client(self) -> Client:
