@@ -179,7 +179,7 @@ class Dispatcher:
             self._client,
         )
 
-    async def start(self) -> None:
+    def start(self) -> None:
         """Start the local dispatch service."""
         self._bg_service.start()
 

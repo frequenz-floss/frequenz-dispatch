@@ -6,6 +6,7 @@ This release introduces a more flexible and powerful mechanism for managing disp
 
 ## Upgrading
 
+* `Dispatcher.start` is no longer `async`. Remove `await` when calling it.
 * Two properties have been replaced by methods that require a type as parameter.
     * `Dispatcher.lifecycle_events` has been replaced by the method `Dispatcher.new_lifecycle_events_receiver(self, dispatch_type: str)`.
     * `Dispatcher.running_status_change` has been replaced by the method `Dispatcher.new_running_state_event_receiver(self, dispatch_type: str, unify_running_intervals: bool)`.
