@@ -225,7 +225,7 @@ class Dispatcher:
             running_status_receiver=await self.new_running_state_event_receiver(
                 dispatch_type, merge_strategy=merge_strategy
             ),
-            map_dispatch=(
+            dispatch_identity=(
                 id_identity if merge_strategy is None else merge_strategy.identity
             ),
         )

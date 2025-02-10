@@ -104,7 +104,7 @@ async def test_env() -> AsyncIterator[TestEnv]:
     actors_service = ActorDispatcher(
         actor_factory=MockActor,
         running_status_receiver=channel.new_receiver(),
-        map_dispatch=lambda dispatch: dispatch.id,
+        dispatch_identity=lambda dispatch: dispatch.id,
     )
 
     actors_service.start()

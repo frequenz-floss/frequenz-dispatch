@@ -128,7 +128,7 @@ class ActorDispatcher(BackgroundService):
         managing_actor = ActorDispatcher(
             actor_factory=MyActor.new_with_dispatch,
             running_status_receiver=status_receiver,
-            map_dispatch=lambda dispatch: dispatch.id,
+            dispatch_identity=lambda d: d.id,
         )
 
         await run(managing_actor)
@@ -139,7 +139,7 @@ class ActorDispatcher(BackgroundService):
         self,
         actor_factory: Callable[[DispatchInfo, Receiver[DispatchInfo]], Actor],
         running_status_receiver: Receiver[Dispatch],
-        map_dispatch: Callable[[Dispatch], int],
+        dispatch_identity: Callable[[Dispatch], int],
     ) -> None:
         """Initialize the dispatch handler.
 
@@ -147,10 +147,11 @@ class ActorDispatcher(BackgroundService):
             actor_factory: A callable that creates an actor with some initial dispatch
                 information.
             running_status_receiver: The receiver for dispatch running status changes.
-            map_dispatch: A function to identify to which actor a dispatch refers.
+            dispatch_identity: A function to identify to which actor a dispatch refers.
+                By default, it uses the dispatch ID.
         """
         super().__init__()
-        self._map_dispatch = map_dispatch
+        self._dispatch_identity = dispatch_identity
         self._dispatch_rx = running_status_receiver
         self._actor_factory = actor_factory
         self._actors: dict[int, Actor] = {}
@@ -171,7 +172,7 @@ class ActorDispatcher(BackgroundService):
             options=dispatch.payload,
         )
 
-        actor: Actor | None = self._actors.get(self._map_dispatch(dispatch))
+        actor: Actor | None = self._actors.get(self._dispatch_identity(dispatch))
 
         if actor:
             sent_str = ""
@@ -189,7 +190,7 @@ class ActorDispatcher(BackgroundService):
                 dispatch_update,
                 self._updates_channel.new_receiver(limit=1, warn_on_overflow=False),
             )
-            self._actors[self._map_dispatch(dispatch)] = actor
+            self._actors[self._dispatch_identity(dispatch)] = actor
 
             actor.start()
 
@@ -200,7 +201,7 @@ class ActorDispatcher(BackgroundService):
             stopping_dispatch: The dispatch that is stopping the actor.
             msg: The message to be passed to the actors being stopped.
         """
-        if actor := self._actors.pop(self._map_dispatch(stopping_dispatch), None):
+        if actor := self._actors.pop(self._dispatch_identity(stopping_dispatch), None):
             await actor.stop(msg)
         else:
             _logger.warning(
