@@ -186,7 +186,8 @@ class ActorDispatcher(BackgroundService):
         else:
             _logger.info("Starting actor for dispatch type %r", dispatch.type)
             actor = self._actor_factory(
-                dispatch_update, self._updates_channel.new_receiver()
+                dispatch_update,
+                self._updates_channel.new_receiver(limit=1, warn_on_overflow=False),
             )
             self._actors[self._map_dispatch(dispatch)] = actor
 
