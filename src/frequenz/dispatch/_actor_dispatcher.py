@@ -187,14 +187,23 @@ class ActorDispatcher(BackgroundService):
                 sent_str,
             )
         else:
-            _logger.info("Starting actor for dispatch type %r", dispatch.type)
-            actor = self._actor_factory(
-                dispatch_update,
-                self._updates_channel.new_receiver(limit=1, warn_on_overflow=False),
-            )
-            self._actors[self._dispatch_identity(dispatch)] = actor
+            try:
+                _logger.info("Starting actor for dispatch type %r", dispatch.type)
+                actor = self._actor_factory(
+                    dispatch_update,
+                    self._updates_channel.new_receiver(limit=1, warn_on_overflow=False),
+                )
+                self._actors[self._dispatch_identity(dispatch)] = actor
 
-            actor.start()
+                actor.start()
+
+            except Exception as e:  # pylint: disable=broad-except
+                _logger.error(
+                    "Failed to start actor for dispatch type %r: %s",
+                    dispatch.type,
+                    e,
+                    exc_info=True,
+                )
 
     async def _stop_actor(self, stopping_dispatch: Dispatch, msg: str) -> None:
         """Stop all actors.
