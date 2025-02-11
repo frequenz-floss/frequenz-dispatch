@@ -3,9 +3,11 @@
 
 """A highlevel interface for the dispatch API."""
 
+from __future__ import annotations
 
 import logging
-from typing import Callable
+from asyncio import Event
+from typing import Any, Callable, Generator
 
 from frequenz.channels import Receiver
 from frequenz.client.dispatch import Client
@@ -187,6 +189,8 @@ class Dispatcher:
             self._client,
         )
         self._actor_dispatchers: dict[str, ActorDispatcher] = {}
+        self._empty_event = Event()
+        self._empty_event.set()
 
     def start(self) -> None:
         """Start the local dispatch service."""
@@ -204,6 +208,10 @@ class Dispatcher:
         Creates and manages an ActorDispatcher for the given type that will
         start, stop and reconfigure actors based on received dispatches.
 
+        You can await the `Dispatcher` instance to block until all types
+        registered with `start_dispatching()` are stopped using
+        `stop_dispatching()`
+
         Args:
             dispatch_type: The type of the dispatch to manage.
             actor_factory: The factory to create actors.
@@ -216,6 +224,8 @@ class Dispatcher:
                 "Ignoring duplicate actor dispatcher request for %r", dispatch_type
             )
             return
+
+        self._empty_event.clear()
 
         def id_identity(dispatch: Dispatch) -> int:
             return dispatch.id
@@ -242,6 +252,13 @@ class Dispatcher:
         dispatcher = self._actor_dispatchers.pop(dispatch_type, None)
         if dispatcher is not None:
             await dispatcher.stop()
+
+        if not self._actor_dispatchers:
+            self._empty_event.set()
+
+    def __await__(self) -> Generator[Any, None, bool]:
+        """Wait until all actor dispatches are stopped."""
+        return self._empty_event.wait().__await__()
 
     @property
     def client(self) -> Client:
