@@ -181,7 +181,7 @@ class ActorDispatcher(BackgroundService):
             if self._updates_sender is not None:
                 sent_str = ", sent a dispatch update instead of creating a new actor"
                 await self._updates_sender.send(dispatch_update)
-            _logger.warning(
+            _logger.info(
                 "Actor for dispatch type %r is already running%s",
                 dispatch.type,
                 sent_str,
