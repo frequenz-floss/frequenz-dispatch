@@ -185,7 +185,7 @@ class Dispatcher(BackgroundService):
             server_url: The URL of the dispatch service.
             key: The key to access the service.
         """
-        super().__init__(name="Dispatcher")
+        super().__init__()
 
         self._client = Client(server_url=server_url, key=key)
         self._bg_service = DispatchScheduler(
