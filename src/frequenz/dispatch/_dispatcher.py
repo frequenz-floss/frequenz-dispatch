@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from asyncio import Event
 from typing import Callable
@@ -209,7 +210,7 @@ class Dispatcher(BackgroundService):
     @override
     async def wait(self) -> None:
         """Wait until all actor dispatches are stopped."""
-        await self._empty_event.wait()
+        await asyncio.gather(self._bg_service.wait(), self._empty_event.wait())
 
     @override
     def cancel(self, msg: str | None = None) -> None:
