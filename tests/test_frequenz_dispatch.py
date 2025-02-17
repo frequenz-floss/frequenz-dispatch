@@ -24,7 +24,6 @@ from frequenz.dispatch import (
     Deleted,
     Dispatch,
     DispatchEvent,
-    MergeByIdentity,
     MergeByType,
     MergeByTypeTarget,
     MergeStrategy,
@@ -679,7 +678,7 @@ async def test_multiple_dispatches_sequential_intervals_merge(
 async def test_at_least_one_running_filter(
     fake_time: time_machine.Coordinates,
     generator: DispatchGenerator,
-    merge_strategy: MergeByIdentity,
+    merge_strategy: MergeStrategy,
 ) -> None:
     """Test scenarios directly tied to the _at_least_one_running logic."""
     microgrid_id = randint(1, 100)

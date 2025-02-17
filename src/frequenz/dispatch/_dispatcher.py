@@ -19,7 +19,6 @@ from ._actor_dispatcher import ActorDispatcher, DispatchInfo
 from ._bg_service import DispatchScheduler, MergeStrategy
 from ._dispatch import Dispatch
 from ._event import DispatchEvent
-from ._merge_strategies import MergeByIdentity
 
 _logger = logging.getLogger(__name__)
 
@@ -227,7 +226,7 @@ class Dispatcher(BackgroundService):
         dispatch_type: str,
         *,
         actor_factory: Callable[[DispatchInfo, Receiver[DispatchInfo]], Actor],
-        merge_strategy: MergeByIdentity | None = None,
+        merge_strategy: MergeStrategy | None = None,
     ) -> None:
         """Manage actors for a given dispatch type.
 

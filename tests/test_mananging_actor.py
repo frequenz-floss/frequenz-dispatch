@@ -27,7 +27,6 @@ from frequenz.dispatch import (
     Dispatch,
     Dispatcher,
     DispatchInfo,
-    MergeByIdentity,
     MergeByType,
     MergeByTypeTarget,
     MergeStrategy,
@@ -257,7 +256,7 @@ async def test_dry_run(test_env: TestEnv, fake_time: time_machine.Coordinates) -
 async def test_manage_abstraction(
     fake_time: time_machine.Coordinates,
     generator: DispatchGenerator,
-    strategy: MergeByIdentity | None,
+    strategy: MergeStrategy | None,
 ) -> None:
     """Test Dispatcher.start_dispatching sets up correctly."""
     identity: Callable[[Dispatch], int] = (
