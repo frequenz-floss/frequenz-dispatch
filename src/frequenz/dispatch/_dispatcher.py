@@ -212,6 +212,8 @@ class Dispatcher(BackgroundService):
         """Wait until all actor dispatches are stopped."""
         await asyncio.gather(self._bg_service.wait(), self._empty_event.wait())
 
+        self._actor_dispatchers.clear()
+
     @override
     def cancel(self, msg: str | None = None) -> None:
         """Stop the local dispatch service."""
@@ -219,8 +221,6 @@ class Dispatcher(BackgroundService):
 
         for instance in self._actor_dispatchers.values():
             instance.cancel()
-
-        self._actor_dispatchers.clear()
 
     async def start_dispatching(
         self,
