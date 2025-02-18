@@ -4,7 +4,6 @@
 """Different merge strategies for dispatch running state events."""
 
 import logging
-from abc import abstractmethod
 from collections.abc import Mapping
 
 from typing_extensions import override
@@ -13,12 +12,13 @@ from ._bg_service import MergeStrategy
 from ._dispatch import Dispatch
 
 
-class MergeByIdentity(MergeStrategy):
-    """Merge running intervals based on a dispatch configuration."""
+class MergeByType(MergeStrategy):
+    """Merge running intervals based on the dispatch type."""
 
-    @abstractmethod
+    @override
     def identity(self, dispatch: Dispatch) -> int:
         """Identity function for the merge criteria."""
+        return hash(dispatch.type)
 
     @override
     def filter(self, dispatches: Mapping[int, Dispatch], dispatch: Dispatch) -> bool:
@@ -49,19 +49,10 @@ class MergeByIdentity(MergeStrategy):
         return not other_dispatches_running
 
 
-class MergeByType(MergeByIdentity):
-    """Merge running intervals based on the dispatch type."""
-
-    @override
-    def identity(self, dispatch: Dispatch) -> int:
-        """Identity function for the merge criteria."""
-        return hash(dispatch.type)
-
-
 class MergeByTypeTarget(MergeByType):
     """Merge running intervals based on the dispatch type and target."""
 
     @override
     def identity(self, dispatch: Dispatch) -> int:
         """Identity function for the merge criteria."""
-        return hash((dispatch.type, dispatch.target))
+        return hash((dispatch.type, tuple(dispatch.target)))

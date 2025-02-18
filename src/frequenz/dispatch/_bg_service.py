@@ -32,6 +32,10 @@ class MergeStrategy(ABC):
     """Base class for strategies to merge running intervals."""
 
     @abstractmethod
+    def identity(self, dispatch: Dispatch) -> int:
+        """Identity function for the merge criteria."""
+
+    @abstractmethod
     def filter(self, dispatches: Mapping[int, Dispatch], dispatch: Dispatch) -> bool:
         """Filter dispatches based on the strategy.
 
@@ -154,12 +158,9 @@ class DispatchScheduler(BackgroundService):
           dispatches of the same type and target
         * `None` — no merging, just send all events
 
-        You can make your own strategy by subclassing:
-
-        * [`MergeByIdentity`][frequenz.dispatch.MergeByIdentity] — Merges
-          dispatches based on a user defined identity function
-        * [`MergeStrategy`][frequenz.dispatch.MergeStrategy] — Merges based
-          on a user defined filter function
+        You can make your own identity-based strategy by subclassing `MergeByType` and overriding
+        the `identity()` method. If you require a more complex strategy, you can subclass
+        `MergeStrategy` directly and implement both the `identity()` and `filter()` methods.
 
         Running intervals from multiple dispatches will be merged, according to
         the chosen strategy.

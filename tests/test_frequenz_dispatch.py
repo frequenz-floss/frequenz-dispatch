@@ -701,6 +701,8 @@ async def test_at_least_one_running_filter(
         recurrence=RecurrenceRule(),
         type="TEST_TYPE",
     )
+    _ = merge_strategy.identity(Dispatch(dispatch))
+
     lifecycle = service.new_lifecycle_events_receiver("TEST_TYPE")
     await client.create(**to_create_params(microgrid_id, dispatch))
     await lifecycle.receive()

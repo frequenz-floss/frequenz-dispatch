@@ -3,16 +3,27 @@
 
 """A highlevel interface for the dispatch API."""
 
+from __future__ import annotations
+
+import asyncio
+import logging
+from asyncio import Event
+from typing import Callable
 
 from frequenz.channels import Receiver
 from frequenz.client.dispatch import Client
+from frequenz.sdk.actor import Actor, BackgroundService
+from typing_extensions import override
 
+from ._actor_dispatcher import ActorDispatcher, DispatchInfo
 from ._bg_service import DispatchScheduler, MergeStrategy
 from ._dispatch import Dispatch
 from ._event import DispatchEvent
 
+_logger = logging.getLogger(__name__)
 
-class Dispatcher:
+
+class Dispatcher(BackgroundService):
     """A highlevel interface for the dispatch API.
 
     This class provides a highlevel interface to the dispatch API.
@@ -173,15 +184,102 @@ class Dispatcher:
             server_url: The URL of the dispatch service.
             key: The key to access the service.
         """
+        super().__init__()
+
         self._client = Client(server_url=server_url, key=key)
         self._bg_service = DispatchScheduler(
             microgrid_id,
             self._client,
         )
+        self._actor_dispatchers: dict[str, ActorDispatcher] = {}
+        self._empty_event = Event()
+        self._empty_event.set()
 
-    async def start(self) -> None:
+    @override
+    def start(self) -> None:
         """Start the local dispatch service."""
         self._bg_service.start()
+
+    @property
+    @override
+    def is_running(self) -> bool:
+        """Whether the local dispatch service is running."""
+        return self._bg_service.is_running
+
+    @override
+    async def wait(self) -> None:
+        """Wait until all actor dispatches are stopped."""
+        await asyncio.gather(self._bg_service.wait(), self._empty_event.wait())
+
+        self._actor_dispatchers.clear()
+
+    @override
+    def cancel(self, msg: str | None = None) -> None:
+        """Stop the local dispatch service."""
+        self._bg_service.cancel(msg)
+
+        for instance in self._actor_dispatchers.values():
+            instance.cancel()
+
+    async def start_dispatching(
+        self,
+        dispatch_type: str,
+        *,
+        actor_factory: Callable[[DispatchInfo, Receiver[DispatchInfo]], Actor],
+        merge_strategy: MergeStrategy | None = None,
+    ) -> None:
+        """Manage actors for a given dispatch type.
+
+        Creates and manages an ActorDispatcher for the given type that will
+        start, stop and reconfigure actors based on received dispatches.
+
+        You can await the `Dispatcher` instance to block until all types
+        registered with `start_dispatching()` are stopped using
+        `stop_dispatching()`
+
+        Args:
+            dispatch_type: The type of the dispatch to manage.
+            actor_factory: The factory to create actors.
+            merge_strategy: The strategy to merge running intervals.
+        """
+        dispatcher = self._actor_dispatchers.get(dispatch_type)
+
+        if dispatcher is not None:
+            _logger.debug(
+                "Ignoring duplicate actor dispatcher request for %r", dispatch_type
+            )
+            return
+
+        self._empty_event.clear()
+
+        def id_identity(dispatch: Dispatch) -> int:
+            return dispatch.id
+
+        dispatcher = ActorDispatcher(
+            actor_factory=actor_factory,
+            running_status_receiver=await self.new_running_state_event_receiver(
+                dispatch_type, merge_strategy=merge_strategy
+            ),
+            dispatch_identity=(
+                id_identity if merge_strategy is None else merge_strategy.identity
+            ),
+        )
+
+        self._actor_dispatchers[dispatch_type] = dispatcher
+        dispatcher.start()
+
+    async def stop_dispatching(self, dispatch_type: str) -> None:
+        """Stop managing actors for a given dispatch type.
+
+        Args:
+            dispatch_type: The type of the dispatch to stop managing.
+        """
+        dispatcher = self._actor_dispatchers.pop(dispatch_type, None)
+        if dispatcher is not None:
+            await dispatcher.stop()
+
+        if not self._actor_dispatchers:
+            self._empty_event.set()
 
     @property
     def client(self) -> Client:
