@@ -221,6 +221,17 @@ class Dispatcher(BackgroundService):
         for instance in self._actor_dispatchers.values():
             instance.cancel()
 
+    def is_managed(self, dispatch_type: str) -> bool:
+        """Check if the dispatcher is managing actors for a given dispatch type.
+
+        Args:
+            dispatch_type: The type of the dispatch to check.
+
+        Returns:
+            True if the dispatcher is managing actors for the given dispatch type.
+        """
+        return dispatch_type in self._actor_dispatchers
+
     async def start_dispatching(
         self,
         dispatch_type: str,
